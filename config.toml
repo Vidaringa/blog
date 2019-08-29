@@ -1,7 +1,7 @@
 baseurl = "/"
 languageCode = "en-us"
 title = "Gagnavísindi og hagfræði"
-theme = "hugo-lithium"
+theme = "blackburn"
 googleAnalytics = ""
 disqusShortname = ""
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
@@ -10,14 +10,23 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
     post = "/:year/:month/:day/:slug/"
 
 [[menu.main]]
-    name = "  Um síðuna"
+    name = "Heim"
+    pre = "<i class='fa fa-home fa-fw'></i>"
+    weight = 1
+    identifier = "home"
+    url = "/"
+[[menu.main]]
+    name = "Blogg"
+    pre = "<i class='fa fa-list fa-fw'></i>"
+    weight = 2
+    identifier = "post"
+    url = "/post/"
+[[menu.main]]
+    name = "Um síðuna"
+    pre = "<i class='fa fa-home fa-fw'></i>"
+    weight = 3
     url = "/about/"
-[[menu.main]]
-    name = "GitHub"
-    url = "https://github.com/Vidaringa"
-[[menu.main]]
-    name = " Twitter"
-    url = "https://twitter.com/vidaringa"
+
 
 [params]
     description = "A website built through Hugo and blogdown."
@@ -40,3 +49,12 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
     height = 50
     alt = "Logo"
 
+
+[social]
+  # Link your social networking accouns to the side menu
+  # by entering your username or ID.
+  twitter = "vidaringa"
+  facebook = "100004471081418"
+  github = "Vidaringa"
+  stackoverflow = "6762833"
+  linkedin = "vidar-ingason"
