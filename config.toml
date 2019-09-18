@@ -2,7 +2,7 @@ baseurl = "/"
 languageCode = "en-us"
 title = "Gagnavísindi og hagfræði"
 theme = "blackburn"
-googleAnalytics = ""
+googleAnalytics = "UA-148211382-1"
 disqusShortname = ""
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 
