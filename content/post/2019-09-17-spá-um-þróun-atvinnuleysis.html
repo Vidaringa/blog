@@ -1,0 +1,137 @@
+---
+title: Spá um þróun atvinnuleysis
+author: Viðar Ingason
+date: '2019-09-17'
+slug: spá-um-þróun-atvinnuleysis
+categories:
+  - forecast
+tags:
+  - arima
+description: ''
+topics: []
+---
+
+<script src="/rmarkdown-libs/htmlwidgets/htmlwidgets.js"></script>
+<script src="/rmarkdown-libs/plotly-binding/plotly.js"></script>
+<script src="/rmarkdown-libs/typedarray/typedarray.min.js"></script>
+<script src="/rmarkdown-libs/jquery/jquery.min.js"></script>
+<link href="/rmarkdown-libs/crosstalk/css/crosstalk.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/crosstalk/js/crosstalk.min.js"></script>
+<link href="/rmarkdown-libs/plotly-htmlwidgets-css/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/plotly-main/plotly-latest.min.js"></script>
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
+<link href="/rmarkdown-libs/bsTable/bootstrapTable.min.css" rel="stylesheet" />
+
+
+<p>Atvinnuleysi hefur þokast upp á við undanfarna mánuði. Þetta sýna tölur Vinnumálastofnunnar (VMST) og Hagstofunnar. Nokkur munur er á gögnum VMST og Hagstofunnar. VMST tekur aðeins tillit til þeirra sem fá greiddar atvinnuleysisbætur. Hagstofan hefur einnig upplýsingar um þá sem eru án atvinnu en eiga einhverra hluta vegna ekki rétt á atvinnuleysisbótum. Hér að neðan eru sýndar spár fyrir bæði gagnasettin. Stuðst er við tvö líkön, ARIMA og ETS, sem alla jafna standa sig mjög vel í að framkvæma spá með aðeins einni breytu, <a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0194889">sjá t.d hér</a>.<br />
+Fyrri tvær myndirnar fyrir Hagstofuna og VMST sýna spár ásamt 50% og 95% spábil. Sjá skýringu neðst í þessum pósti um spábil. Þriðja myndin zoom-ar svo inn á spnáá psáa og ber saman ARIMA og ETS.</p>
+<div id="hagstofan" class="section level2">
+<h2>Hagstofan</h2>
+<p><img src="/post/2019-09-17-spá-um-þróun-atvinnuleysis_files/figure-html/unnamed-chunk-1-1.png" width="672" /><img src="/post/2019-09-17-spá-um-þróun-atvinnuleysis_files/figure-html/unnamed-chunk-1-2.png" width="672" /></p>
+<div id="htmlwidget-1" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1">{"x":{"data":[{"x":[17713,17744,17775,17805,17836,17866,17897,17928,17956,17987,18017,18048,18078,18109,18140,18170,18201,18231,18262,18293,18322,18353,18383,18414,18444],"y":[null,null,null,null,null,null,null,null,null,null,null,null,2.5,3.16,3.07,3.42,2.89,2.93,3.83,3.44,3.47,4.56,5.6,3.05,2.3],"text":["Dagsetning: 2018-07-01<br />spá:   NA<br />breyta: ARIMA spá","Dagsetning: 2018-08-01<br />spá:   NA<br />breyta: ARIMA spá","Dagsetning: 2018-09-01<br />spá:   NA<br />breyta: ARIMA spá","Dagsetning: 2018-10-01<br />spá:   NA<br />breyta: ARIMA spá","Dagsetning: 2018-11-01<br />spá:   NA<br />breyta: ARIMA spá","Dagsetning: 2018-12-01<br />spá:   NA<br />breyta: ARIMA spá","Dagsetning: 2019-01-01<br />spá:   NA<br />breyta: ARIMA spá","Dagsetning: 2019-02-01<br />spá:   NA<br />breyta: ARIMA spá","Dagsetning: 2019-03-01<br />spá:   NA<br />breyta: ARIMA spá","Dagsetning: 2019-04-01<br />spá:   NA<br />breyta: ARIMA spá","Dagsetning: 2019-05-01<br />spá:   NA<br />breyta: ARIMA spá","Dagsetning: 2019-06-01<br />spá:   NA<br />breyta: ARIMA spá","Dagsetning: 2019-07-01<br />spá: 2.50<br />breyta: ARIMA spá","Dagsetning: 2019-08-01<br />spá: 3.16<br />breyta: ARIMA spá","Dagsetning: 2019-09-01<br />spá: 3.07<br />breyta: ARIMA spá","Dagsetning: 2019-10-01<br />spá: 3.42<br />breyta: ARIMA spá","Dagsetning: 2019-11-01<br />spá: 2.89<br />breyta: ARIMA spá","Dagsetning: 2019-12-01<br />spá: 2.93<br />breyta: ARIMA spá","Dagsetning: 2020-01-01<br />spá: 3.83<br />breyta: ARIMA spá","Dagsetning: 2020-02-01<br />spá: 3.44<br />breyta: ARIMA spá","Dagsetning: 2020-03-01<br />spá: 3.47<br />breyta: ARIMA spá","Dagsetning: 2020-04-01<br />spá: 4.56<br />breyta: ARIMA spá","Dagsetning: 2020-05-01<br />spá: 5.60<br />breyta: ARIMA spá","Dagsetning: 2020-06-01<br />spá: 3.05<br />breyta: ARIMA spá","Dagsetning: 2020-07-01<br />spá: 2.30<br />breyta: ARIMA spá"],"type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(78,121,167,1)","dash":"solid"},"hoveron":"points","name":"ARIMA spá","legendgroup":"ARIMA spá","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[17713,17744,17775,17805,17836,17866,17897,17928,17956,17987,18017,18048,18078,18109,18140,18170,18201,18231,18262,18293,18322,18353,18383,18414,18444],"y":[2.5,2.5,1.5,2.9,2.9,1.4,2.9,3.2,2.9,4,6.1,3.2,2.5,null,null,null,null,null,null,null,null,null,null,null,null],"text":["Dagsetning: 2018-07-01<br />spá: 2.50<br />breyta: Atvinnuleysi","Dagsetning: 2018-08-01<br />spá: 2.50<br />breyta: Atvinnuleysi","Dagsetning: 2018-09-01<br />spá: 1.50<br />breyta: Atvinnuleysi","Dagsetning: 2018-10-01<br />spá: 2.90<br />breyta: Atvinnuleysi","Dagsetning: 2018-11-01<br />spá: 2.90<br />breyta: Atvinnuleysi","Dagsetning: 2018-12-01<br />spá: 1.40<br />breyta: Atvinnuleysi","Dagsetning: 2019-01-01<br />spá: 2.90<br />breyta: Atvinnuleysi","Dagsetning: 2019-02-01<br />spá: 3.20<br />breyta: Atvinnuleysi","Dagsetning: 2019-03-01<br />spá: 2.90<br />breyta: Atvinnuleysi","Dagsetning: 2019-04-01<br />spá: 4.00<br />breyta: Atvinnuleysi","Dagsetning: 2019-05-01<br />spá: 6.10<br />breyta: Atvinnuleysi","Dagsetning: 2019-06-01<br />spá: 3.20<br />breyta: Atvinnuleysi","Dagsetning: 2019-07-01<br />spá: 2.50<br />breyta: Atvinnuleysi","Dagsetning: 2019-08-01<br />spá:   NA<br />breyta: Atvinnuleysi","Dagsetning: 2019-09-01<br />spá:   NA<br />breyta: Atvinnuleysi","Dagsetning: 2019-10-01<br />spá:   NA<br />breyta: Atvinnuleysi","Dagsetning: 2019-11-01<br />spá:   NA<br />breyta: Atvinnuleysi","Dagsetning: 2019-12-01<br />spá:   NA<br />breyta: Atvinnuleysi","Dagsetning: 2020-01-01<br />spá:   NA<br />breyta: Atvinnuleysi","Dagsetning: 2020-02-01<br />spá:   NA<br />breyta: Atvinnuleysi","Dagsetning: 2020-03-01<br />spá:   NA<br />breyta: Atvinnuleysi","Dagsetning: 2020-04-01<br />spá:   NA<br />breyta: Atvinnuleysi","Dagsetning: 2020-05-01<br />spá:   NA<br />breyta: Atvinnuleysi","Dagsetning: 2020-06-01<br />spá:   NA<br />breyta: Atvinnuleysi","Dagsetning: 2020-07-01<br />spá:   NA<br />breyta: Atvinnuleysi"],"type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(242,142,43,1)","dash":"solid"},"hoveron":"points","name":"Atvinnuleysi","legendgroup":"Atvinnuleysi","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[17713,17744,17775,17805,17836,17866,17897,17928,17956,17987,18017,18048,18078,18109,18140,18170,18201,18231,18262,18293,18322,18353,18383,18414,18444],"y":[null,null,null,null,null,null,null,null,null,null,null,null,2.5,3.03,2.91,3.23,3.11,3.12,3.78,3.48,3.51,4.22,5.71,2.98,2.43],"text":["Dagsetning: 2018-07-01<br />spá:   NA<br />breyta: ETS spá","Dagsetning: 2018-08-01<br />spá:   NA<br />breyta: ETS spá","Dagsetning: 2018-09-01<br />spá:   NA<br />breyta: ETS spá","Dagsetning: 2018-10-01<br />spá:   NA<br />breyta: ETS spá","Dagsetning: 2018-11-01<br />spá:   NA<br />breyta: ETS spá","Dagsetning: 2018-12-01<br />spá:   NA<br />breyta: ETS spá","Dagsetning: 2019-01-01<br />spá:   NA<br />breyta: ETS spá","Dagsetning: 2019-02-01<br />spá:   NA<br />breyta: ETS spá","Dagsetning: 2019-03-01<br />spá:   NA<br />breyta: ETS spá","Dagsetning: 2019-04-01<br />spá:   NA<br />breyta: ETS spá","Dagsetning: 2019-05-01<br />spá:   NA<br />breyta: ETS spá","Dagsetning: 2019-06-01<br />spá:   NA<br />breyta: ETS spá","Dagsetning: 2019-07-01<br />spá: 2.50<br />breyta: ETS spá","Dagsetning: 2019-08-01<br />spá: 3.03<br />breyta: ETS spá","Dagsetning: 2019-09-01<br />spá: 2.91<br />breyta: ETS spá","Dagsetning: 2019-10-01<br />spá: 3.23<br />breyta: ETS spá","Dagsetning: 2019-11-01<br />spá: 3.11<br />breyta: ETS spá","Dagsetning: 2019-12-01<br />spá: 3.12<br />breyta: ETS spá","Dagsetning: 2020-01-01<br />spá: 3.78<br />breyta: ETS spá","Dagsetning: 2020-02-01<br />spá: 3.48<br />breyta: ETS spá","Dagsetning: 2020-03-01<br />spá: 3.51<br />breyta: ETS spá","Dagsetning: 2020-04-01<br />spá: 4.22<br />breyta: ETS spá","Dagsetning: 2020-05-01<br />spá: 5.71<br />breyta: ETS spá","Dagsetning: 2020-06-01<br />spá: 2.98<br />breyta: ETS spá","Dagsetning: 2020-07-01<br />spá: 2.43<br />breyta: ETS spá"],"type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(225,87,89,1)","dash":"solid"},"hoveron":"points","name":"ETS spá","legendgroup":"ETS spá","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":26.2283105022831,"r":7.30593607305936,"b":40.1826484018265,"l":31.4155251141553},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[17676.45,18480.55],"tickmode":"array","ticktext":["2018-07","2019-01","2019-07","2020-01","2020-07"],"tickvals":[17713,17897,18078,18262,18444],"categoryorder":"array","categoryarray":["2018-07","2019-01","2019-07","2020-01","2020-07"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":{"text":"Dagsetning","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[1.165,6.335],"tickmode":"array","ticktext":["2","3","4","5","6"],"tickvals":[2,3,4,5,6],"categoryorder":"array","categoryarray":["2","3","4","5","6"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"x","title":{"text":"spá","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895},"y":1},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"7828384a5915":{"x":{},"y":{},"colour":{},"type":"scatter"}},"cur_data":"7828384a5915","visdat":{"7828384a5915":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="vinnumalastofnun" class="section level2">
+<h2>Vinnumálastofnun</h2>
+<p>Þegar þetta er skrifað eru gögn fyrir ágúst 2019 komin. Ágúst tölunum er þó sleppt til að hafa samræmi á spátímanum fyrir VMST og Hagstofuna. Samkvæmt tölum VMST var atvinnuleysi í ágúst 3.5% sem er það sama og ARIMA líkanið spáði.</p>
+<p><img src="/post/2019-09-17-spá-um-þróun-atvinnuleysis_files/figure-html/unnamed-chunk-3-1.png" width="672" /><img src="/post/2019-09-17-spá-um-þróun-atvinnuleysis_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
+<p>Á grafinu að neðan er búið að zoom-a inn á spátímabilið. Hægt er að fara með músina yfir til að sjá spágildin. Að neðan verður sérstaklega fjallað um nákvæmni þessara tveggja líkana fyrir gögn VMST.</p>
+<div id="htmlwidget-2" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-2">{"x":{"data":[{"x":[17713,17744,17775,17805,17836,17866,17897,17928,17956,17987,18017,18048,18078,18109,18140,18170,18201,18231,18262,18293,18322,18353,18383,18414,18444],"y":[null,null,null,null,null,null,null,null,null,null,null,null,3.43957703927492,3.49,3.34,3.41,3.57,3.73,4.02,4.07,4.07,4.08,3.82,3.58,3.55],"text":["Dagsetning: 2018-07-01<br />spá:       NA<br />breyta: ARIMA spá","Dagsetning: 2018-08-01<br />spá:       NA<br />breyta: ARIMA spá","Dagsetning: 2018-09-01<br />spá:       NA<br />breyta: ARIMA spá","Dagsetning: 2018-10-01<br />spá:       NA<br />breyta: ARIMA spá","Dagsetning: 2018-11-01<br />spá:       NA<br />breyta: ARIMA spá","Dagsetning: 2018-12-01<br />spá:       NA<br />breyta: ARIMA spá","Dagsetning: 2019-01-01<br />spá:       NA<br />breyta: ARIMA spá","Dagsetning: 2019-02-01<br />spá:       NA<br />breyta: ARIMA spá","Dagsetning: 2019-03-01<br />spá:       NA<br />breyta: ARIMA spá","Dagsetning: 2019-04-01<br />spá:       NA<br />breyta: ARIMA spá","Dagsetning: 2019-05-01<br />spá:       NA<br />breyta: ARIMA spá","Dagsetning: 2019-06-01<br />spá:       NA<br />breyta: ARIMA spá","Dagsetning: 2019-07-01<br />spá: 3.439577<br />breyta: ARIMA spá","Dagsetning: 2019-08-01<br />spá: 3.490000<br />breyta: ARIMA spá","Dagsetning: 2019-09-01<br />spá: 3.340000<br />breyta: ARIMA spá","Dagsetning: 2019-10-01<br />spá: 3.410000<br />breyta: ARIMA spá","Dagsetning: 2019-11-01<br />spá: 3.570000<br />breyta: ARIMA spá","Dagsetning: 2019-12-01<br />spá: 3.730000<br />breyta: ARIMA spá","Dagsetning: 2020-01-01<br />spá: 4.020000<br />breyta: ARIMA spá","Dagsetning: 2020-02-01<br />spá: 4.070000<br />breyta: ARIMA spá","Dagsetning: 2020-03-01<br />spá: 4.070000<br />breyta: ARIMA spá","Dagsetning: 2020-04-01<br />spá: 4.080000<br />breyta: ARIMA spá","Dagsetning: 2020-05-01<br />spá: 3.820000<br />breyta: ARIMA spá","Dagsetning: 2020-06-01<br />spá: 3.580000<br />breyta: ARIMA spá","Dagsetning: 2020-07-01<br />spá: 3.550000<br />breyta: ARIMA spá"],"type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(78,121,167,1)","dash":"solid"},"hoveron":"points","name":"ARIMA spá","legendgroup":"ARIMA spá","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[17713,17744,17775,17805,17836,17866,17897,17928,17956,17987,18017,18048,18078,18109,18140,18170,18201,18231,18262,18293,18322,18353,18383,18414,18444],"y":[2.17657179698903,2.29281871253768,2.27929355676351,2.35309065744325,2.5352016836412,2.67635200027147,2.98981174045771,3.12637362637363,3.24993186154266,3.67491356957649,3.55615113773714,3.42485990830362,3.43957703927492,null,null,null,null,null,null,null,null,null,null,null,null],"text":["Dagsetning: 2018-07-01<br />spá: 2.176572<br />breyta: Atvinnuleysi","Dagsetning: 2018-08-01<br />spá: 2.292819<br />breyta: Atvinnuleysi","Dagsetning: 2018-09-01<br />spá: 2.279294<br />breyta: Atvinnuleysi","Dagsetning: 2018-10-01<br />spá: 2.353091<br />breyta: Atvinnuleysi","Dagsetning: 2018-11-01<br />spá: 2.535202<br />breyta: Atvinnuleysi","Dagsetning: 2018-12-01<br />spá: 2.676352<br />breyta: Atvinnuleysi","Dagsetning: 2019-01-01<br />spá: 2.989812<br />breyta: Atvinnuleysi","Dagsetning: 2019-02-01<br />spá: 3.126374<br />breyta: Atvinnuleysi","Dagsetning: 2019-03-01<br />spá: 3.249932<br />breyta: Atvinnuleysi","Dagsetning: 2019-04-01<br />spá: 3.674914<br />breyta: Atvinnuleysi","Dagsetning: 2019-05-01<br />spá: 3.556151<br />breyta: Atvinnuleysi","Dagsetning: 2019-06-01<br />spá: 3.424860<br />breyta: Atvinnuleysi","Dagsetning: 2019-07-01<br />spá: 3.439577<br />breyta: Atvinnuleysi","Dagsetning: 2019-08-01<br />spá:       NA<br />breyta: Atvinnuleysi","Dagsetning: 2019-09-01<br />spá:       NA<br />breyta: Atvinnuleysi","Dagsetning: 2019-10-01<br />spá:       NA<br />breyta: Atvinnuleysi","Dagsetning: 2019-11-01<br />spá:       NA<br />breyta: Atvinnuleysi","Dagsetning: 2019-12-01<br />spá:       NA<br />breyta: Atvinnuleysi","Dagsetning: 2020-01-01<br />spá:       NA<br />breyta: Atvinnuleysi","Dagsetning: 2020-02-01<br />spá:       NA<br />breyta: Atvinnuleysi","Dagsetning: 2020-03-01<br />spá:       NA<br />breyta: Atvinnuleysi","Dagsetning: 2020-04-01<br />spá:       NA<br />breyta: Atvinnuleysi","Dagsetning: 2020-05-01<br />spá:       NA<br />breyta: Atvinnuleysi","Dagsetning: 2020-06-01<br />spá:       NA<br />breyta: Atvinnuleysi","Dagsetning: 2020-07-01<br />spá:       NA<br />breyta: Atvinnuleysi"],"type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(242,142,43,1)","dash":"solid"},"hoveron":"points","name":"Atvinnuleysi","legendgroup":"Atvinnuleysi","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[17713,17744,17775,17805,17836,17866,17897,17928,17956,17987,18017,18048,18078,18109,18140,18170,18201,18231,18262,18293,18322,18353,18383,18414,18444],"y":[null,null,null,null,null,null,null,null,null,null,null,null,3.43957703927492,3.55,3.46,3.63,3.88,4.15,4.65,4.84,4.75,4.5,4.07,3.8,3.81],"text":["Dagsetning: 2018-07-01<br />spá:       NA<br />breyta: ETS spá","Dagsetning: 2018-08-01<br />spá:       NA<br />breyta: ETS spá","Dagsetning: 2018-09-01<br />spá:       NA<br />breyta: ETS spá","Dagsetning: 2018-10-01<br />spá:       NA<br />breyta: ETS spá","Dagsetning: 2018-11-01<br />spá:       NA<br />breyta: ETS spá","Dagsetning: 2018-12-01<br />spá:       NA<br />breyta: ETS spá","Dagsetning: 2019-01-01<br />spá:       NA<br />breyta: ETS spá","Dagsetning: 2019-02-01<br />spá:       NA<br />breyta: ETS spá","Dagsetning: 2019-03-01<br />spá:       NA<br />breyta: ETS spá","Dagsetning: 2019-04-01<br />spá:       NA<br />breyta: ETS spá","Dagsetning: 2019-05-01<br />spá:       NA<br />breyta: ETS spá","Dagsetning: 2019-06-01<br />spá:       NA<br />breyta: ETS spá","Dagsetning: 2019-07-01<br />spá: 3.439577<br />breyta: ETS spá","Dagsetning: 2019-08-01<br />spá: 3.550000<br />breyta: ETS spá","Dagsetning: 2019-09-01<br />spá: 3.460000<br />breyta: ETS spá","Dagsetning: 2019-10-01<br />spá: 3.630000<br />breyta: ETS spá","Dagsetning: 2019-11-01<br />spá: 3.880000<br />breyta: ETS spá","Dagsetning: 2019-12-01<br />spá: 4.150000<br />breyta: ETS spá","Dagsetning: 2020-01-01<br />spá: 4.650000<br />breyta: ETS spá","Dagsetning: 2020-02-01<br />spá: 4.840000<br />breyta: ETS spá","Dagsetning: 2020-03-01<br />spá: 4.750000<br />breyta: ETS spá","Dagsetning: 2020-04-01<br />spá: 4.500000<br />breyta: ETS spá","Dagsetning: 2020-05-01<br />spá: 4.070000<br />breyta: ETS spá","Dagsetning: 2020-06-01<br />spá: 3.800000<br />breyta: ETS spá","Dagsetning: 2020-07-01<br />spá: 3.810000<br />breyta: ETS spá"],"type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(225,87,89,1)","dash":"solid"},"hoveron":"points","name":"ETS spá","legendgroup":"ETS spá","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":26.2283105022831,"r":7.30593607305936,"b":40.1826484018265,"l":31.4155251141553},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[17676.45,18480.55],"tickmode":"array","ticktext":["2018-07","2019-01","2019-07","2020-01","2020-07"],"tickvals":[17713,17897,18078,18262,18444],"categoryorder":"array","categoryarray":["2018-07","2019-01","2019-07","2020-01","2020-07"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":{"text":"Dagsetning","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[2.04340038683848,4.97317141015055],"tickmode":"array","ticktext":["3","4"],"tickvals":[3,4],"categoryorder":"array","categoryarray":["3","4"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"x","title":{"text":"spá","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895},"y":0.96751968503937},"annotations":[{"text":"breyta","x":1.02,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"left","yanchor":"bottom","legendTitle":true}],"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"7828515c13ce":{"x":{},"y":{},"colour":{},"type":"scatter"}},"cur_data":"7828515c13ce","visdat":{"7828515c13ce":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<div id="nakvmni-arima-og-ets-fyrir-vmst-gogn" class="section level3">
+<h3>Nákvæmni ARIMA og ETS fyrir VMST gögn</h3>
+Taflan sýnir mismunandi mælikvarða á nákvæmni spáa ( <a href="https://otexts.com/fpp2/accuracy.html">sjá umfjöllun um nákvæmni hér</a>)
+<table class="table table-striped table-hover table-condensed" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+likan
+</th>
+<th style="text-align:right;">
+ME
+</th>
+<th style="text-align:right;">
+RMSE
+</th>
+<th style="text-align:right;">
+MAE
+</th>
+<th style="text-align:right;">
+MPE
+</th>
+<th style="text-align:right;">
+MAPE
+</th>
+<th style="text-align:right;">
+MASE
+</th>
+<th style="text-align:right;">
+ACF1
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+ETS
+</td>
+<td style="text-align:right;">
+0.0049925
+</td>
+<td style="text-align:right;">
+0.3257859
+</td>
+<td style="text-align:right;">
+0.2290819
+</td>
+<td style="text-align:right;">
+2.268048
+</td>
+<td style="text-align:right;">
+16.13874
+</td>
+<td style="text-align:right;">
+0.2831790
+</td>
+<td style="text-align:right;">
+0.1103274
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ARIMA
+</td>
+<td style="text-align:right;">
+0.0119414
+</td>
+<td style="text-align:right;">
+0.2943569
+</td>
+<td style="text-align:right;">
+0.1885317
+</td>
+<td style="text-align:right;">
+0.012817
+</td>
+<td style="text-align:right;">
+11.76021
+</td>
+<td style="text-align:right;">
+0.2330529
+</td>
+<td style="text-align:right;">
+-0.0048319
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="samantekt" class="section level2">
+<h2>Samantekt</h2>
+<p>ARIMA og ETS spárnar fyrir gögn Hagstofunnar eru áþekkar. Einhver munur er á spánum fyrir nóvember og desember 2019. Hvað gögn Vinnumálastofnunnar varðar er nokkur munur á spám líkananna. Það á sérstaklega við um tímabilið janúar til apríl 2020. Vísbendingar eru þó að ARIMA líkanð fyrir VMST sé nákvæmara en ETS líkanð.</p>
+<div id="hugtak-spabil" class="section level3">
+<h3>Hugtak: Spábil</h3>
+<p>Að ofan nota ég hugtakið spábil (e. prediction interval). 95% spábil þýðir að það eru 95% líkur á því að tiltekið spágildi liggi á bilinu sem er gefið upp, <a href="https://otexts.com/fpp2/prediction-intervals.html">sjá meira um spábil hér</a>. Myndirnar að ofan sýna 50% og 95% spábil. Töflurnar sýna efri og neðri mörk 50% spábilsins.</p>
+</div>
+</div>

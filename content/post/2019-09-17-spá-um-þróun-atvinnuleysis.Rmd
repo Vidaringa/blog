@@ -1,0 +1,183 @@
+---
+title: Spá um þróun atvinnuleysis
+author: Viðar Ingason
+date: '2019-09-17'
+slug: spá-um-þróun-atvinnuleysis
+categories:
+  - forecast
+tags:
+  - arima
+description: ''
+topics: []
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(tidyverse)
+library(forecast)
+library(lubridate)
+library(knitr)
+library(kableExtra)
+
+options(kableExtra.html.bsTable = TRUE)
+
+```
+
+
+```{r, data_hag}
+hagstofa <- read_delim("https://px.hagstofa.is:443/pxis/sq/804e1aa1-985f-4704-a0eb-63fc94884389",
+                       delim = ";",
+                       locale = locale(encoding = "latin1"),
+                       col_types = c("c--d")) %>%
+        janitor::clean_names()
+
+colnames(hagstofa) <- c("manudur", "atvinnuleysi")
+
+hagstofa <- hagstofa %>%
+        mutate(date = make_date(year = substr(manudur, 1, 4),
+                                month = substr(manudur, 6, 7),
+                                day = 1))
+
+hagstofa_ts <- ts(hagstofa$atvinnuleysi, start = 2003, frequency = 12)
+```
+
+
+```{r, data_vmst}
+vmst <- readxl::read_excel("W:/Rwd/atvinnuleysi_spa/unemp.xlsx") %>% head(-1)
+vmst$date <- ymd(vmst$date)
+vmst_ts <- ts(vmst$unemp, start = 1980, frequency = 12)
+```
+
+
+```{r, spa_date}
+
+spa_date <- seq.Date(from = hagstofa$date[nrow(hagstofa)] - months(12),
+                     to = hagstofa$date[nrow(hagstofa)] + months(12),
+                     by = "month")
+
+```
+
+
+Atvinnuleysi hefur þokast upp á við undanfarna mánuði. Þetta sýna tölur Vinnumálastofnunnar (VMST) og Hagstofunnar. Nokkur munur er á gögnum VMST og Hagstofunnar. VMST tekur aðeins tillit til þeirra sem fá greiddar atvinnuleysisbætur. Hagstofan hefur einnig upplýsingar um þá sem eru án atvinnu en eiga einhverra hluta vegna ekki rétt á atvinnuleysisbótum. Hér að neðan eru sýndar spár fyrir bæði gagnasettin. Stuðst er við tvö líkön, ARIMA og ETS, sem alla jafna standa sig mjög vel í að framkvæma spá með aðeins einni breytu, [sjá t.d hér](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0194889).  
+Fyrri tvær myndirnar fyrir Hagstofuna og VMST sýna spár ásamt 50% og 95% spábil. Sjá skýringu neðst í þessum pósti um spábil. Þriðja myndin zoom-ar svo inn á spnáá psáa og ber saman ARIMA og ETS.
+
+## Hagstofan
+```{r}
+
+hagstofa_fit_arima <- auto.arima(hagstofa_ts)
+hagstofa_pred_arima <- forecast(hagstofa_fit_arima, h = 12, level = c(50, 95))
+hagstofa_pred_arima %>% autoplot()
+
+hagstofa_fit_ets <- ets(hagstofa_ts)
+hagstofa_pred_ets <- forecast(hagstofa_fit_ets, h = 12, level = c(50, 95))
+hagstofa_pred_ets %>% autoplot()
+
+
+# Fyrir graf
+df_hagstofa <- hagstofa %>% filter(date %in% spa_date)
+
+hagstofa_final <- tibble(Dagsetning = spa_date,
+                         "Atvinnuleysi" = c(df_hagstofa$atvinnuleysi, rep(NA, 12)),
+                         "ARIMA spá" = c(rep(NA, nrow(df_hagstofa) - 1),
+                                          df_hagstofa$atvinnuleysi[nrow(df_hagstofa)],
+                                          round(hagstofa_pred_arima$mean,2)),
+                         "ETS spá" = c(rep(NA, nrow(df_hagstofa) - 1),
+                                          df_hagstofa$atvinnuleysi[nrow(df_hagstofa)],
+                                          round(hagstofa_pred_ets$mean,2)))
+
+```
+
+
+```{r}
+
+# Graf
+hagstofa_graf <- hagstofa_final %>%
+  gather("breyta", "spá", 2:4) %>%
+  ggplot(aes(x = Dagsetning, y = spá, col = breyta)) +
+  geom_line() + 
+  ggthemes::scale_color_tableau() + 
+  theme(legend.title = element_blank())
+
+plotly::ggplotly(hagstofa_graf)
+
+```
+
+
+
+## Vinnumálastofnun
+Þegar þetta er skrifað eru gögn fyrir ágúst 2019 komin. Ágúst tölunum er þó sleppt til að hafa samræmi á spátímanum fyrir VMST og Hagstofuna. Samkvæmt tölum VMST var atvinnuleysi í ágúst 3.5% sem er það sama og ARIMA líkanið spáði.  
+
+```{r}
+
+vmst_fit_arima <- auto.arima(vmst_ts)
+vmst_pred_arima <- forecast(vmst_fit_arima, h = 12, level = c(50, 95))
+vmst_pred_arima %>% autoplot()
+
+vmst_fit_ets <- ets(vmst_ts)
+vmst_pred_ets <- forecast(vmst_fit_ets, h = 12, level = c(50, 95))
+vmst_pred_ets %>% autoplot()
+
+# Fyrir graf
+df_vmst <- vmst %>% filter(date %in% spa_date)
+
+vmst_final <- tibble(Dagsetning = spa_date,
+                     "Atvinnuleysi" = c(df_vmst$unemp, rep(NA, 12)),
+                     "ARIMA spá" = c(rep(NA, nrow(df_vmst) - 1),
+                                     df_vmst$unemp[nrow(df_vmst)],
+                                     round(vmst_pred_arima$mean,2)),
+                     "ETS spá" = c(rep(NA, nrow(df_vmst) - 1),
+                                     df_vmst$unemp[nrow(df_vmst)],
+                                     round(vmst_pred_ets$mean,2)))
+
+
+
+```
+
+Á grafinu að neðan er búið að zoom-a inn á spátímabilið. Hægt er að fara með músina yfir til að sjá spágildin. Að neðan verður sérstaklega fjallað um nákvæmni þessara tveggja líkana fyrir gögn VMST.
+
+```{r}
+
+# Graf
+vmst_graf <- vmst_final %>%
+  gather("breyta", "spá", 2:4) %>%
+  ggplot(aes(x = Dagsetning, y = spá, col = breyta)) +
+  geom_line() + 
+  ggthemes::scale_color_tableau()
+  
+
+plotly::ggplotly(vmst_graf)
+  
+
+```
+
+
+### Nákvæmni ARIMA og ETS fyrir VMST gögn
+Taflan sýnir mismunandi mælikvarða á nákvæmni spáa ( [sjá umfjöllun um nákvæmni hér](https://otexts.com/fpp2/accuracy.html))
+```{r}
+
+ets_acc <- accuracy(vmst_fit_ets) %>% as_tibble()
+arima_acc <- accuracy(vmst_fit_arima) %>% as_tibble()
+
+vmst_acc <- bind_rows(ets_acc, arima_acc)
+
+vmst_acc$likan <- c("ETS", "ARIMA")
+
+vmst_acc <- vmst_acc %>% 
+  select(likan, everything())
+
+vmst_acc %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+
+```
+
+
+
+## Samantekt
+ARIMA og ETS spárnar fyrir gögn Hagstofunnar eru áþekkar. Einhver munur er á spánum fyrir nóvember og desember 2019. Hvað gögn Vinnumálastofnunnar varðar er nokkur munur á spám líkananna. Það á sérstaklega við um tímabilið janúar til apríl 2020. Vísbendingar eru þó að ARIMA líkanð fyrir VMST sé nákvæmara en ETS líkanð.  
+
+
+### Hugtak: Spábil
+Að ofan nota ég hugtakið spábil (e. prediction interval). 95% spábil þýðir að það eru 95% líkur á því að tiltekið spágildi liggi á bilinu sem er gefið upp, [sjá meira um spábil hér](https://otexts.com/fpp2/prediction-intervals.html). Myndirnar að ofan sýna 50% og 95% spábil. Töflurnar sýna efri og neðri mörk 50% spábilsins.
+
