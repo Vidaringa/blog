@@ -60,7 +60,7 @@ spa_date <- seq.Date(from = hagstofa$date[nrow(hagstofa)] - months(12),
 
 
 Atvinnuleysi hefur þokast upp á við undanfarna mánuði. Þetta sýna tölur Vinnumálastofnunnar (VMST) og Hagstofunnar. Nokkur munur er á gögnum VMST og Hagstofunnar. VMST tekur aðeins tillit til þeirra sem fá greiddar atvinnuleysisbætur. Hagstofan hefur einnig upplýsingar um þá sem eru án atvinnu en eiga einhverra hluta vegna ekki rétt á atvinnuleysisbótum. Hér að neðan eru sýndar spár fyrir bæði gagnasettin. Stuðst er við tvö líkön, ARIMA og ETS, sem alla jafna standa sig mjög vel í að framkvæma spá með aðeins einni breytu, [sjá t.d hér](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0194889).  
-Fyrri tvær myndirnar fyrir Hagstofuna og VMST sýna spár ásamt 50% og 95% spábil. Sjá skýringu neðst í þessum pósti um spábil. Þriðja myndin zoom-ar svo inn á spánna og ber saman ARIMA og ETS. 
+Fyrri tvær myndirnar fyrir Hagstofuna og VMST sýna spár ásamt 50% og 95% spábil. Sjá skýringu neðst í þessum pósti um spábil. Þriðja myndin zoom-ar svo inn á spánna og ber saman ARIMA og ETS (hægt er að fá gildin með því að fara með músina yfir grafið). 
 
 ## Hagstofan
 ```{r}
@@ -153,7 +153,7 @@ plotly::ggplotly(vmst_graf)
 
 
 ### Nákvæmni ARIMA og ETS fyrir VMST gögn
-Taflan sýnir mismunandi mælikvarða á nákvæmni spáa ( [sjá umfjöllun um nákvæmni hér](https://otexts.com/fpp2/accuracy.html))
+Taflan sýnir mismunandi mælikvarða á nákvæmni spáa ( [sjá umfjöllun um nákvæmni hér](https://otexts.com/fpp2/accuracy.html)). Miðað við þetta virðist ARIMA líkanið henta betur til að spá fyrir um þróun atvinnuleysis með tölum Vinnumálastofnunnar.  
 ```{r}
 
 ets_acc <- accuracy(vmst_fit_ets) %>% as_tibble()
@@ -175,10 +175,9 @@ vmst_acc %>%
 
 
 ## Samantekt
-ARIMA og ETS spárnar fyrir gögn Hagstofunnar eru áþekkar. Einhver munur er á spánum fyrir nóvember og desember 2019. Hvað gögn Vinnumálastofnunnar varðar er nokkur munur á spám líkananna. Það á sérstaklega við um tímabilið janúar til apríl 2020. Vísbendingar eru þó að ARIMA líkanið fyrir VMST sé nákvæmara en ETS líkanið.  
+ARIMA og ETS spárnar fyrir gögn Hagstofunnar eru áþekkar. Einhver munur er á spánum fyrir nóvember og desember 2019. Hvað gögn Vinnumálastofnunnar varðar er nokkur munur á spám líkananna. Það á sérstaklega við um tímabilið janúar til apríl 2020.    
 Horft á bæði Hagstofugögnin og VMST gögnin, þá eru nokkrar líkur á því að atvinnuleysi haldi áfram að aukast fram á næsta ár. Óvissan er þó töluverð þegar spátímabilið lengist.  
 
 
 ### Hugtak: Spábil
-Að ofan nota ég hugtakið spábil (e. prediction interval). 95% spábil þýðir að það eru 95% líkur á því að tiltekið spágildi liggi á bilinu sem er gefið upp, [sjá meira um spábil hér](https://otexts.com/fpp2/prediction-intervals.html). Myndirnar að ofan sýna 50% og 95% spábil. Töflurnar sýna efri og neðri mörk 50% spábilsins.
-
+Að ofan nota ég hugtakið spábil (e. prediction interval). 95% spábil þýðir að það eru 95% líkur á því að tiltekið spágildi liggi á bilinu, [sjá meira um spábil hér](https://otexts.com/fpp2/prediction-intervals.html). Myndirnar að ofan sýna 50% og 95% spábil.
