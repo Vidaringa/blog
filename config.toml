@@ -1,8 +1,8 @@
 baseurl = "/"
+googleAnalytics = "UA-148211382-1"
 languageCode = "en-us"
 title = "Gagnavísindi og hagfræði"
 theme = "blackburn"
-googleAnalytics = "UA-148211382-1"
 disqusShortname = ""
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 
