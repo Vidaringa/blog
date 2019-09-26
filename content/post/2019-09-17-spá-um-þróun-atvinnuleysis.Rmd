@@ -39,7 +39,12 @@ hagstofa <- hagstofa %>%
                                 month = substr(manudur, 6, 7),
                                 day = 1))
 
+# test
+hagstofa <- hagstofa %>% 
+  filter(date <= "2019-07-01")
+
 hagstofa_ts <- ts(hagstofa$atvinnuleysi, start = 2003, frequency = 12)
+
 ```
 
 
@@ -65,13 +70,13 @@ Fyrri tvær myndirnar fyrir Hagstofuna og VMST sýna spár ásamt 50% og 95% sp�
 ## Hagstofan
 ```{r}
 
-hagstofa_fit_arima <- auto.arima(hagstofa_ts)
+hagstofa_fit_arima <- auto.arima(hagstofa_ts, approximation = FALSE, stepwise = FALSE)
 hagstofa_pred_arima <- forecast(hagstofa_fit_arima, h = 12, level = c(50, 95))
-hagstofa_pred_arima %>% autoplot()
+hagstofa_pred_arima %>% autoplot(include = 30)
 
 hagstofa_fit_ets <- ets(hagstofa_ts)
 hagstofa_pred_ets <- forecast(hagstofa_fit_ets, h = 12, level = c(50, 95))
-hagstofa_pred_ets %>% autoplot()
+hagstofa_pred_ets %>% autoplot(include = 30)
 
 
 # Fyrir graf
@@ -110,13 +115,13 @@ plotly::ggplotly(hagstofa_graf)
 
 ```{r}
 
-vmst_fit_arima <- auto.arima(vmst_ts)
+vmst_fit_arima <- auto.arima(vmst_ts, approximation = FALSE, stepwise = FALSE)
 vmst_pred_arima <- forecast(vmst_fit_arima, h = 12, level = c(50, 95))
-vmst_pred_arima %>% autoplot()
+vmst_pred_arima %>% autoplot(include = 30)
 
 vmst_fit_ets <- ets(vmst_ts)
 vmst_pred_ets <- forecast(vmst_fit_ets, h = 12, level = c(50, 95))
-vmst_pred_ets %>% autoplot()
+vmst_pred_ets %>% autoplot(include = 30)
 
 # Fyrir graf
 df_vmst <- vmst %>% filter(date %in% spa_date)
@@ -175,7 +180,7 @@ vmst_acc %>%
 
 
 ## Samantekt
-ARIMA og ETS spárnar fyrir gögn Hagstofunnar eru áþekkar. Einhver munur er á spánum fyrir nóvember og desember 2019. Hvað gögn Vinnumálastofnunnar varðar er nokkur munur á spám líkananna. Það á sérstaklega við um tímabilið janúar til apríl 2020.    
+ARIMA og ETS spárnar fyrir gögn Hagstofunnar eru áþekkar. Einhver munur er á spánum fram í nóvember 2019. Hvað gögn Vinnumálastofnunnar varðar er nokkur munur á spám líkananna. Það á sérstaklega við um tímabilið janúar til apríl 2020.    
 Horft á bæði Hagstofugögnin og VMST gögnin, þá eru nokkrar líkur á því að atvinnuleysi haldi áfram að aukast fram á næsta ár. Óvissan er þó töluverð þegar spátímabilið lengist.  
 
 
