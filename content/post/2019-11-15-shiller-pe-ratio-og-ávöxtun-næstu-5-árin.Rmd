@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 
 library(tidyverse)
 library(lubridate)
-library(quantmod)
+# library(quantmod)
 library(rvest)
 library(bayestestR)
 
@@ -38,40 +38,35 @@ Að neðan kanna ég samband milli mælikvarðans og ávöxtun næstu 5 og 10 á
 Hér kanna ég stöðuna í dag og hvað er líklegast að gerist næstu fimm árin miðað við söguleg gögn frá 1928.
 
 ```{r, sp500}
-i_dag <- today() + 1
 
-GSPC <- getSymbols("^GSPC",
-           src = "yahoo",
-           from = as.Date("1871-01-01"),
-           to = as.Date(i_dag),
-           auto.assign = FALSE)
+sp_url <- "https://www.multpl.com/s-p-500-historical-prices/table/by-month"
 
-gspc <- as.data.frame(GSPC)
-colnames(gspc) <- c("open","high","low","close","volume","adjusted")
-gspc <- rownames_to_column(gspc, var = "date")
-gspc$date <- ymd(gspc$date)
-gspc <- gspc %>% as_tibble()
+sp_data <- sp_url %>%
+        read_html() %>%
+        html_nodes("td") %>%
+        html_text()
 
-gspc <- gspc %>%
-        select(date, close)
+sp_data <- sp_data %>%
+        matrix(ncol = 2, byrow = TRUE) %>%
+        as_tibble()
 
-sp_value <- gspc %>%
-        mutate(year = year(date),
-               month = month(date)) %>%
-        group_by(year, month) %>%
-        slice(1) %>%
-        mutate(date = floor_date(date, "month")) %>%
-        ungroup() %>%
-        select(date, close)
+sp_data <- sp_data %>%
+        transmute(value = parse_number(V2),
+                  date = anytime::anydate(V1))
 
+sp_data <- sp_data %>%
+        tail(nrow(sp_data) - 1)
+
+colnames(sp_data) <- c("sp_500", "date")
 ```
+
 
 
 ```{r}
 
-sp_url <- "https://www.multpl.com/shiller-pe/table/by-month"
+cape_url <- "https://www.multpl.com/shiller-pe/table/by-month"
 
-sp_pe <- sp_url %>%
+sp_pe <- cape_url %>%
         read_html() %>%
         html_nodes("td") %>%
         html_text()
@@ -88,10 +83,10 @@ sp_pe <- sp_pe %>%
         tail(nrow(sp_pe) - 1)
 
 
-df <- sp_pe %>% left_join(sp_value) %>%
+df <- sp_pe %>% left_join(sp_data) %>%
         arrange(date) %>%
         na.omit() %>%
-        select(date, value, close)
+        select(date, value, sp_500)
 
 colnames(df) <- c("date", "pe_ratio", "sp_500")
 
@@ -108,8 +103,8 @@ df_filt <- df %>%
         mutate(sp_return = lead(sp_500, manudir)/sp_500 - 1) %>%
         na.omit() %>%
         mutate(timabil = cut(year(date),
-                             breaks = seq(1920, 2020, by = 10),
-                             labels = paste("Timabil:", seq(1920, 2010, by = 10))))
+                             breaks = seq(1870, 2020, by = 10),
+                             labels = paste("Timabil:", seq(1870, 2010, by = 10))))
 
 ggplot(df_filt,
        aes(x = pe_ratio,
@@ -124,25 +119,54 @@ ggplot(df_filt,
 
 ```
 
-Ef ég skoða sömu mynd og að ofan nema lita tímabilin fæst myndin að neðan. Ég vel tímabilin þannig að upphaf hvers tímabils er upphaf áratugar. Þetta er ekkert heilagt og ekkert endilega besta aðferðin. Myndin sýnir að það eru tímabils klasar í gögnunum. Það er t.d. mikill munur á tímabilinu 1990-2000 (bleikur) og 1970-1980 (gulur). Óháð klasa er samt sambandið ávalt niðurhallandi, þ.e. hátt Shiller hlutfall helst í hendur við lægri ávöxtun næstu fimm árin. Dökkbláa brotalínan er síðan smooth ferill í gegnum allt gagnasafnið (loess).  
+Ef ég skoða sömu mynd og að ofan nema lita tímabilin fást myndirnar að neðan. Ég þurfti að skipta þessu upp í tvær myndir, annars var of mikið um að vera á myndinni. Ég vel tímabilin þannig að upphaf hvers tímabils er upphaf áratugar. Þetta er ekkert heilagt og ekkert endilega besta aðferðin. Myndin sýnir að það eru tímabils klasar í gögnunum. Þá er ljóst að bein lína er ekki heppileg fyrir mörg tímabil, t.d. 1990 - 2000 (græn lína). Dökkbláa brotalínan er síðan smooth ferill í gegnum allt gagnasafnið (loess).  
 
-```{r, fimm_ar_timabil}
+```{r, fimm_ar_timabil_50}
 
-ggplot(df_filt,
+df_filt_bef_50 <- df_filt %>% filter(year(date) <= 1950)
+
+ggplot(df_filt_bef_50,
        aes(x = pe_ratio,
            y = sp_return,
            col = timabil)) +
         geom_point() +
         geom_smooth(aes(col = timabil),
-                    se = FALSE) +
+                    se = FALSE,
+                    method = "lm") +
         geom_smooth(span = 0.8, method = "loess", col = "darkblue", lwd = 1.5, linetype = "dashed") +
         labs(x = "Schiller PE Ratio",
-             y = paste("Ávöxtun næstu", manudir, "mánaða")) +
+             y = paste("Ávöxtun næstu", manudir, "mánaða"),
+             title = "1870 - 1940") +
         geom_vline(xintercept = tail(df$pe_ratio, 1)) +
-        ggthemes::scale_color_tableau() + 
+        ggthemes::scale_color_tableau() +
   theme(legend.position = "bottom")
 
 ```
+
+
+```{r, fimm_ar_timabil_after50}
+
+df_filt_aft_50 <- df_filt %>% filter(year(date) > 1950)
+
+ggplot(df_filt_aft_50,
+       aes(x = pe_ratio,
+           y = sp_return,
+           col = timabil)) +
+        geom_point() +
+        geom_smooth(aes(col = timabil),
+                    se = FALSE,
+                    method = "lm") +
+        geom_smooth(span = 0.8, method = "loess", col = "darkblue", lwd = 1.5, linetype = "dashed") +
+        labs(x = "Schiller PE Ratio",
+             y = paste("Ávöxtun næstu", manudir, "mánaða"),
+             title = "1950 - 2020") +
+        geom_vline(xintercept = tail(df$pe_ratio, 1)) +
+        ggthemes::scale_color_tableau() +
+  theme(legend.position = "bottom")
+
+```
+
+
 
 
 ```{r, high_fimm_ar}
@@ -226,8 +250,8 @@ df_filt_10 <- df %>%
         mutate(sp_return = lead(sp_500, manudir_2)/sp_500 - 1) %>%
         na.omit() %>%
         mutate(timabil = cut(year(date),
-                             breaks = seq(1920, 2020, by = 10),
-                             labels = paste("Timabil:", seq(1920, 2010, by = 10))))
+                             breaks = seq(1870, 2020, by = 10),
+                             labels = paste("Timabil:", seq(1870, 2010, by = 10))))
 
 ggplot(df_filt_10,
        aes(x = pe_ratio,
@@ -243,9 +267,13 @@ ggplot(df_filt_10,
 ```
 
 
-```{r, tiu_ar_timabil}
 
-ggplot(df_filt_10,
+```{r, tiu_ar_timabil_50}
+
+df_filt_10_bef_50 <- df_filt_10 %>% filter(year(date) <= 1950)
+df_filt_10_aft_50 <- df_filt_10 %>% filter(year(date) > 1950)
+
+ggplot(df_filt_10_bef_50,
        aes(x = pe_ratio,
            y = sp_return,
            col = timabil)) +
@@ -255,12 +283,36 @@ ggplot(df_filt_10,
                     method = "lm") +
         geom_smooth(span = 0.8, method = "loess", col = "darkblue", lwd = 1.5, linetype = "dashed") +
         labs(x = "Schiller PE Ratio",
-             y = paste("Ávöxtun næstu", manudir_2, "mánaða")) +
+             y = paste("Ávöxtun næstu", manudir_2, "mánaða"),
+             title = "1870 - 1940") +
         geom_vline(xintercept = tail(df$pe_ratio, 1)) +
         ggthemes::scale_color_tableau() + 
   theme(legend.position = "bottom")
 
 ```
+
+
+```{r, tiu_ar_timabil_aft_50}
+
+ggplot(df_filt_10_aft_50,
+       aes(x = pe_ratio,
+           y = sp_return,
+           col = timabil)) +
+        geom_point() +
+        geom_smooth(aes(col = timabil),
+                    se = FALSE,
+                    method = "lm") +
+        geom_smooth(span = 0.8, method = "loess", col = "darkblue", lwd = 1.5, linetype = "dashed") +
+        labs(x = "Schiller PE Ratio",
+             y = paste("Ávöxtun næstu", manudir_2, "mánaða"),
+             title = "1950 - 2020") +
+        geom_vline(xintercept = tail(df$pe_ratio, 1)) +
+        ggthemes::scale_color_tableau() + 
+  theme(legend.position = "bottom")
+
+```
+
+
 
 
 ```{r, high_10_ar}
@@ -327,5 +379,5 @@ plotly::ggplotly(g_ecdf_10)
 ```
 
 
-Hér hef ég stuðst við söguleg gögn um S&P 500 og Shiller PE Ratio. Atugið þó að þetta eru líkur á því hvað gerist næstu fimm til 10 árin. Það er því ekkert sem segir að hlutabréf geti ekki hækkað t.d. á næstu 1-3 árum.  
-Áhugaverð niðurstaða er að ef þessari aðferð hefði verið beitt í október 2007 hefði fengist að 90% líkur væru að ávöxtun næstu fimm árin myndi liggja á bilinu -11% til -1%.
+Hér hef ég stuðst við söguleg gögn um S&P 500 og Shiller PE Ratio. Niðurstöðurnar voru áhugaverðar að ýmsu leiti. Alls óvíst hvort hægt sé að hagnast á því einu að skoða Shiller hlutfallið en það verður mögulega skoðað í næstu póstum. Athugið að þó svo að mestar líkur séu á því að ávöxtun verði neikvæð næstu fimm árin m.v. þessa aðferð og söguleg gögn. Þá er ekkert sem segir að ávöxtun geti ekki verið jákvæð t.d. næstu 1-3 árin. Einnig eru líkur á því að verð hækki á næstu fimm árum. Söguleg gögn og sambandið við Shiller hlutfallið benda hins vegar til þess að það sé ósennilegt.  
+Áhugaverð niðurstaða (sem ekki er birt beint hér) er að ef þessari aðferð hefði verið beitt í október 2007 hefði fengist að 90% líkur væru að ávöxtun næstu fimm árin myndi liggja á bilinu -11% til -1%.
