@@ -1,0 +1,85 @@
+---
+title: Líkan af íbúðarhúsnæði á höfuðborgarsvæðinu
+author: Viðar
+date: '2019-10-26'
+slug: líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu
+categories:
+  - forecast
+  - irf
+tags:
+  - var
+  - vec
+  - arima
+description: ''
+topics: []
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(tidyverse)
+library(forecast)
+library(lubridate)
+library(vars)
+# library(knitr)
+# library(kableExtra)
+
+# options(kableExtra.html.bsTable = TRUE)
+
+```
+
+Fyrir stuttu síðan tók ég saman gögn um hámarkshlutfall sem íslenskar fjármálastofnanir lána til fasteignakaupa. Ég hafði áhuga á því að skoða þetta hlutfall í samhengi við hækkun fasteignaverðs á höfuðborgarsvæðinu. Að neðan mun ég skoða gögnin með myndrænum hætti auk þess sem ég met VAR (og VEC líkan ef það hentar) til að varpa ljósi á áhrif hámarks lánshlutfalls á þróun fasteignaverðs.
+
+
+## Gögn
+Gögnin sem ég nota eru fengin úr nokkrum áttum. Allt eru þetta mánaðarleg gögn. Fyrir verð á íbúðarhúsnæði nota ég vísitölu íbúðaverðs á höfuðborgarsvæðinu sem Þjóðskrá gefur út. Þá er ég með upplýsingar um skuldir heimilana sem ég fékk hjá Seðlabanka Íslands. Þetta eru allar skuldir heimila en ekki aðeins húsnæðisskuldir. Ég geng út frá því í greiningunni að neðan að þessi tímaröð og sú sem ætti aðeins við um lán til fasteignakaupa séu nátengdar (svo þarf ekki að vera). Þá er ég með upplýsingar um hámarks lánshlutfall sem bankarnir þrír ásamt Íbúðalánasjóði lána til fasteignakaupa, sjá [hér](https://drive.google.com/open?id=1rqTnfF3TyLHb_mClsCPYEfMnhj6oGmCc). Þessum gögnum safnaði ég af [Vefsafn.is](www.vefsafn.is). Ekki voru til samfelldar upplýsingar af vefsvæðum gömlu bankanna og því gat verið að ég hafði upplýsingar um hámarksútlán í október en síðan ekkert fyrr en í febrúar árið eftir. Ef breytingar áttu sér stað á tímabilinu þurfti ég að geta mér til um hvenær þær breytingar hafi átt sér stað. Athugasemdir um söfnun þessara gagna er að vinna í Excel skjalinu sem ég hlekkjaði á hér að ofan. Þá er ég með lægstu vexti sem eru í boði til fasteignakaupa, útborguð heildarlaun og vísitölu húsaleigu fyrir landið allt. Þetta eru ekki fullkomin gögn, t.d. væri best að hafa vísitölu leiguhúsnæðis aðeins fyrir höfuðborgarsvæðið og alveg aftur til t.d. 1990. Fyrir íbúðarhúsnæði mun ég nota tólf mánaða breytingu. Sama á við um útlán, útborguð laun og húsaleigu.  
+
+
+## Grafísk greining
+Fyrsta myndin sýnir þróun þeirra sex breyta sem ég mun styðjast við. Gífurleg hækkun fasteignaverðs átti sér stað frá lok árs 2004 þegar bæði hámars hlutfall hækkaði úr 65% í 100% á 2-3 mánuðum. Á sama tíma lækkuðu vextir fasteignalána.  
+```{r}
+gogn <- read_csv("C:/Users/vidar/Documents/Rwd/husnaedi_fc/final_data.csv") %>% 
+  dplyr::select(date, d_hus, d_utb, d_leiga, max_hlutfall, laegstu_vextir, utlan_breyting) %>% 
+  na.omit()
+
+gogn %>% 
+  pivot_longer(cols = d_hus:utlan_breyting,
+               names_to = "variable",
+               values_to = "value") %>% 
+  ggplot(aes(x = date,
+             y = value)) + 
+  geom_line() + 
+  facet_wrap(~ variable,
+             ncol = 3,
+             scales = "free_y")
+
+```
+
+
+Ég er ekki mikið fyrir að birta gröf sem sýna samband milli tveggja breyta þegar ég veit að þriðja breytan hefur einnig áhrif. Ætla þó að gera undantekningu hér. Boxplot-ið að neðan sýnir dreifingu á hækkun fasteignaverðs yfir tíma eftir því hvert hámarks hlutfall til fasteignakaupa var á hverjum tíma. Breidd á hverju boxplot-i táknar hversu lengi tiltekið hámark stóð til boða. Ég er með þá kenningu að vaxtastigið hafi töluvert minni áhrif á fasteignaverð en t.d. hámarks lánshlutfall til fasteignakaupa. 
+
+```{r}
+
+gogn %>% 
+  dplyr::select(date, d_hus, max_hlutfall) %>% 
+  # pivot_longer(cols = d_hus:max_hlutfall,
+  #              names_to = "variable",
+  #              values_to = "value") %>% 
+  ggplot(aes(x = date,
+             y = d_hus,
+             fill = as.character(max_hlutfall))) + 
+  geom_boxplot() + 
+  theme(legend.position = "bottom",
+        legend.title = element_blank())
+
+
+# ggplot(gogn,
+#        aes(x = as.character(max_hlutfall),
+#            y = d_hus,
+#            fill = as.character(max_hlutfall))) + 
+#   geom_boxplot()
+
+
+```
+

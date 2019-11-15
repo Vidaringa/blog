@@ -97,7 +97,7 @@ colnames(df) <- c("date", "pe_ratio", "sp_500")
 
 ```
 
-Grafið að neðan sýnir að eftir því sem Shiller hlutfallið er hærra, því lægir ávöxtun má búst við að jafnaði næstu fimm árin. Rauða lóðrétta línan er staðan í dag. Þetta er langt frá því að vera fullkomið samband og eflaust einhverjir tímabils klasar í gögnunum. 
+Grafið að neðan sýnir að eftir því sem Shiller hlutfallið er hærra, því lægri ávöxtun má búst við að jafnaði næstu fimm árin. Rauða lóðrétta línan er staðan í dag. Þetta er langt frá því að vera fullkomið samband og eflaust einhverjir tímabils klasar í gögnunum. 
 
 ```{r, fimm_ar}
 
@@ -134,8 +134,7 @@ ggplot(df_filt,
            col = timabil)) +
         geom_point() +
         geom_smooth(aes(col = timabil),
-                    se = FALSE,
-                    method = "lm") +
+                    se = FALSE) +
         geom_smooth(span = 0.8, method = "loess", col = "darkblue", lwd = 1.5, linetype = "dashed") +
         labs(x = "Schiller PE Ratio",
              y = paste("Ávöxtun næstu", manudir, "mánaða")) +
@@ -151,6 +150,8 @@ df_high <- df %>%
         mutate(sp_return = lead(sp_500, manudir)/sp_500 - 1) %>%
         filter(pe_ratio >= tail(df$pe_ratio, 1)) %>%
         na.omit()
+
+# tail(df$pe_ratio, 1)
 
 fjoldi_5_ar <- nrow(df_high)
 mean_5_ar <- scales::percent(mean(df_high$sp_return))
@@ -324,3 +325,7 @@ plotly::ggplotly(g_ecdf_10)
 
 
 ```
+
+
+Hér hef ég stuðst við söguleg gögn um S&P 500 og Shiller PE Ratio. Atugið þó að þetta eru líkur á því hvað gerist næstu fimm til 10 árin. Það er því ekkert sem segir að hlutabréf geti ekki hækkað t.d. á næstu 1-3 árum.  
+Áhugaverð niðurstaða er að ef þessari aðferð hefði verið beitt í október 2007 hefði fengist að 90% líkur væru að ávöxtun næstu fimm árin myndi liggja á bilinu -11% til -1%.
