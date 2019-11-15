@@ -1,0 +1,326 @@
+---
+title: Shiller PE Ratio og ávöxtun næstu 5 árin
+author: Vidar Ingason
+date: '2019-11-15'
+slug: shiller-pe-ratio-og-ávöxtun-næstu-5-árin
+categories:
+  - finance
+tags: []
+description: ''
+topics: []
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(tidyverse)
+library(lubridate)
+library(quantmod)
+library(rvest)
+library(bayestestR)
+
+options(kableExtra.html.bsTable = TRUE)
+```
+
+
+Margir í kringum mig hafa verið að velta fyrir sér hlutabréfamarkaðinum í dag. Hugmyndir eru uppi um að taka þátt í 'Best bull market ever'.  
+![](/post/2019-11-15-shiller-pe-ratio-og-ávöxtun-næstu-5-árin_files/bull.png){width=80%}
+
+Það er skiljanlegt þegar vel gengur að margir vilja hoppa á lestina. Mér persónuleg finnst þó áhugaverðast að horfa ekki aðeins í baksýnisspegilinn heldur einnig út um framrúðuna ef ég get. Mér datt í hug að nota upplýsingar um Shiller PE Ratio og bera það saman við ávöxtun næstu 5 - 10 ára til að fá einhverja hugmynd um við hversu mikilli ávöxtun megi búast næstu árin. Greiningin styðst við upplýsingar um Shiller PE Ratio og S&P 500 vísitöluna.  
+
+## Shiller PE Ratio
+Robert J. Shiller er bandarískur hagfræðingur sem hlaut nóbelsverðlaunin í hagfræði 2013 (ásamt Eugene F. Fama og Lars Peter Hansen). Shiller fann upp á mælikvarða sem gengur undir nokkrum nöfnum. CAPE (cyclically adjusted price-to-earnings ratio), Shiller P/E, P/E 10 ratio. Með mælikvarðanum er hægt að skoða stöðu hans í dag og þannig fá hugmynd um mögulega þróun hlutabréfaverðs næstu 10-20 árin ([Wikipedia grein um mælikvarðan](https://en.wikipedia.org/wiki/Cyclically_adjusted_price-to-earnings_ratio)).  
+Að neðan kanna ég samband milli mælikvarðans og ávöxtun næstu 5 og 10 ára. Gögnin fæ ég hér: https://www.multpl.com/s-p-500-pe-ratio
+
+
+## Ávöxtun næstu 5 árin
+Hér kanna ég stöðuna í dag og hvað er líklegast að gerist næstu fimm árin miðað við söguleg gögn frá 1928.
+
+```{r, sp500}
+i_dag <- today() + 1
+
+GSPC <- getSymbols("^GSPC",
+           src = "yahoo",
+           from = as.Date("1871-01-01"),
+           to = as.Date(i_dag),
+           auto.assign = FALSE)
+
+gspc <- as.data.frame(GSPC)
+colnames(gspc) <- c("open","high","low","close","volume","adjusted")
+gspc <- rownames_to_column(gspc, var = "date")
+gspc$date <- ymd(gspc$date)
+gspc <- gspc %>% as_tibble()
+
+gspc <- gspc %>%
+        select(date, close)
+
+sp_value <- gspc %>%
+        mutate(year = year(date),
+               month = month(date)) %>%
+        group_by(year, month) %>%
+        slice(1) %>%
+        mutate(date = floor_date(date, "month")) %>%
+        ungroup() %>%
+        select(date, close)
+
+```
+
+
+```{r}
+
+sp_url <- "https://www.multpl.com/shiller-pe/table/by-month"
+
+sp_pe <- sp_url %>%
+        read_html() %>%
+        html_nodes("td") %>%
+        html_text()
+
+sp_pe <- sp_pe %>%
+        matrix(ncol = 2, byrow = TRUE) %>%
+        as_tibble()
+
+sp_pe <- sp_pe %>%
+        transmute(value = parse_number(V2),
+                  date = anytime::anydate(V1))
+
+sp_pe <- sp_pe %>%
+        tail(nrow(sp_pe) - 1)
+
+
+df <- sp_pe %>% left_join(sp_value) %>%
+        arrange(date) %>%
+        na.omit() %>%
+        select(date, value, close)
+
+colnames(df) <- c("date", "pe_ratio", "sp_500")
+
+```
+
+Grafið að neðan sýnir að eftir því sem Shiller hlutfallið er hærra, því lægir ávöxtun má búst við að jafnaði næstu fimm árin. Rauða lóðrétta línan er staðan í dag. Þetta er langt frá því að vera fullkomið samband og eflaust einhverjir tímabils klasar í gögnunum. 
+
+```{r, fimm_ar}
+
+ar = 5
+manudir = ar * 12
+
+df_filt <- df %>%
+        mutate(sp_return = lead(sp_500, manudir)/sp_500 - 1) %>%
+        na.omit() %>%
+        mutate(timabil = cut(year(date),
+                             breaks = seq(1920, 2020, by = 10),
+                             labels = paste("Timabil:", seq(1920, 2010, by = 10))))
+
+ggplot(df_filt,
+       aes(x = pe_ratio,
+           y = sp_return)) +
+        geom_point() +
+        geom_smooth(method = "lm") +
+        geom_vline(xintercept = tail(df$pe_ratio, 1), linetype = "dashed", col = "red", lwd = 1) +
+        ggthemes::scale_color_tableau() +
+        labs(x = "Shiller PE Ratio",
+             y = "Ávöxtun næstu 60 mánaða") +
+        scale_y_continuous(labels = scales::percent)
+
+```
+
+Ef ég skoða sömu mynd og að ofan nema lita tímabilin fæst myndin að neðan. Ég vel tímabilin þannig að upphaf hvers tímabils er upphaf áratugar. Þetta er ekkert heilagt og ekkert endilega besta aðferðin. Myndin sýnir að það eru tímabils klasar í gögnunum. Það er t.d. mikill munur á tímabilinu 1990-2000 (bleikur) og 1970-1980 (gulur). Óháð klasa er samt sambandið ávalt niðurhallandi, þ.e. hátt Shiller hlutfall helst í hendur við lægri ávöxtun næstu fimm árin. Dökkbláa brotalínan er síðan smooth ferill í gegnum allt gagnasafnið (loess).  
+
+```{r, fimm_ar_timabil}
+
+ggplot(df_filt,
+       aes(x = pe_ratio,
+           y = sp_return,
+           col = timabil)) +
+        geom_point() +
+        geom_smooth(aes(col = timabil),
+                    se = FALSE,
+                    method = "lm") +
+        geom_smooth(span = 0.8, method = "loess", col = "darkblue", lwd = 1.5, linetype = "dashed") +
+        labs(x = "Schiller PE Ratio",
+             y = paste("Ávöxtun næstu", manudir, "mánaða")) +
+        geom_vline(xintercept = tail(df$pe_ratio, 1)) +
+        ggthemes::scale_color_tableau() + 
+  theme(legend.position = "bottom")
+
+```
+
+
+```{r, high_fimm_ar}
+df_high <- df %>%
+        mutate(sp_return = lead(sp_500, manudir)/sp_500 - 1) %>%
+        filter(pe_ratio >= tail(df$pe_ratio, 1)) %>%
+        na.omit()
+
+fjoldi_5_ar <- nrow(df_high)
+mean_5_ar <- scales::percent(mean(df_high$sp_return))
+median_5_ar <- scales::percent(median(df_high$sp_return))
+
+```
+
+
+Þá er einnig áhugavert að filter-a út þau tímabil þar sem Shiller hlutfallið hefur verið jafn hátt eða hærra en það er í dag og kanna hvernig hlutabréfaveð (S&P 500) þróaðist næstu fimm árin. Með þessu fást `r fjoldi_5_ar` athuganir. Meðalávöxtun næstu fimm árin fyrir þessa gagnapunkta er `r mean_5_ar` og miðgildi ávöxtunar er `r median_5_ar`. Lítið er hægt að lesa úr dreifingu ávöxtunar enda fáir gagnapunktar.    
+
+```{r, fimm_ar_hist}
+
+df_high %>% 
+        ggplot(aes(x = sp_return)) +
+  geom_histogram(fill = "darkblue",
+                 col = "white") + 
+  labs(x = "Ávöxtun S&P 500 næstu fimm árin",
+       y = "Fjöldi",
+       title = "Dreifing ávöxtunar S&P 500")
+```
+
+Ég prófa að taka 100.000 úrtök af sama fjölda athugana (bootstrapping) og kanna dreifingu meðaltalsins. Reikna síðan út 90% líkindabil fyrir ávöxtunina. Athugið að hér er ekki átt við 95% öryggisbil (sem segir ekkert til um líkur á því að gögnin liggi á ákveðnu bili) heldur *credible interval*. Með því að skoða t.d. 90% credible interval get ég svarað því á hvaða bili meðaltalið mun verða með 90% líkum, gefin gögnin sem ég er með.
+
+
+```{r, fimm_ar_boot}
+
+sp_list <- list()
+
+for(i in 1:100000) {
+        urtak = sample(df_high$sp_return, nrow(df_high), replace = TRUE)
+        medaltal <- mean(urtak)
+        sp_list[[i]] <- medaltal
+}
+
+
+sp_unlist <- tibble(avoxtun = unlist(sp_list))
+
+ci_5_ar_90 <- ci(sp_unlist$avoxtun, ci = 0.9)
+ci_5_ar_90_low <- scales::percent(ci_5_ar_90$CI_low)
+ci_5_ar_90_high <- scales::percent(ci_5_ar_90$CI_high)
+
+```
+
+90% líkur eru á því að ávöxtun næstu fimm árin verði á bilinu `r ci_5_ar_90_low` til `r ci_5_ar_90_high` miðað við hvert Shiller hlutfallið er í dag. Líkurnar (og sögulegu gögnin) eru því ekki með þér í liði ef þú kaupir í S&P 500 í dag og ætlar að halda stöðunni í ~5 ár.
+
+Þá teikna ég einnig upp *empirical cumulative distribution function* en þá er hægt að fara með  bendilin yfir grafið og finna það líkindabil sem ykkur hentar. (0.05, 0.95) fyrir 90% bil, (0.025, 0.975) fyrir 95% bil. T.d. ef þið farið með bendilinn yfir 0.95 fæst sirka -5% ávöxtun sem er það sama og efri mörkin sem ég nefndi að ofan.  
+
+
+```{r, ecdf}
+
+g_ecdf <- ggplot(sp_unlist,
+       aes(x = avoxtun)) +
+        stat_ecdf(geom = "line") +
+  labs(x = "Ávöxtun",
+             y = "cumulative frequency")
+
+plotly::ggplotly(g_ecdf)
+
+
+```
+
+
+## Ávöxtun næstu 10 árin
+Hér kanna ég stöðuna í dag og hvað er líklegast að gerist næstu tíu árin miðað við söguleg gögn frá 1928. Ég mun ekki endurtaka mig en þetta er sama og að ofan nema bara tíu ára horizon.  
+
+```{r, tiu_ar}
+
+ar_2 = 10
+manudir_2 = ar_2 * 12
+
+df_filt_10 <- df %>%
+        mutate(sp_return = lead(sp_500, manudir_2)/sp_500 - 1) %>%
+        na.omit() %>%
+        mutate(timabil = cut(year(date),
+                             breaks = seq(1920, 2020, by = 10),
+                             labels = paste("Timabil:", seq(1920, 2010, by = 10))))
+
+ggplot(df_filt_10,
+       aes(x = pe_ratio,
+           y = sp_return)) +
+        geom_point() +
+        geom_smooth(method = "lm") +
+        geom_vline(xintercept = tail(df$pe_ratio, 1), linetype = "dashed", col = "red", lwd = 1) +
+        ggthemes::scale_color_tableau() +
+        labs(x = "Shiller PE Ratio",
+             y = "Ávöxtun næstu 120 mánaða") +
+        scale_y_continuous(labels = scales::percent)
+
+```
+
+
+```{r, tiu_ar_timabil}
+
+ggplot(df_filt_10,
+       aes(x = pe_ratio,
+           y = sp_return,
+           col = timabil)) +
+        geom_point() +
+        geom_smooth(aes(col = timabil),
+                    se = FALSE,
+                    method = "lm") +
+        geom_smooth(span = 0.8, method = "loess", col = "darkblue", lwd = 1.5, linetype = "dashed") +
+        labs(x = "Schiller PE Ratio",
+             y = paste("Ávöxtun næstu", manudir_2, "mánaða")) +
+        geom_vline(xintercept = tail(df$pe_ratio, 1)) +
+        ggthemes::scale_color_tableau() + 
+  theme(legend.position = "bottom")
+
+```
+
+
+```{r, high_10_ar}
+df_high_tiu <- df %>%
+        mutate(sp_return = lead(sp_500, manudir_2)/sp_500 - 1) %>%
+        filter(pe_ratio >= tail(df$pe_ratio, 1)) %>%
+        na.omit()
+
+fjoldi_10_ar <- nrow(df_high_tiu)
+mean_10_ar <- scales::percent(mean(df_high_tiu$sp_return))
+median_10_ar <- scales::percent(median(df_high_tiu$sp_return))
+
+```
+
+
+Hér geri ég sama og að ofan, þ.e. kanna ávöxtun næstu  10 ára þegar Shiller hlutfallið var jafn hátt eða hærra og það var í dag. Með þessu fást `r fjoldi_10_ar` athuganir. Meðalávöxtun næstu tíu árin fyrir þessa gagnapunkta er `r mean_10_ar` og miðgildi ávöxtunar er `r median_10_ar`. Lítið er hægt að lesa úr dreifingu ávöxtunar enda fáir gagnapunktar.  
+
+
+```{r, tiu_ar_hist}
+
+df_high_tiu %>% 
+        ggplot(aes(x = sp_return)) +
+  geom_histogram(fill = "darkblue",
+                 col = "white") + 
+  labs(x = "Ávöxtun S&P 500 næstu tiu árin",
+       y = "Fjöldi",
+       title = "Dreifing ávöxtunar S&P 500")
+```
+
+
+```{r, tiu_ar_boot}
+
+sp_list_10 <- list()
+
+for(i in 1:100000) {
+        urtak = sample(df_high_tiu$sp_return, nrow(df_high_tiu), replace = TRUE)
+        medaltal <- mean(urtak)
+        sp_list_10[[i]] <- medaltal
+}
+
+
+sp_unlist_10 <- tibble(avoxtun = unlist(sp_list_10))
+
+ci_10_ar_90 <- ci(sp_unlist_10$avoxtun, ci = 0.9)
+ci_10_ar_90_low <- scales::percent(ci_10_ar_90$CI_low)
+ci_10_ar_90_high <- scales::percent(ci_10_ar_90$CI_high)
+
+```
+
+90% líkur eru á því að ávöxtun næstu tíu árin verði á bilinu `r ci_10_ar_90_low` til `r ci_10_ar_90_high` miðað við hvert Shiller hlutfallið er í dag. Líkurnar (og sögulegu gögnin) eru því aðeins betri en þegar horft var til fimm ára. Meðaltalið (og miðgildið) er engu að síður lágt fyrir ávöxtun næstu 10 ára.  
+
+
+```{r, ecdf_10}
+
+g_ecdf_10 <- ggplot(sp_unlist_10,
+       aes(x = avoxtun)) +
+        stat_ecdf(geom = "line") +
+  labs(x = "Ávöxtun",
+             y = "cumulative frequency")
+
+plotly::ggplotly(g_ecdf_10)
+
+
+```
