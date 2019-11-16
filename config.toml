@@ -1,5 +1,4 @@
 baseurl = "/"
-googleAnalytics = "UA-148211382-1"
 languageCode = "en-us"
 title = "Gagnavísindi og hagfræði"
 theme = "blackburn"
@@ -30,6 +29,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 
 [params]
     description = "A website built through Hugo and blogdown."
+    googleAnalytics = "UA-148211382-1"
 
     # options for highlight.js (version, additional languages, and theme)
     highlightjsVersion = "9.12.0"
