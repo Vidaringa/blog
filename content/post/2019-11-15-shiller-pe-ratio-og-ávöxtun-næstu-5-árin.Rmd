@@ -1,5 +1,5 @@
 ---
-title: Shiller PE Ratio og ávöxtun næstu 5 árin
+title: Shiller PE Ratio og ávöxtun næstu 5-10 árin
 author: Vidar Ingason
 date: '2019-11-15'
 slug: shiller-pe-ratio-og-ávöxtun-næstu-5-árin
@@ -19,23 +19,25 @@ library(lubridate)
 # library(quantmod)
 library(rvest)
 library(bayestestR)
+library(mclust)
+library(knitr)
+library(kableExtra)
 
 options(kableExtra.html.bsTable = TRUE)
 ```
 
 
-Margir í kringum mig hafa verið að velta fyrir sér hlutabréfamarkaðinum í dag. Hugmyndir eru uppi um að taka þátt í 'Best bull market ever'.  
+Margir í kringum mig hafa verið að velta fyrir sér hlutabréfamarkaðinum í dag. Hugmyndir eru uppi um að taka þátt í 'Best bull market ever'. 
 ![](/post/2019-11-15-shiller-pe-ratio-og-ávöxtun-næstu-5-árin_files/bull.png){width=80%}
 
-Það er skiljanlegt þegar vel gengur að margir vilja hoppa á lestina. Mér persónuleg finnst þó áhugaverðast að horfa ekki aðeins í baksýnisspegilinn heldur einnig út um framrúðuna ef ég get. Mér datt í hug að nota upplýsingar um Shiller PE Ratio og bera það saman við ávöxtun næstu 5 - 10 ára til að fá einhverja hugmynd um við hversu mikilli ávöxtun megi búast næstu árin. Greiningin styðst við upplýsingar um Shiller PE Ratio og S&P 500 vísitöluna.  
+Það er skiljanlegt þegar vel gengur að margir vilja hoppa á lestina. Mér persónuleg finnst mikilvægt að horfa ekki aðeins í baksýnisspegilinn heldur einnig út um framrúðuna ef ég get. Mér datt því í hug að nota upplýsingar um Shiller PE Ratio og bera það saman við ávöxtun næstu 5 - 10 ára til að fá einhverja hugmynd um við hversu mikilli ávöxtun megi búast næstu árin. Greiningin styðst við upplýsingar um Shiller PE Ratio og S&P 500 vísitöluna.  
 
 ## Shiller PE Ratio
-Robert J. Shiller er bandarískur hagfræðingur sem hlaut nóbelsverðlaunin í hagfræði 2013 (ásamt Eugene F. Fama og Lars Peter Hansen). Shiller fann upp á mælikvarða sem gengur undir nokkrum nöfnum. CAPE (cyclically adjusted price-to-earnings ratio), Shiller P/E, P/E 10 ratio. Með mælikvarðanum er hægt að skoða stöðu hans í dag og þannig fá hugmynd um mögulega þróun hlutabréfaverðs næstu 10-20 árin ([Wikipedia grein um mælikvarðan](https://en.wikipedia.org/wiki/Cyclically_adjusted_price-to-earnings_ratio)).  
-Að neðan kanna ég samband milli mælikvarðans og ávöxtun næstu 5 og 10 ára. Gögnin fæ ég hér: https://www.multpl.com/s-p-500-pe-ratio
+Robert J. Shiller er bandarískur hagfræðingur sem hlaut nóbelsverðlaunin í hagfræði 2013 (ásamt Eugene F. Fama og Lars Peter Hansen). Shiller fann upp á mælikvarða sem gengur undir nokkrum nöfnum. CAPE (cyclically adjusted price-to-earnings ratio), Shiller P/E, P/E 10 ratio. Hlutfallinu er ætlað að varpa ljósi á hvort hlutabréf séu yfir- eða undirverðlögð. Hér er sérstaklega litið til S&P 500 vísitölunnar. Að neðan kanna ég samband milli mælikvarðans og ávöxtun næstu 5 og 10 ára. Gögnin fæ ég hér: https://www.multpl.com/s-p-500-pe-ratio
 
 
 ## Ávöxtun næstu 5 árin
-Hér kanna ég stöðuna í dag og hvað er líklegast að gerist næstu fimm árin miðað við söguleg gögn frá 1928.
+Hér kanna ég stöðuna í dag og hvað er líklegast að gerist næstu fimm árin miðað við söguleg gögn frá 1871
 
 ```{r, sp500}
 
@@ -184,7 +186,7 @@ median_5_ar <- scales::percent(median(df_high$sp_return))
 ```
 
 
-Þá er einnig áhugavert að filter-a út þau tímabil þar sem Shiller hlutfallið hefur verið jafn hátt eða hærra en það er í dag og kanna hvernig hlutabréfaveð (S&P 500) þróaðist næstu fimm árin. Með þessu fást `r fjoldi_5_ar` athuganir. Meðalávöxtun næstu fimm árin fyrir þessa gagnapunkta er `r mean_5_ar` og miðgildi ávöxtunar er `r median_5_ar`. Lítið er hægt að lesa úr dreifingu ávöxtunar enda fáir gagnapunktar.    
+Þá er einnig áhugavert að filter-a út þau tímabil þar sem Shiller hlutfallið hefur verið jafn hátt eða hærra en það er í dag og kanna hvernig S&P 500 þróaðist næstu fimm árin. Með þessu fást `r fjoldi_5_ar` athuganir. Meðalávöxtun næstu fimm árin fyrir þessa gagnapunkta er `r mean_5_ar` og miðgildi ávöxtunar er `r median_5_ar`. Lítið er hægt að lesa úr dreifingu ávöxtunar enda fáir gagnapunktar.    
 
 ```{r, fimm_ar_hist}
 
@@ -239,7 +241,7 @@ plotly::ggplotly(g_ecdf)
 
 
 ## Ávöxtun næstu 10 árin
-Hér kanna ég stöðuna í dag og hvað er líklegast að gerist næstu tíu árin miðað við söguleg gögn frá 1928. Ég mun ekki endurtaka mig en þetta er sama og að ofan nema bara tíu ára horizon.  
+Hér kanna ég stöðuna í dag og hvað er líklegast að gerist næstu tíu árin miðað við söguleg gögn frá 1871. Ég mun ekki endurtaka mig en þetta er sama og að ofan nema bara tíu ára horizon.  
 
 ```{r, tiu_ar}
 
@@ -381,3 +383,69 @@ plotly::ggplotly(g_ecdf_10)
 
 Hér hef ég stuðst við söguleg gögn um S&P 500 og Shiller PE Ratio. Niðurstöðurnar voru áhugaverðar að ýmsu leiti. Alls óvíst hvort hægt sé að hagnast á því einu að skoða Shiller hlutfallið en það verður mögulega skoðað í næstu póstum. Athugið að þó svo að mestar líkur séu á því að ávöxtun verði neikvæð næstu fimm árin m.v. þessa aðferð og söguleg gögn. Þá er ekkert sem segir að ávöxtun geti ekki verið jákvæð t.d. næstu 1-3 árin. Einnig eru líkur á því að verð hækki á næstu fimm árum. Söguleg gögn og sambandið við Shiller hlutfallið benda hins vegar til þess að það sé ósennilegt.  
 Áhugaverð niðurstaða (sem ekki er birt beint hér) er að ef þessari aðferð hefði verið beitt í október 2007 hefði fengist að 90% líkur væru að ávöxtun næstu fimm árin myndi liggja á bilinu -11% til -1%.
+
+
+## Viðauki - Klösun
+Ég var eiginlega búinn að pósta blogginu þegar mér datt í hug að fikta með clustering algorithma. Hér að neðan sýni ég þá útkomu. Það eru til margir algorithmar fyrir klösun. Hér mun ég nota gaussian mixture model (model based clustering). Getið lesið um aðferðina [hér](https://bradleyboehmke.github.io/HOML/model-clustering.html).  
+
+Klösun er stundum kölluð *unsupervised learning*. Í unsupervised learning er aðeins stuðst við 'x-gildin' og reynt að finna hvort það leynist einhverjir hópar/klasar í gögnunum. Ef svo er þá væri hægt að bera þessa klasa saman við hver ávöxtun næstu 5 ára væri að jafnaði. Það verður gert hér að neðan. Í greiningunni mun ég nota Shiller hlutfallið og breytingu á S&P 500 seinustu 12 mánuðina. Gögnin ná frá fyrsta febrúar 1872 til fyrsta nóvember 2019. Þetta eru mánaðargögn sem nota gildið í upphafi mánaðar.  
+
+Grafið að neðan sýnir S&P 500 frá 1995 til dagsins í dag. Línan hefur verið lituð eftir því í hvaða cluster staðan er. Taflan fyrir neðan myndina sínar svo hvað má búast við mikilli breytingu næstu tvö árin og næstu fimm árin, að jafnaði.  Ég birti einnig staðalfrávik breytinga næstu ásamt *coefficient of variation* sem er staðalfrávik deild með meðaltali. Þessi mælikvarði gefur til kynna hversu gott meðaltalið er. Hár CV má lesa sem ekki gott meðaltal. Staðan í dag flokkast í klasa 14 sem að jafnaði hefur gefið litla sem enga ávöxtun næstu fimm ára. Staðalfrávikið er þó mjög hátt.  
+
+```{r, gmm}
+df <- df %>% mutate(sp_past_return = sp_500/lag(sp_500, 12) - 1) %>% 
+  na.omit() %>% 
+  mutate(sp_return_5 = lead(sp_500, 60)/sp_500 - 1,
+         sp_return_1 = lead(sp_500, 24)/sp_500 - 1)
+
+shiller_mc <- Mclust(df[, c(2,4)], G = 1:25)
+summary(shiller_mc)
+
+df$mclust <- shiller_mc$classification
+
+
+df %>% 
+  filter(date >= "1995-01-01") %>% 
+  ggplot(aes(x = date,
+             y = sp_500,
+             col = factor(mclust))) +
+  geom_path(aes(group = 1), lwd = 1) + 
+  scale_color_brewer(palette = "Set1")
+
+
+```
+
+
+
+```{r, gmm_graph_two}
+
+df %>% 
+  group_by(mclust) %>% 
+  summarise("Meðalávöxtun" = mean(sp_return_1, na.rm = TRUE),
+            "Staðalfrávik ávöxtunar" = sd(sp_return_1, na.rm = TRUE),
+            "Coefficient of variation" = abs(sd(sp_return_1, na.rm = TRUE) / mean(sp_return_1, na.rm = TRUE))) %>% 
+  kable(booktabs = T, caption = "Tveggja ára horizon") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive"))
+
+```
+
+
+
+
+```{r, gmm_graph_five}
+
+df %>% 
+  group_by(mclust) %>% 
+  summarise("Meðalávöxtun" = mean(sp_return_5, na.rm = TRUE),
+            "Staðalfrávik ávöxtunar" = sd(sp_return_5, na.rm = TRUE),
+            "Coefficient of variation" = abs(sd(sp_return_5, na.rm = TRUE) / mean(sp_return_5, na.rm = TRUE))) %>% 
+  kable(booktabs = T, caption = "Fimm ára horizon") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive"))
+
+```
+
+
+
+
+## Lokaorð
+Þessi póstur er orðin miklu lengri en ég ætlaði mér í upphafi. Klösunin er viðbót sem mér datt í hug núna í morgunsárið. Það sem er mikilvægt að hafa í huga við svona greiningu er að þó spáð sé hækkun næstu fimm árin að þá getur samt orðið lækkun einhvern tíman í millitíðinni. Auk þess getur oft verið mikil óvissa. T.d. er hluti af árinu 2015 í klasanum 13 sem gefur til kynna um 4% lækkun næstu fimm árin. Nú tæpum fimm árum seinna hefur hækkunin verið um 50%. Seinni hluti 2015 er flokkaður í klasa 11 sem gerir ráð fyrir 8% hækkun næstu tvö árin og 15% hækkun næstu fimm árin. Það má því segja, líkt og búast hefði mátt við, að þetta er engin kristalkúla en getur gefið einhverja hugmynd af stöðunni hverju sinni.  
