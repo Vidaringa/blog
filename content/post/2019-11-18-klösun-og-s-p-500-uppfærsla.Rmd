@@ -1,0 +1,32 @@
+---
+title: Klösun og S&P 500 - Uppfærsla
+author: Viðar Ingason
+date: '2019-11-18'
+draft: true
+slug: klösun-og-s-p-500-uppfærsla
+categories:
+  - finance
+tags:
+  - s&p00
+  - clustering
+description: ''
+topics: []
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(tidyverse)
+library(lubridate)
+# library(quantmod)
+library(rvest)
+library(bayestestR)
+library(mclust)
+library(knitr)
+library(kableExtra)
+
+options(kableExtra.html.bsTable = TRUE)
+```
+
