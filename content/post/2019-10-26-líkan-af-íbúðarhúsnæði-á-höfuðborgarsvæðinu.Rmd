@@ -17,12 +17,13 @@ topics: []
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.width = 8)
 
 library(tidyverse)
 library(forecast)
 library(lubridate)
 library(vars)
+library(ggthemes)
 # library(knitr)
 # library(kableExtra)
 
@@ -34,53 +35,86 @@ Fyrir stuttu síðan tók ég saman gögn um hámarkshlutfall sem íslenskar fj�
 
 
 ## Gögn
-Gögnin sem ég nota eru fengin úr nokkrum áttum. Allt eru þetta mánaðarleg gögn. Fyrir verð á íbúðarhúsnæði nota ég vísitölu íbúðaverðs á höfuðborgarsvæðinu sem Þjóðskrá gefur út. Þá er ég með upplýsingar um skuldir heimilana sem ég fékk hjá Seðlabanka Íslands. Þetta eru allar skuldir heimila en ekki aðeins húsnæðisskuldir. Ég geng út frá því í greiningunni að neðan að þessi tímaröð og sú sem ætti aðeins við um lán til fasteignakaupa séu nátengdar (svo þarf ekki að vera). Þá er ég með upplýsingar um hámarks lánshlutfall sem bankarnir þrír ásamt Íbúðalánasjóði lána til fasteignakaupa, sjá [hér](https://drive.google.com/open?id=1rqTnfF3TyLHb_mClsCPYEfMnhj6oGmCc). Þessum gögnum safnaði ég af [Vefsafn.is](www.vefsafn.is). Ekki voru til samfelldar upplýsingar af vefsvæðum gömlu bankanna og því gat verið að ég hafði upplýsingar um hámarksútlán í október en síðan ekkert fyrr en í febrúar árið eftir. Ef breytingar áttu sér stað á tímabilinu þurfti ég að geta mér til um hvenær þær breytingar hafi átt sér stað. Athugasemdir um söfnun þessara gagna er að vinna í Excel skjalinu sem ég hlekkjaði á hér að ofan. Þá er ég með lægstu vexti sem eru í boði til fasteignakaupa, útborguð heildarlaun og vísitölu húsaleigu fyrir landið allt. Þetta eru ekki fullkomin gögn, t.d. væri best að hafa vísitölu leiguhúsnæðis aðeins fyrir höfuðborgarsvæðið og alveg aftur til t.d. 1990. Fyrir íbúðarhúsnæði mun ég nota tólf mánaða breytingu. Sama á við um útlán, útborguð laun og húsaleigu.  
+Gögnin sem ég nota eru fengin úr nokkrum áttum. Allt eru þetta mánaðarleg gögn. Fyrir verð á íbúðarhúsnæði nota ég vísitölu íbúðaverðs á höfuðborgarsvæðinu sem Þjóðskrá gefur út. Þá er ég með upplýsingar um skuldir heimilana sem ég fékk hjá Seðlabanka Íslands. Þetta eru allar skuldir heimila en ekki aðeins húsnæðisskuldir. Ég geng út frá því í greiningunni að neðan að þessi tímaröð og sú sem ætti aðeins við um lán til fasteignakaupa séu nátengdar (svo þarf ekki að vera). Þá er ég með upplýsingar um hámarks lánshlutfall sem bankarnir þrír ásamt Íbúðalánasjóði lána til fasteignakaupa, sjá [hér](https://drive.google.com/open?id=1rqTnfF3TyLHb_mClsCPYEfMnhj6oGmCc). Þessum gögnum safnaði ég af [Vefsafn.is](www.vefsafn.is). Ekki voru til samfelldar upplýsingar af vefsvæðum gömlu bankanna og því gat verið að ég hafði upplýsingar um hámarksútlán í október en síðan ekkert fyrr en í febrúar árið eftir. Ef breytingar áttu sér stað á tímabilinu þurfti ég að geta mér til um hvenær þær breytingar hafi átt sér stað. Athugasemdir um söfnun þessara gagna er að vinna í Excel skjalinu sem ég hlekkjaði á hér að ofan. Þá er ég með lægstu vexti sem eru í boði til fasteignakaupa, útborguð heildarlaun og vísitölu húsaleigu fyrir landið allt. Þetta eru ekki fullkomin gögn, t.d. væri best að hafa vísitölu leiguhúsnæðis aðeins fyrir höfuðborgarsvæðið og alveg aftur til t.d. 1990. 
 
 
 ## Grafísk greining
-Fyrsta myndin sýnir þróun þeirra sex breyta sem ég mun styðjast við. Gífurleg hækkun fasteignaverðs átti sér stað frá lok árs 2004 þegar bæði hámars hlutfall hækkaði úr 65% í 100% á 2-3 mánuðum. Á sama tíma lækkuðu vextir fasteignalána.  
-```{r}
-gogn <- read_csv("C:/Users/vidar/Documents/Rwd/husnaedi_fc/final_data.csv") %>% 
-  dplyr::select(date, d_hus, d_utb, d_leiga, max_hlutfall, laegstu_vextir, utlan_breyting) %>% 
+Fyrsta myndin sýnir þróun þeirra sex breyta sem ég mun styðjast við. Gífurleg hækkun fasteignaverðs átti sér stað frá lok árs 2004 þegar bæði hámars hlutfall hækkaði úr 65% í 100% á 2-3 mánuðum og vextir fasteignalána voru lækkaðir.
+
+```{r, fig.height=6}
+gogn <- readxl::read_excel("C:/Users/vidar/Documents/Rwd/husnaedi_fc/data.xlsx")
+
+gogn_graph <- gogn %>% 
+  mutate(hus_12m_br = ibudarhus/lag(ibudarhus, 12) - 1,
+         leiga_12m_br = greidd_husaleiga/lag(greidd_husaleiga, 12) - 1,
+         utborgad_12m_br = utborgad/lag(utborgad, 12) - 1,
+         utlan_12m_br = utlan_heimila/lag(utlan_heimila, 12) - 1) %>% 
+  dplyr::select(date, hus_12m_br, leiga_12m_br, utborgad_12m_br, utlan_12m_br, laegstu_vextir, max_hlutfall) %>% 
   na.omit()
 
-gogn %>% 
-  pivot_longer(cols = d_hus:utlan_breyting,
+gogn_graph %>% 
+  mutate("Hlutfall" = ifelse(max_hlutfall >= .9, "90% eða hærra", "Undir 90%")) %>% 
+  pivot_longer(cols = hus_12m_br:max_hlutfall,
                names_to = "variable",
                values_to = "value") %>% 
   ggplot(aes(x = date,
-             y = value)) + 
-  geom_line() + 
+             y = value,
+             col = Hlutfall)) + 
+  geom_path(aes(group = 1)) + 
+  theme(legend.position = "bottom") + 
   facet_wrap(~ variable,
              ncol = 3,
-             scales = "free_y")
+             scales = "free_y") + 
+  scale_color_tableau()
 
 ```
 
 
-Ég er ekki mikið fyrir að birta gröf sem sýna samband milli tveggja breyta þegar ég veit að þriðja breytan hefur einnig áhrif. Ætla þó að gera undantekningu hér. Boxplot-ið að neðan sýnir dreifingu á hækkun fasteignaverðs yfir tíma eftir því hvert hámarks hlutfall til fasteignakaupa var á hverjum tíma. Breidd á hverju boxplot-i táknar hversu lengi tiltekið hámark stóð til boða. Ég er með þá kenningu að vaxtastigið hafi töluvert minni áhrif á fasteignaverð en t.d. hámarks lánshlutfall til fasteignakaupa. 
+Næst sýni ég dreifingu eftir hámarks lánshlutfalli. Hér mætti einnig skoða meðallánshlutfall sem lánastofnanir buðu. Ég ákvað þó að fara þá leið í þessari greiningu að nota hæsta hlutfallið sem var í boði á hverjum tíma.  
+Ég er almennt ekki hlynntur því að birta gröf sem sýnir samband tveggja breyta þegar vitað er að aðrar breytur kunna að hafa áhrif. Ástæðan er sú að það er auðvelt að sýna jákvætt samband milli tveggja breyta en sambandið hverfur eða jafnvel breytir um formerki við það eitt að taka tillit til þriðju breytunnar. Hér geri ég þó undantekningu með því að sýna samband milli tólf mánaða hækkun fasteignaverðs og hámarks hlutfalls með ofangreindum fyrirvörum.  
+
+Neðangreint graf kallst box-plot. Box plot samanstendur af *hinges* og *whiskers*. Hinges eru efri og neðri mörk kassans. Efri mörkin eru efri fjórðungsmörk og neðri mörkin eru neðri fjórðungsmörk. Neðri fjórðungsmörk eru skilgreind á þann hátt að 25% gildanna (tólf mánað breyting í þessu dæmi) eru undir neðri fjórðungsmörkum. Á sama hátt eru 25% gildanna yfir efri fjórðungsmörkum.   
+Whiskers eru lóðréttu strikin sem koma upp úr og niður úr boxinu. Efra stirkið nær frá efir mörkum boxins upp í hæsta gildið þó aldrei hærra en 1.5 x IQR, sama á við um neðra strikið. Gildi sem fara út fyrir *whiskers* kallst útlagar.  
+(IQR: inter quartile range eða bil milli efri og neðri marka boxins).
+
 
 ```{r}
 
-gogn %>% 
-  dplyr::select(date, d_hus, max_hlutfall) %>% 
-  # pivot_longer(cols = d_hus:max_hlutfall,
-  #              names_to = "variable",
-  #              values_to = "value") %>% 
-  ggplot(aes(x = date,
-             y = d_hus,
-             fill = as.character(max_hlutfall))) + 
-  geom_boxplot() + 
-  theme(legend.position = "bottom",
-        legend.title = element_blank())
+gogn_graph$max_hlutfall_fct <- factor(scales::percent(gogn_graph$max_hlutfall),
+                                      levels = c("65%", "80%", "85%", "100%"))
 
-
-# ggplot(gogn,
-#        aes(x = as.character(max_hlutfall),
-#            y = d_hus,
-#            fill = as.character(max_hlutfall))) + 
-#   geom_boxplot()
+ggplot(gogn_graph,
+       aes(x = max_hlutfall_fct,
+           y = hus_12m_br,
+           fill = max_hlutfall_fct,
+           col = max_hlutfall_fct)) +
+    scale_fill_tableau() + 
+  scale_color_tableau() + 
+  geom_boxplot(col = "black", outlier.shape = NA) +
+  geom_point(shape = 21, size = 4, col = "black",  position = position_jitterdodge(), alpha = 0.5) + 
+    labs(x = "Hámarsk hlutfall",
+         y = NULL,
+       title = "Tólf mánaða hækkun húsnæðisverð og hámarks hlutfall") + 
+  theme(legend.position = "none") + 
+  scale_y_continuous(labels = scales::percent)
 
 
 ```
 
+Út frá myndunum að ofan er hægt að draga þá ályktun að þegar lánshlutfall er hærra, þá er tólf mánaða hækkun fasteignaverðs hærri.  
+
+Gröf ein og sér svara því þó ekki fyllilega hver áhrif hærra lánshlutfalls er á fasteignaverðs. Til að fá betra svar sný ég mér að tölfræðilíkönum.
+
+
+## VAR og VEC líkön
+VAR (vector autoregression) og VEC (vector error correction) eru tvö líkön sem hægt er að nota til að varpa ljósi á áhrif hærra lánshlutfalls á fasteignaverðs. Þá á ég sérstaklega við viðbragðsföll (e. impulse response function).  
+
+
+
+<details>
+  <summary> VAR og VECM </summary>
+```{r}
+hist(rnorm(100))
+```
+</details>
+  

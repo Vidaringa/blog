@@ -1,5 +1,5 @@
 ---
-title: Klösun og S&P 500 - Uppfærsla
+title: Klösun og S&P 500 - Framhald
 author: Viðar Ingason
 date: '2019-11-18'
 draft: true
@@ -20,7 +20,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 
 library(tidyverse)
 library(lubridate)
-# library(quantmod)
+library(fredr)
 library(rvest)
 library(bayestestR)
 library(mclust)
@@ -28,5 +28,126 @@ library(knitr)
 library(kableExtra)
 
 options(kableExtra.html.bsTable = TRUE)
+```
+
+
+Í seinasta pósti fór ég aðeins yfir sambandið á milli S&P 500 og Shiller PE Ratio. Pósturinn fékk fínustu viðtökur og fékk ég ábendingu um að þróun grunnvaxta í Bandaríkjunum réði töluverðu sem er eflaust rétt. Hér að neðan mun ég taka tillit til fleiri upplýsinga, svo sem vaxta. Í þeirri greiningu mun ég áfram styðjast við clustering algorithma, þ.e. unsupervised learning. 
+Það væri lítið mál að nota spálíkön, supervised learning, en ég tel að það sé allt að því fullreynt. Marcos López de Prado kemur inn á þetta í bók sinni, Advances in Financial Machine Learning:  
+*If a decade ago it was relatively common for an individual to discover macroscopic alpha (i.e., using simple mathematical tools like econometrics), currently the chances of that happening are quickly converging to zero. Individuals searching nowadays for macroscopic alpha, regardless of their experience or knowledge, are fighting overwhelming odds. The only true alpha left is microscopic, and finding it requires capital-intensive industrial methods.*  
+
+Þarna er hann bæði að tala um hefðbundin hagrannsóknarlíkön  sem og machine learning algorithma notuð á macro-gögn. Hann myndi því telja óraunhæft að nota t.d. Shiller PE Ratio og grunnvexti til að spá fyrir um S&P 500. Hann er þó að horfa stíft á það hvort hægt sé að spá með mikilli nákvæmni fyrir um hlutabréfaverð og reka heilan vogunarsjóð á þessu einu. Ég tel hins vegar að hægt sé að nota clustering algorithma sem hlut af stærri greiningu.  
+
+## Gögn
+Ég nota sömu gögn og seinast nema bæti við *Effective federal funds rate*, *S&P 500 Earnings*. Gögnin fæ ég öll [hér](https://www.multpl.com/s-p-500-pe-ratio). 
+
+```{r, data}
+# S&P 500 gögn
+sp_url <- "https://www.multpl.com/s-p-500-historical-prices/table/by-month"
+
+sp_data <- sp_url %>%
+        read_html() %>%
+        html_nodes("td") %>%
+        html_text()
+
+sp_data <- sp_data %>%
+        matrix(ncol = 2, byrow = TRUE) %>%
+        as_tibble()
+
+sp_data <- sp_data %>%
+        transmute(value = parse_number(V2),
+                  date = anytime::anydate(V1))
+
+sp_data <- sp_data %>%
+        tail(nrow(sp_data) - 1)
+
+colnames(sp_data) <- c("sp_500", "date")
+
+
+
+# Shiller PE Ratio
+cape_url <- "https://www.multpl.com/shiller-pe/table/by-month"
+
+sp_pe <- cape_url %>%
+        read_html() %>%
+        html_nodes("td") %>%
+        html_text()
+
+sp_pe <- sp_pe %>%
+        matrix(ncol = 2, byrow = TRUE) %>%
+        as_tibble()
+
+sp_pe <- sp_pe %>%
+        transmute(value = parse_number(V2),
+                  date = anytime::anydate(V1))
+
+sp_pe <- sp_pe %>%
+        tail(nrow(sp_pe) - 1)
+
+
+df <- sp_pe %>% left_join(sp_data) %>%
+        arrange(date) %>%
+        na.omit() %>%
+        select(date, value, sp_500)
+
+colnames(df) <- c("date", "pe_ratio", "sp_500")
+
+
+# Effective funds rate
+library(fredr)
+fredr_set_key("ce8e2d3a880bb344266a0506271b44ce")
+
+fedfunds <- fredr(series_id = "FEDFUNDS") %>% select(-series_id)
+colnames(fedfunds) <- c("date", "fedfunds")
+
+df <- df %>% 
+  left_join(fedfunds) %>% 
+  na.omit()
+
+```
+
+
+```{r, clustering}
+
+df_analysis <- df %>% 
+  filter(date <= "2001-03-01") %>% 
+  mutate(sp_return_past2 = sp_500/lag(sp_500, 12) - 1,
+         fed_pe = fedfunds * pe_ratio) %>% 
+  na.omit()
+
+# df_analysis %>% select(-sp_500) %>% pivot_longer(cols = 2:5, names_to = "breytur", values_to = "gildi") %>%  
+#   ggplot(aes(x = date, y = gildi)) + facet_wrap(~ breytur, ncol = 1, scales = "free_y") +
+#   geom_line()
+
+
+mc <- Mclust(data = df_analysis[,c(2, 4, 5, 6)], G = 1:25)
+
+
+df_analysis$cluster <- mc$classification
+
+
+# Plot and table
+df_analysis %>% 
+  filter(date >= "1985-01-01") %>% 
+  ggplot(aes(x = date,
+             y = sp_500,
+             col = factor(cluster))) +
+  geom_path(aes(group = 1), lwd = 1.5) + 
+  # scale_color_brewer(palette = "Set1") + 
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend("Clusters")) + 
+  labs(x = NULL,
+       y = "S&P 500")
+
+df_analysis %>% 
+  mutate(sp_return_next2 = lead(sp_500, 12)/sp_500 - 1) %>% 
+  group_by(cluster) %>% 
+  summarise(return_next_2 = median(sp_return_next2, na.rm = TRUE),
+            sd_next_2 = sd(sp_return_next2, na.rm = TRUE),
+            cv = abs(return_next_2/sd_next_2)) %>% 
+  View()
+
+df %>% 
+  mutate(sp_return_next2 = lead(sp_500, 24)/sp_500 - 1) %>% 
+  View("return")
 ```
 

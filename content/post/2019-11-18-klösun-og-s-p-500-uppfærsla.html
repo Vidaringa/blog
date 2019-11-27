@@ -1,0 +1,26 @@
+---
+title: Klösun og S&P 500 - Framhald
+author: Viðar Ingason
+date: '2019-11-18'
+draft: true
+slug: klösun-og-s-p-500-uppfærsla
+categories:
+  - finance
+tags:
+  - s&p00
+  - clustering
+description: ''
+topics: []
+---
+
+
+
+<p>Í seinasta pósti fór ég aðeins yfir sambandið á milli S&amp;P 500 og Shiller PE Ratio. Pósturinn fékk fínustu viðtökur og fékk ég ábendingu um að þróun grunnvaxta í Bandaríkjunum réði töluverðu sem er eflaust rétt. Hér að neðan mun ég taka tillit til fleiri upplýsinga, svo sem vaxta. Í þeirri greiningu mun ég áfram styðjast við clustering algorithma, þ.e. unsupervised learning.
+Það væri lítið mál að nota spálíkön, supervised learning, en ég tel að það sé allt að því fullreynt. Marcos López de Prado kemur inn á þetta í bók sinni, Advances in Financial Machine Learning:<br />
+<em>If a decade ago it was relatively common for an individual to discover macroscopic alpha (i.e., using simple mathematical tools like econometrics), currently the chances of that happening are quickly converging to zero. Individuals searching nowadays for macroscopic alpha, regardless of their experience or knowledge, are fighting overwhelming odds. The only true alpha left is microscopic, and finding it requires capital-intensive industrial methods.</em></p>
+<p>Þarna er hann bæði að tala um hefðbundin hagrannsóknarlíkön sem og machine learning algorithma notuð á macro-gögn. Hann myndi því telja óraunhæft að nota t.d. Shiller PE Ratio og grunnvexti til að spá fyrir um S&amp;P 500. Hann er þó að horfa stíft á það hvort hægt sé að spá með mikilli nákvæmni fyrir um hlutabréfaverð og reka heilan vogunarsjóð á þessu einu. Ég tel hins vegar að hægt sé að nota clustering algorithma sem hlut af stærri greiningu.</p>
+<div id="gögn" class="section level2">
+<h2>Gögn</h2>
+<p>Ég nota sömu gögn og seinast nema bæti við <em>Effective federal funds rate</em>, <em>S&amp;P 500 Earnings</em>. Gögnin fæ ég öll <a href="https://www.multpl.com/s-p-500-pe-ratio">hér</a>.</p>
+<p><img src="/post/2019-11-18-klösun-og-s-p-500-uppfærsla_files/figure-html/clustering-1.png" width="672" /></p>
+</div>
