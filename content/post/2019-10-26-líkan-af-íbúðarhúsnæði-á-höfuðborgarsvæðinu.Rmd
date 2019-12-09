@@ -42,7 +42,7 @@ Gögnin sem ég nota eru fengin úr nokkrum áttum. Allt eru þetta mánaðarleg
 Fyrsta myndin sýnir þróun þeirra sex breyta sem ég mun styðjast við. Gífurleg hækkun fasteignaverðs átti sér stað frá lok árs 2004 þegar bæði hámars hlutfall hækkaði úr 65% í 100% á 2-3 mánuðum og vextir fasteignalána voru lækkaðir.
 
 ```{r, fig.height=6}
-gogn <- readxl::read_excel("C:/Users/vidar/Documents/Rwd/husnaedi_fc/data.xlsx")
+gogn <- readxl::read_excel("./content/post/data/likan_af_ibudarverdi_data.xlsx")
 
 gogn_graph <- gogn %>% 
   mutate(hus_12m_br = ibudarhus/lag(ibudarhus, 12) - 1,
@@ -112,9 +112,50 @@ VAR (vector autoregression) og VEC (vector error correction) eru tvö líkön se
 
 <details>
   <summary> VAR og VECM - Ítarefni og uppskrift </summary>
-VAR og VEC líkön eru hentug fyrir verkefni sem þetta. Ýmislegt þarf að hafa í huga þegar líkön sem þessi eru notuð. Val milli VAR og VEC byggir á því hvort til staðar sé langtíma samband milli breyta sem til skoðunar eru. Gott dæmi er fasteignaverð og leiga eða fasteignaverð og laun. Það er ekki svo ólíklegt að fasteignaverð og leiga eða fasteignaverð og laun haldist í hendur yfir lengra tímabil. Til skamms tíma getur þó fasteignaverð þróast með öðrum hætti en leiga og laun.
-Í tölfræði er talað um samþættingarsamband (e. cointegration) tímaraða. Ef tvær ósístæðar tímaraðir (e. non-stationary) verða sístæðar við að taka mismun d sinnum (t.d. einusinni) og til er línulegt samband á milli þessara  breyta sem er þáttað (e. integrated) af gráðu d-1, þá eru breyturnar sagðar samþættar. Gott dæmi eru hlutabréf. Tímaraðir tveggja hlutabréfavísitalna fylgja slembiferli (stochastic process) en sambandið á milli þeirra getur verið sístætt.  
+VAR og VEC líkön eru hentug fyrir verkefni sem þetta. Ýmislegt þarf að hafa í huga þegar líkön sem þessi eru notuð. Val milli VAR og VEC byggir á því hvort til staðar sé langtíma samband milli breyta sem til skoðunar eru. Gott dæmi er fasteignaverð og leiga eða fasteignaverð og laun. Það er ekki svo ólíklegt að fasteignaverð og leiga eða fasteignaverð og laun haldist í hendur yfir lengra tímabil. Til skamms tíma getur þó fasteignaverð þróast með öðrum hætti en leiga og laun.  
+Ef langtímasamband er á milli fasteignaverðs og leigu þá er nauðsynlegt að taka tillit til þess. Þar kemur VEC líkan við sögu. Í tölfræði er talað um samþættingarsamband (e. cointegration) tímaraða.
+
+
+Ef tvær ósístæðar tímaraðir (e. non-stationary) verða sístæðar við að taka mismun d sinnum (t.d. einusinni) og til er línulegt samband á milli þessara breyta sem er þáttað (e. integrated) af gráðu d-1, þá eru breyturnar sagðar samþættar. Tökum dæmi.  
+Grafið að neðan sýnir vísitölu íbúðaverðs á höfuðborgarsvæðinu og vísitölu útborgaðra heildarlauna. Á grafinu að dæma virðist vera langtíma samband á milli breytanna þó það komi tímabil þar sem ójafnvægi myndast.
+```{r coint_graph}
+
+price_rent <- gogn %>% dplyr::select(date, ibudarhus, utborgad) %>% 
+  mutate("Útborguð heildarlaun" = utborgad/utborgad[1]*100,
+         "Íbúðaverð" = ibudarhus) %>% 
+  dplyr::select(-c(ibudarhus, utborgad)) %>% 
+  pivot_longer(cols = 2:3,
+               names_to = "key",
+               values_to = "value")
+
+ggplot(price_rent,
+       aes(x = date,
+           y = value,
+           col = key)) + 
+  geom_line() + 
+  labs(y = NULL,
+       x = "Dagsetning",
+       title = "Vísitala fasteignaverðs og útborgaðra launa",
+       subtitle = "Vísitölur = 100 í janúar 1994") + 
+  theme(legend.position = "bottom",
+        legend.title = element_blank())
+
+```
+
+
+```{r coint_test}
+price_rent_coint <- price_rent %>% pivot_wider(names_from = key, values_from = value)
+VARselect(price_rent_coint[,-1], lag.max = 24, type = c("both"))$selection
+
+summary(ca.jo(as.matrix(price_rent_coint[,-1]),
+      type = "eigen",
+      # prófa líka 'none' í ecdet
+      ecdet = "none",
+      K = 13,
+      season = 12))
+
+```
+
 
 Hér verður kannað hvort samþættingarsamband sé á milli fasteignaverðs, leigu og launa. Ef svo er þá er hentugar að styðjast við VEC líkan en VAR til að ná utan um þetta langtímasamband.  
 </details>
-  
