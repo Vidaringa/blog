@@ -20,14 +20,14 @@ topics: []
 <p>Fyrir stuttu síðan tók ég saman gögn um hámarkshlutfall sem íslenskar fjármálastofnanir lána til fasteignakaupa. Ég hafði áhuga á því að skoða þetta hlutfall í samhengi við hækkun fasteignaverðs á höfuðborgarsvæðinu. Að neðan mun ég skoða gögnin með myndrænum hætti auk þess sem ég met VAR (og VEC líkan ef það hentar) til að varpa ljósi á áhrif hámarks lánshlutfalls á þróun fasteignaverðs.</p>
 <div id="gögn" class="section level2">
 <h2>Gögn</h2>
-<p>Gögnin sem ég nota eru fengin úr nokkrum áttum. Allt eru þetta mánaðarleg gögn. Fyrir verð á íbúðarhúsnæði nota ég vísitölu íbúðaverðs á höfuðborgarsvæðinu sem Þjóðskrá gefur út. Þá er ég með upplýsingar um skuldir heimilana sem ég fékk hjá Seðlabanka Íslands. Þetta eru allar skuldir heimila en ekki aðeins húsnæðisskuldir. Ég geng út frá því í greiningunni að neðan að þessi tímaröð og sú sem ætti aðeins við um lán til fasteignakaupa séu nátengdar (svo þarf ekki að vera). Þá er ég með upplýsingar um hámarks lánshlutfall sem bankarnir þrír ásamt Íbúðalánasjóði lána til fasteignakaupa, sjá <a href="https://drive.google.com/open?id=1rqTnfF3TyLHb_mClsCPYEfMnhj6oGmCc">hér</a>. Þessum gögnum safnaði ég af <a href="www.vefsafn.is">Vefsafn.is</a>. Ekki voru til samfelldar upplýsingar af vefsvæðum gömlu bankanna og því gat verið að ég hafði upplýsingar um hámarksútlán í október en síðan ekkert fyrr en í febrúar árið eftir. Ef breytingar áttu sér stað á tímabilinu þurfti ég að geta mér til um hvenær þær breytingar hafi átt sér stað. Athugasemdir um söfnun þessara gagna er að vinna í Excel skjalinu sem ég hlekkjaði á hér að ofan. Þá er ég með lægstu vexti sem eru í boði til fasteignakaupa, útborguð heildarlaun og vísitölu húsaleigu fyrir landið allt. Þetta eru ekki fullkomin gögn, t.d. væri best að hafa vísitölu leiguhúsnæðis aðeins fyrir höfuðborgarsvæðið og alveg aftur til t.d. 1990.</p>
+<p>Gögnin sem ég nota eru fengin úr nokkrum áttum. Allt eru þetta mánaðarleg gögn. Fyrir verð á íbúðarhúsnæði nota ég vísitölu íbúðaverðs á höfuðborgarsvæðinu sem Þjóðskrá gefur út. Þá er ég með upplýsingar um skuldir heimilana sem ég fékk hjá Seðlabanka Íslands. Þetta eru allar skuldir heimila en ekki aðeins húsnæðisskuldir. Ég geng út frá því í greiningunni að þessi tímaröð og sú sem ætti aðeins við um lán til fasteignakaupa séu nátengdar (svo þarf ekki að vera). Þá er ég með upplýsingar um hámarks lánshlutfall sem bankarnir þrír ásamt Íbúðalánasjóði lána til fasteignakaupa, sjá <a href="https://drive.google.com/open?id=1rqTnfF3TyLHb_mClsCPYEfMnhj6oGmCc">hér</a>. Þessum gögnum safnaði ég af <a href="www.vefsafn.is">Vefsafn.is</a>. Ekki voru til samfelldar upplýsingar af vefsvæðum gömlu bankanna og því gat verið að ég hafði upplýsingar um hámarksútlán í október en síðan ekkert fyrr en í febrúar árið eftir. Ef breytingar áttu sér stað á tímabilinu þurfti ég að geta mér til um hvenær þær breytingar hafi átt sér stað. Athugasemdir um söfnun þessara gagna er að vinna í Excel skjalinu sem ég hlekkjaði á hér að ofan. Þá er ég með lægstu vexti sem eru í boði til fasteignakaupa, útborguð heildarlaun og vísitölu húsaleigu fyrir landið allt. Þetta eru ekki fullkomin gögn, t.d. væri best að hafa vísitölu leiguhúsnæðis aðeins fyrir höfuðborgarsvæðið og alveg aftur til t.d. 1990.</p>
 </div>
 <div id="grafísk-greining" class="section level2">
 <h2>Grafísk greining</h2>
 <p>Fyrsta myndin sýnir þróun þeirra sex breyta sem ég mun styðjast við. Gífurleg hækkun fasteignaverðs átti sér stað frá lok árs 2004 þegar bæði hámars hlutfall hækkaði úr 65% í 100% á 2-3 mánuðum og vextir fasteignalána voru lækkaðir.</p>
 <p><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/unnamed-chunk-1-1.png" width="768" /></p>
 <p>Næst sýni ég dreifingu eftir hámarks lánshlutfalli. Hér mætti einnig skoða meðallánshlutfall sem lánastofnanir buðu. Ég ákvað þó að fara þá leið í þessari greiningu að nota hæsta hlutfallið sem var í boði á hverjum tíma.<br />
-Ég er almennt ekki hlynntur því að birta gröf sem sýnir samband tveggja breyta þegar vitað er að aðrar breytur kunna að hafa áhrif. Ástæðan er sú að það er auðvelt að sýna jákvætt samband milli tveggja breyta en sambandið hverfur eða jafnvel breytir um formerki við það eitt að taka tillit til þriðju breytunnar. Hér geri ég þó undantekningu með því að sýna samband milli tólf mánaða hækkun fasteignaverðs og hámarks hlutfalls með ofangreindum fyrirvörum.</p>
+Ég er almennt ekki hlynntur því að birta gröf sem sýnir samband tveggja breyta þegar vitað er að aðrar breytur kunna að hafa áhrif. Ástæðan er sú að það er auðvelt að sýna jákvætt samband milli tveggja breyta en sambandið hverfur eða jafnvel breytir um formerki við það eitt að taka tillit til þriðju breytunnar. Hér geri ég þó undantekningu með því að sýna samband milli tólf mánaða hækkun fasteignaverðs og hámarks hlutfalls með þeim fyrirvörum að þetta kunni að breytast eftir að tekið er tillit til annarra breyta.</p>
 <p>Neðangreint graf kallst box-plot. Box plot samanstendur af <em>hinges</em> og <em>whiskers</em>. Hinges eru efri og neðri mörk kassans. Efri mörkin eru efri fjórðungsmörk og neðri mörkin eru neðri fjórðungsmörk. Neðri fjórðungsmörk eru skilgreind á þann hátt að 25% gildanna (tólf mánað breyting í þessu dæmi) eru undir neðri fjórðungsmörkum. Á sama hátt eru 25% gildanna yfir efri fjórðungsmörkum.<br />
 Whiskers eru lóðréttu strikin sem koma upp úr og niður úr boxinu. Efra stirkið nær frá efir mörkum boxins upp í hæsta gildið þó aldrei hærra en 1.5 x IQR, sama á við um neðra strikið. Gildi sem fara út fyrir <em>whiskers</em> kallst útlagar.<br />
 (IQR: inter quartile range eða bil milli efri og neðri marka boxins).</p>
@@ -37,9 +37,241 @@ Whiskers eru lóðréttu strikin sem koma upp úr og niður úr boxinu. Efra sti
 </div>
 <div id="var-og-vec-líkön" class="section level2">
 <h2>VAR og VEC líkön</h2>
-<p>VAR (vector autoregression) og VEC (vector error correction) eru tvö líkön sem hægt er að nota til að varpa ljósi á áhrif hærra lánshlutfalls á fasteignaverðs. Þá á ég sérstaklega við viðbragðsföll (e. impulse response function).</p>
+<p>VAR (vector autoregression) og VEC (vector error correction) eru tvö líkön sem hægt er að nota til að varpa ljósi á áhrif hærra lánshlutfalls á fasteignaverðs. Þá á ég sérstaklega við viðbragðsföll (e. impulse response function). Bæði líkönin má einnig nota til að framkvæma spár. VAR er eflaust betra fyrir skammtímaspár en VEC fyrir langtímaspár þar sem VEC nær utan um langtímasamband breyta sem VAR nær ekki utan um.</p>
+<p>Hér að neðan er hægt að sprengja út þríhyrninginn þar sem farið er ítarlega í gegnum VAR og VEC líkön með kóða í R. Sá hluti er aðeins hugsaður sem auka fyrir þá allra áhugasömustu. Hinir geta flett yfir og farið beint í greininguna að neðan.</p>
 <details>
-<summary> VAR og VECM </summary>
-<img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/unnamed-chunk-3-1.png" width="768" />
+<p><summary> VAR og VECM - Ítarefni og uppskrift </summary>
+VAR og VEC líkön eru ein af vinsælustu tölfræðilíkönunum sem hagfræðingar styðjast við í sínum greiningum. Ótal bækur hafa verið skrifaðar þar sem aðal áherslan er VAR og VEC líkön. Ég hef stuðst nokkuð við bækur eftir Lütkepohl. <em>Applied time series econometrics</em> er góð og hægt að fara beint í kafla þrjú fyrir þessi líkön. Þá er einnig gagnlegt að far í gegnum inngang að <strong>vars</strong> pakkanum í R, sjá <a href="https://cran.r-project.org/web/packages/vars/vignettes/vars.pdf">hér</a>.</p>
+<p>VAR og VEC líkön eru hentug fyrir ofangreint verkefni. Það verður að teljast líklegt að samþættingarsamband sé á milli fasteignaverðs og launa og/eða fasteignaverðs og leigu. Ýmislegt þarf að hafa í huga þegar líkön sem þessi eru notuð. Val milli VAR og VEC byggir á því hvort til staðar sé langtíma samband milli breyta sem til skoðunar eru. Ef langtímasamband er á milli fasteignaverðs og leigu þá er nauðsynlegt að taka tillit til þess. Í tölfræði er talað um samþættingarsamband (e. cointegration relation) tímaraða.</p>
+<p>Ef tvær ósístæðar tímaraðir (e. non-stationary) verða sístæðar við að taka mismun d sinnum (t.d. einusinni) og til er línulegt samband á milli þessara breyta sem er þáttað (e. integrated) af gráðu d-1, þá eru breyturnar sagðar samþættar. Tökum dæmi.<br />
+Grafið að neðan sýnir vísitölu íbúðaverðs á höfuðborgarsvæðinu og vísitölu útborgaðra heildarlauna. Á grafinu að dæma virðist vera langtíma samband á milli breytanna þó það komi tímabil þar sem ójafnvægi myndast. Ef það er samþættingarsamband á milli breytann þá mun fyrr eða síðar gapið þarna á milli lokast.</p>
+<pre class="r"><code>price_rent &lt;- gogn %&gt;% dplyr::select(date, ibudarhus, utborgad) %&gt;% 
+  mutate(&quot;Útborguð heildarlaun&quot; = utborgad/utborgad[1]*100,
+         &quot;Íbúðaverð&quot; = ibudarhus) %&gt;% 
+  dplyr::select(-c(ibudarhus, utborgad)) %&gt;% 
+  pivot_longer(cols = 2:3,
+               names_to = &quot;key&quot;,
+               values_to = &quot;value&quot;)
+
+ggplot(price_rent,
+       aes(x = date,
+           y = value,
+           col = key)) + 
+  geom_line() + 
+  labs(y = NULL,
+       x = &quot;Dagsetning&quot;,
+       title = &quot;Vísitala fasteignaverðs og útborgaðra launa&quot;,
+       subtitle = &quot;Vísitölur = 100 í janúar 1994&quot;) + 
+  theme(legend.position = &quot;bottom&quot;,
+        legend.title = element_blank()) +
+  scale_color_tableau()</code></pre>
+<p><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/coint_graph-1.png" width="768" /></p>
+<p>Hér verður kannað hvort samþættingarsamband sé á milli fasteignaverðs, leigu og launa. Ef svo er þá er hentugar að styðjast við VEC líkan en VAR til að ná utan um þetta langtímasamband. Fyrst þarf að velja fjölda tafinna gilda. Það geri ég með <code>VARselect</code>. AIC, HQ, SC og FPE gefa öll misjafna niðurstöðu. Fjögur tafin gildi virðist þó duga.</p>
+<pre class="r"><code>gogn_2 &lt;- gogn %&gt;% 
+  mutate(d_debt = utlan_heimila/lag(utlan_heimila, 12) - 1,
+         log_price = log(ibudarhus),
+         log_leiga = log(greidd_husaleiga),
+         log_laun = log(utborgad)) %&gt;% 
+  dplyr::select(-c(ibudarhus, greidd_husaleiga, utborgad, utlan_heimila)) %&gt;% 
+  na.omit()
+
+VARselect(gogn_2[,-1], lag.max = 12, type = c(&quot;both&quot;), season = 12)$selection</code></pre>
+<pre><code>## AIC(n)  HQ(n)  SC(n) FPE(n) 
+##      4      1      1      4</code></pre>
+<pre class="r"><code># No intercept and no trend variable in cointegration
+summary(ca.jo(as.matrix(gogn_2[,-1]),
+      type = &quot;eigen&quot;,
+      ecdet = &quot;none&quot;,
+      K = 4,
+      season = 12))</code></pre>
+<pre><code>## 
+## ###################### 
+## # Johansen-Procedure # 
+## ###################### 
+## 
+## Test type: maximal eigenvalue statistic (lambda max) , with linear trend 
+## 
+## Eigenvalues (lambda):
+## [1] 0.21781365 0.15504864 0.06981899 0.03776132 0.02344890 0.01168289
+## 
+## Values of teststatistic and critical values of test:
+## 
+##           test 10pct  5pct  1pct
+## r &lt;= 5 |  2.87  6.50  8.18 11.65
+## r &lt;= 4 |  5.79 12.91 14.90 19.19
+## r &lt;= 3 |  9.39 18.90 21.07 25.75
+## r &lt;= 2 | 17.66 24.78 27.14 32.14
+## r &lt;= 1 | 41.11 30.84 33.32 38.78
+## r = 0  | 59.94 36.25 39.43 44.59
+## 
+## Eigenvectors, normalised to first column:
+## (These are the cointegration relations)
+## 
+##                   max_hlutfall.l4 laegstu_vextir.l4  d_debt.l4 log_price.l4
+## max_hlutfall.l4         1.0000000         1.0000000  1.0000000    1.0000000
+## laegstu_vextir.l4     -41.5725335        41.9552828 45.5700008  -22.8954785
+## d_debt.l4              -2.0193473         3.1716728 -0.9798132    0.8186175
+## log_price.l4           -0.4824973        -1.9172465 -0.6578220   -2.3345187
+## log_leiga.l4           -3.5248200        -0.4767065 -0.7960346   -0.5252059
+## log_laun.l4             3.9082874         3.4103941  1.8702560    3.4282292
+##                   log_leiga.l4 log_laun.l4
+## max_hlutfall.l4      1.0000000  1.00000000
+## laegstu_vextir.l4   13.9827285 13.71477469
+## d_debt.l4            0.1152239 -0.06527582
+## log_price.l4        -0.1504265 -0.83585977
+## log_leiga.l4         0.5207096  0.68741083
+## log_laun.l4         -0.4128510 -0.09073654
+## 
+## Weights W:
+## (This is the loading matrix)
+## 
+##                  max_hlutfall.l4 laegstu_vextir.l4     d_debt.l4  log_price.l4
+## max_hlutfall.d       0.024765693     -0.0111175980 -0.0261555942 -0.0021203167
+## laegstu_vextir.d     0.000472023      0.0002274898 -0.0004675085  0.0001991568
+## d_debt.d             0.040828568     -0.0255678275  0.0393857334 -0.0061808351
+## log_price.d          0.027870482      0.0043375627  0.0043820668  0.0039117841
+## log_leiga.d          0.011678237      0.0127749375  0.0046691896 -0.0064514201
+## log_laun.d           0.001414532     -0.0077191356 -0.0178006678 -0.0084798286
+##                   log_leiga.l4   log_laun.l4
+## max_hlutfall.d   -0.0138035543 -0.0047676796
+## laegstu_vextir.d  0.0008044237 -0.0001705552
+## d_debt.d          0.0114304683 -0.0036183318
+## log_price.d      -0.0042424135  0.0066175909
+## log_leiga.d      -0.0011329841 -0.0025603156
+## log_laun.d        0.0158244667  0.0109754146</code></pre>
+<pre class="r"><code># Constant term in cointegration
+summary(ca.jo(as.matrix(gogn_2[,-1]),
+      type = &quot;eigen&quot;,
+      ecdet = &quot;const&quot;,
+      K = 4,
+      season = 12))</code></pre>
+<pre><code>## 
+## ###################### 
+## # Johansen-Procedure # 
+## ###################### 
+## 
+## Test type: maximal eigenvalue statistic (lambda max) , without linear trend and constant in cointegration 
+## 
+## Eigenvalues (lambda):
+## [1]  2.786488e-01  1.842680e-01  8.710362e-02  6.953690e-02  2.344893e-02
+## [6]  2.328734e-02 -9.881851e-17
+## 
+## Values of teststatistic and critical values of test:
+## 
+##           test 10pct  5pct  1pct
+## r &lt;= 5 |  5.75  7.52  9.24 12.97
+## r &lt;= 4 |  5.79 13.75 15.67 20.20
+## r &lt;= 3 | 17.59 19.77 22.00 26.81
+## r &lt;= 2 | 22.24 25.56 28.14 33.24
+## r &lt;= 1 | 49.70 31.66 34.40 39.79
+## r = 0  | 79.70 37.45 40.30 46.82
+## 
+## Eigenvectors, normalised to first column:
+## (These are the cointegration relations)
+## 
+##                   max_hlutfall.l4 laegstu_vextir.l4  d_debt.l4 log_price.l4
+## max_hlutfall.l4         1.0000000          1.000000   1.000000    1.0000000
+## laegstu_vextir.l4     -18.8614851       -256.561283 -24.177915   41.0942283
+## d_debt.l4              -0.8912004        -14.217757   1.551222   -0.8399817
+## log_price.l4           -0.7044671          2.524935  -2.088206   -0.7548932
+## log_leiga.l4           -2.7279896        -11.202942  -2.327545   -0.8790243
+## log_laun.l4             3.5404717          6.091213   5.214109    2.0753278
+## constant              -23.8279263        -14.275158 -39.144360  -18.9356504
+##                   log_leiga.l4 log_laun.l4   constant
+## max_hlutfall.l4      1.0000000   1.0000000  1.0000000
+## laegstu_vextir.l4   14.1240794  -3.9640581 21.6685495
+## d_debt.l4            0.1134006   0.3436824 -0.2515921
+## log_price.l4        -0.1392964  -1.5745974 -0.4444271
+## log_leiga.l4         0.5197829   0.6471918  0.2547401
+## log_laun.l4         -0.4237708   0.9715519 -0.1029827
+## constant             1.6093715  -7.2748073  0.5453068
+## 
+## Weights W:
+## (This is the loading matrix)
+## 
+##                  max_hlutfall.l4 laegstu_vextir.l4    d_debt.l4  log_price.l4
+## max_hlutfall.d      0.0060959167      5.608277e-03  0.001903716 -0.0274713490
+## laegstu_vextir.d    0.0001510221      3.516824e-05  0.000477991 -0.0003655004
+## d_debt.d            0.0144384937      9.888419e-03 -0.011609545  0.0392789405
+## log_price.d         0.0306081835      1.280657e-03  0.001850995  0.0051283838
+## log_leiga.d         0.0259030357     -2.574351e-03 -0.000264130  0.0040642818
+## log_laun.d          0.0162706955     -1.924639e-04 -0.018153244 -0.0245498540
+##                   log_leiga.l4   log_laun.l4      constant
+## max_hlutfall.d   -0.0135801322 -5.755479e-03 -1.145699e-15
+## laegstu_vextir.d  0.0007989718 -3.262306e-05 -6.221282e-16
+## d_debt.d          0.0114953576 -7.213890e-03 -2.424856e-14
+## log_price.d      -0.0043849460  8.393799e-03 -3.276897e-14
+## log_leiga.d      -0.0009739154 -7.177277e-03 -1.506223e-14
+## log_laun.d        0.0155999264  5.239722e-03  2.716260e-14</code></pre>
+<pre class="r"><code># Trend term in cointegration
+summary(ca.jo(as.matrix(gogn_2[,-1]),
+      type = &quot;eigen&quot;,
+      ecdet = &quot;trend&quot;,
+      K = 4,
+      season = 12))</code></pre>
+<pre><code>## 
+## ###################### 
+## # Johansen-Procedure # 
+## ###################### 
+## 
+## Test type: maximal eigenvalue statistic (lambda max) , with linear trend in cointegration 
+## 
+## Eigenvalues (lambda):
+## [1] 2.324742e-01 1.799386e-01 1.125891e-01 6.912555e-02 3.621337e-02
+## [6] 2.152555e-02 6.737650e-18
+## 
+## Values of teststatistic and critical values of test:
+## 
+##           test 10pct  5pct  1pct
+## r &lt;= 5 |  5.31 10.49 12.25 16.26
+## r &lt;= 4 |  9.00 16.85 18.96 23.65
+## r &lt;= 3 | 17.48 23.11 25.54 30.34
+## r &lt;= 2 | 29.15 29.12 31.46 36.65
+## r &lt;= 1 | 48.40 34.75 37.52 42.36
+## r = 0  | 64.56 40.91 43.97 49.51
+## 
+## Eigenvectors, normalised to first column:
+## (These are the cointegration relations)
+## 
+##                   max_hlutfall.l4 laegstu_vextir.l4    d_debt.l4 log_price.l4
+## max_hlutfall.l4       1.000000000        1.00000000  1.000000000  1.000000000
+## laegstu_vextir.l4     1.718368288       52.72934682 35.405396438 42.631993081
+## d_debt.l4            -0.938616360       -0.65924697  0.619742456 -0.678712109
+## log_price.l4         -0.244605804        0.66988182 -0.423909205 -0.562077722
+## log_leiga.l4         -1.108576537        2.33475817  0.578440436 -0.465141711
+## log_laun.l4          -0.079507130       -7.19273545 -1.837884456  0.946433267
+## trend.l4              0.007393092        0.02054264  0.009870994  0.002189131
+##                   log_leiga.l4  log_laun.l4     trend.l4
+## max_hlutfall.l4    1.000000000  1.000000000   1.00000000
+## laegstu_vextir.l4  2.411868931  7.010129833 -79.02483960
+## d_debt.l4          0.445074413  0.107258264  -1.40287845
+## log_price.l4      -1.299957030  0.485622286  -1.53923074
+## log_leiga.l4      -0.003118695  0.615884357   2.66237655
+## log_laun.l4        1.061753829 -0.204962617   7.42653608
+## trend.l4           0.002785125 -0.005309546  -0.05776923
+## 
+## Weights W:
+## (This is the loading matrix)
+## 
+##                  max_hlutfall.l4 laegstu_vextir.l4     d_debt.l4  log_price.l4
+## max_hlutfall.d      0.0511499734     -0.0010402524 -0.0595321554 -0.0382253008
+## laegstu_vextir.d    0.0007166644     -0.0005017965  0.0002633964 -0.0006196658
+## d_debt.d            0.1143647954      0.0194925524 -0.0744469294  0.0501176388
+## log_price.d         0.0670517199     -0.0097577653  0.0221208370  0.0074036744
+## log_leiga.d         0.0084593206     -0.0230034968  0.0162408484  0.0065356062
+## log_laun.d          0.0549189497      0.0333153234  0.0870916524 -0.0141798451
+##                   log_leiga.l4   log_laun.l4      trend.l4
+## max_hlutfall.d   -0.0100158731 -0.0033877555  1.946214e-14
+## laegstu_vextir.d  0.0004635368  0.0003643273  1.258694e-15
+## d_debt.d         -0.0116792022  0.0061333276  2.436886e-14
+## log_price.d       0.0101592331 -0.0042501394  1.707942e-14
+## log_leiga.d      -0.0139223264  0.0007771668  5.616880e-14
+## log_laun.d       -0.0080308580  0.0026946843 -1.833280e-13</code></pre>
+<p>Engin samhljómur er í prófunum um hversu mörg samþættingarsambönd eru. Niðurstöðurnar eru 0, 1 eða tvö. Ég mun prófa öll að neðan og athuga hvort IRF sé ólíkt eftir því hvaða leið er farin.</p>
 </details>
+</div>
+<div id="var-líkan" class="section level1">
+<h1>VAR líkan</h1>
+<pre><code>## AIC(n)  HQ(n)  SC(n) FPE(n) 
+##     11      3      1      4</code></pre>
 </div>
