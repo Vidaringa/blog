@@ -43,6 +43,7 @@ Fyrsta myndin sýnir þróun þeirra sex breyta sem ég mun styðjast við. Gíf
 
 ```{r, fig.height=6}
 gogn <- readxl::read_excel("./content/post/data/likan_af_ibudarverdi_data.xlsx")
+gogn$date <- as.Date(gogn$date)
 
 gogn_graph <- gogn %>% 
   mutate(hus_12m_br = ibudarhus/lag(ibudarhus, 12) - 1,
@@ -107,18 +108,22 @@ Gröf ein og sér svara því þó ekki fyllilega hver áhrif hærra lánshlutfa
 
 
 ## VAR og VEC líkön
-VAR (vector autoregression) og VEC (vector error correction) eru tvö líkön sem hægt er að nota til að varpa ljósi á áhrif hærra lánshlutfalls á fasteignaverðs. Þá á ég sérstaklega við viðbragðsföll (e. impulse response function).  
+VAR (vector autoregression) og VEC (vector error correction) eru tvö líkön sem hægt er að nota til að varpa ljósi á áhrif hærra lánshlutfalls á fasteignaverðs. Þá á ég sérstaklega við viðbragðsföll (e. impulse response function). Bæði líkönin má einnig nota til að framkvæma spár. VAR er eflaust betra fyrir skammtímaspár en VEC fyrir langtímaspár þar sem VEC nær utan um langtímasamband breyta sem VAR nær ekki utan um.   
+
+Hér að neðan er hægt að sprengja út þríhyrninginn þar sem farið er ítarlega í gegnum VAR og VEC líkön með kóða í R. Sá hluti er aðeins hugsaður sem auka fyrir þá allra áhugasömustu. Hinir geta flett yfir og farið beint í greininguna að neðan.  
 
 
 <details>
   <summary> VAR og VECM - Ítarefni og uppskrift </summary>
-VAR og VEC líkön eru hentug fyrir verkefni sem þetta. Ýmislegt þarf að hafa í huga þegar líkön sem þessi eru notuð. Val milli VAR og VEC byggir á því hvort til staðar sé langtíma samband milli breyta sem til skoðunar eru. Gott dæmi er fasteignaverð og leiga eða fasteignaverð og laun. Það er ekki svo ólíklegt að fasteignaverð og leiga eða fasteignaverð og laun haldist í hendur yfir lengra tímabil. Til skamms tíma getur þó fasteignaverð þróast með öðrum hætti en leiga og laun.  
-Ef langtímasamband er á milli fasteignaverðs og leigu þá er nauðsynlegt að taka tillit til þess. Þar kemur VEC líkan við sögu. Í tölfræði er talað um samþættingarsamband (e. cointegration) tímaraða.
+VAR og VEC líkön eru ein af vinsælustu tölfræðilíkönunum sem hagfræðingar styðjast við í sínum greiningum.  Ótal bækur hafa verið skrifaðar þar sem aðal áherslan er VAR og VEC líkön. Ég hef stuðst nokkuð við bækur eftir Lütkepohl. *Applied time series econometrics* er góð og hægt að fara beint í kafla þrjú fyrir þessi líkön. Þá er einnig gagnlegt að far í gegnum inngang að **vars** pakkanum í R, sjá [hér](https://cran.r-project.org/web/packages/vars/vignettes/vars.pdf).  
+
+VAR og VEC líkön eru hentug fyrir ofangreint verkefni. Það verður að teljast líklegt að samþættingarsamband sé á milli fasteignaverðs og launa og/eða fasteignaverðs og leigu. Ýmislegt þarf að hafa í huga þegar líkön sem þessi eru notuð. Val milli VAR og VEC byggir á því hvort til staðar sé langtíma samband milli breyta sem til skoðunar eru. Ef langtímasamband er á milli fasteignaverðs og leigu þá er nauðsynlegt að taka tillit til þess. Í tölfræði er talað um samþættingarsamband (e. cointegration relation) tímaraða.
 
 
 Ef tvær ósístæðar tímaraðir (e. non-stationary) verða sístæðar við að taka mismun d sinnum (t.d. einusinni) og til er línulegt samband á milli þessara breyta sem er þáttað (e. integrated) af gráðu d-1, þá eru breyturnar sagðar samþættar. Tökum dæmi.  
-Grafið að neðan sýnir vísitölu íbúðaverðs á höfuðborgarsvæðinu og vísitölu útborgaðra heildarlauna. Á grafinu að dæma virðist vera langtíma samband á milli breytanna þó það komi tímabil þar sem ójafnvægi myndast.
-```{r coint_graph}
+Grafið að neðan sýnir vísitölu íbúðaverðs á höfuðborgarsvæðinu og vísitölu útborgaðra heildarlauna. Á grafinu að dæma virðist vera langtíma samband á milli breytanna þó það komi tímabil þar sem ójafnvægi myndast. Ef það er samþættingarsamband á milli breytann þá mun fyrr eða síðar gapið þarna á milli lokast.  
+
+```{r coint_graph, echo=TRUE}
 
 price_rent <- gogn %>% dplyr::select(date, ibudarhus, utborgad) %>% 
   mutate("Útborguð heildarlaun" = utborgad/utborgad[1]*100,
@@ -138,24 +143,78 @@ ggplot(price_rent,
        title = "Vísitala fasteignaverðs og útborgaðra launa",
        subtitle = "Vísitölur = 100 í janúar 1994") + 
   theme(legend.position = "bottom",
-        legend.title = element_blank())
+        legend.title = element_blank()) +
+  scale_color_tableau()
 
 ```
 
 
-```{r coint_test}
-price_rent_coint <- price_rent %>% pivot_wider(names_from = key, values_from = value)
-VARselect(price_rent_coint[,-1], lag.max = 24, type = c("both"))$selection
+Hér verður kannað hvort samþættingarsamband sé á milli fasteignaverðs, leigu og launa. Ef svo er þá er hentugar að styðjast við VEC líkan en VAR til að ná utan um þetta langtímasamband. Fyrst þarf að velja fjölda tafinna gilda. Það geri ég með `VARselect`. AIC, HQ, SC og FPE gefa öll misjafna niðurstöðu. Fjögur tafin gildi virðist þó duga.    
 
+```{r coint_test, echo=TRUE}
+
+gogn_2 <- gogn %>% 
+  mutate(d_debt = utlan_heimila/lag(utlan_heimila, 12) - 1,
+         log_price = log(ibudarhus),
+         log_leiga = log(greidd_husaleiga),
+         log_laun = log(utborgad)) %>% 
+  dplyr::select(-c(ibudarhus, greidd_husaleiga, utborgad, utlan_heimila)) %>% 
+  na.omit()
+
+VARselect(gogn_2[,-1], lag.max = 12, type = c("both"), season = 12)$selection
+
+# No intercept and no trend variable in cointegration
+summary(ca.jo(as.matrix(gogn_2[,-1]),
+      type = "eigen",
+      ecdet = "none",
+      K = 4,
+      season = 12))
+
+# Constant term in cointegration
 summary(ca.jo(as.matrix(price_rent_coint[,-1]),
       type = "eigen",
-      # prófa líka 'none' í ecdet
-      ecdet = "none",
-      K = 13,
+      ecdet = "const",
+      K = 4,
+      season = 12))
+
+# Trend term in cointegration
+summary(ca.jo(as.matrix(price_rent_coint[,-1]),
+      type = "eigen",
+      ecdet = "trend",
+      K = 4,
       season = 12))
 
 ```
 
+Engin samhljómur er í prófunum um hversu mörg samþættingarsambönd eru. Niðurstöðurnar eru 0, 1 eða tvö. Ég mun prófa öll að neðan og athuga hvort IRF sé ólíkt eftir því hvaða leið er farin.  
 
-Hér verður kannað hvort samþættingarsamband sé á milli fasteignaverðs, leigu og launa. Ef svo er þá er hentugar að styðjast við VEC líkan en VAR til að ná utan um þetta langtímasamband.  
+
 </details>
+
+# VAR líkan
+
+```{r}
+var_gogn <- gogn %>% 
+  mutate(d_house = ibudarhus/lag(ibudarhus, 12) - 1,
+         d_utlan = utlan_heimila/lag(utlan_heimila, 12) - 1,
+         d_leiga = greidd_husaleiga/lag(greidd_husaleiga, 12) - 1,
+         d_laun = utborgad/lag(utborgad, 12) - 1) %>% 
+  dplyr::select(date, d_house, d_utlan, d_leiga, max_hlutfall, laegstu_vextir, d_laun) %>% 
+  na.omit()
+
+ts_house <- ts(var_gogn$d_house, frequency = 12, start = c(1998, 12))
+ts_laun <- ts(var_gogn$d_laun, frequency = 12, start = c(1998, 12))
+ts_leiga <- ts(var_gogn$d_leiga, frequency = 12, start = c(1998, 12))
+ts_debt <- ts(var_gogn$d_utlan, frequency = 12, start = c(1998, 12))
+ts_vextir <- ts(var_gogn$laegstu_vextir, frequency = 12, start = c(1998, 12))
+ts_hlutfall <- ts(var_gogn$max_hlutfall, frequency = 12, start = c(1998, 12))
+
+ts_data <- ts.union(ts_house, ts_leiga, ts_vextir, ts_hlutfall, ts_debt, ts_laun)
+
+VARselect(ts_data, lag.max = 12, type = c("const"))$select
+
+var1 <- VAR(ts_data, p = 4, type = "const")
+irf1 <- irf(var1, n.ahead = 36)
+
+```
+
