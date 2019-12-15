@@ -24,8 +24,11 @@ library(forecast)
 library(lubridate)
 library(vars)
 library(ggthemes)
-# library(knitr)
-# library(kableExtra)
+library(knitr)
+library(kableExtra)
+library(seasonal)
+library(tseries)
+library(tsDyn)
 
 # options(kableExtra.html.bsTable = TRUE)
 
@@ -44,6 +47,13 @@ Fyrsta myndin sýnir þróun þeirra sex breyta sem ég mun styðjast við. Gíf
 ```{r, fig.height=6}
 gogn <- readxl::read_excel("C:/Users/vidar/Documents/Rwd/blog/content/post/data/likan_af_ibudarverdi_data.xlsx")
 gogn$date <- as.Date(gogn$date)
+
+# Árstíðarleiðrétti útborguð laun og nota trend
+
+ts_utb <- ts(gogn$utborgad, frequency = 12, start = c(1994, 1))
+seas_utb <- seas(ts_utb)
+gogn$utborgad <- as.numeric(seas_utb$data[,4])
+
 
 gogn_graph <- gogn %>% 
   mutate(hus_12m_br = ibudarhus/lag(ibudarhus, 12) - 1,
@@ -108,17 +118,16 @@ Gröf ein og sér svara því þó ekki fyllilega hver áhrif hærra lánshlutfa
 
 
 ## VAR og VEC líkön
-VAR (vector autoregression) og VEC (vector error correction) eru tvö líkön sem hægt er að nota til að varpa ljósi á áhrif hærra lánshlutfalls á fasteignaverðs. Þá á ég sérstaklega við viðbragðsföll (e. impulse response function). Bæði líkönin má einnig nota til að framkvæma spár. VAR er eflaust betra fyrir skammtímaspár en VEC fyrir langtímaspár þar sem VEC nær utan um langtímasamband breyta sem VAR nær ekki utan um.   
+VAR (vector autoregression) og VEC (vector error correction) eru tvær aðferðir sem hægt er að nota til að varpa ljósi á áhrif hærra lánshlutfalls á fasteignaverðs. Þá á ég sérstaklega við viðbragðsföll (e. impulse response function). Bæði líkönin má einnig nota til að framkvæma spár. VAR er eflaust betra fyrir skammtímaspár en VEC fyrir langtímaspár þar sem VEC nær utan um langtímasamband breyta sem VAR nær ekki utan um.   
 
-Hér að neðan er hægt að sprengja út þríhyrninginn þar sem farið er ítarlega í gegnum VAR og VEC líkön með kóða í R. Sá hluti er aðeins hugsaður sem auka fyrir þá allra áhugasömustu. Hinir geta flett yfir og farið beint í greininguna að neðan.  
+Hér að neðan er hægt að sprengja út þríhyrninginn þar sem farið er ítarlega í gegnum VAR og VEC líkön með kóða í R. Sá hluti er aðeins hugsaður sem viðauki fyrir þá sem hafa áhuga. Hinir geta flett yfir og farið beint í greininguna að neðan.  
 
 
 <details>
   <summary> VAR og VECM - Ítarefni og uppskrift </summary>
-VAR og VEC líkön eru ein af vinsælustu tölfræðilíkönunum sem hagfræðingar styðjast við í sínum greiningum.  Ótal bækur hafa verið skrifaðar þar sem aðal áherslan er VAR og VEC líkön. Ég hef stuðst nokkuð við bækur eftir Lütkepohl. *Applied time series econometrics* er góð og hægt að fara beint í kafla þrjú fyrir þessi líkön. Þá er einnig gagnlegt að far í gegnum inngang að **vars** pakkanum í R, sjá [hér](https://cran.r-project.org/web/packages/vars/vignettes/vars.pdf).  
+VAR og VEC líkön eru ein af vinsælustu tölfræðilíkönunum sem hagfræðingar styðjast við í sínum greiningum.  Ótal bækur hafa verið skrifaðar þar sem aðal áherslan er VAR og VEC líkön. Ég hef stuðst nokkuð við bækur eftir Lütkepohl. *Applied time series econometrics* er góð og hægt að fara beint í kafla þrjú fyrir þessi líkön. Þá er einnig gagnlegt að fara í gegnum inngang að **vars** pakkanum í R, sjá [hér](https://cran.r-project.org/web/packages/vars/vignettes/vars.pdf).  
 
-VAR og VEC líkön eru hentug fyrir ofangreint verkefni. Það verður að teljast líklegt að samþættingarsamband sé á milli fasteignaverðs og launa og/eða fasteignaverðs og leigu. Ýmislegt þarf að hafa í huga þegar líkön sem þessi eru notuð. Val milli VAR og VEC byggir á því hvort til staðar sé langtíma samband milli breyta sem til skoðunar eru. Ef langtímasamband er á milli fasteignaverðs og leigu þá er nauðsynlegt að taka tillit til þess. Í tölfræði er talað um samþættingarsamband (e. cointegration relation) tímaraða.
-
+VEC líkön taka tillit til þess þegar langtímasambanda/samþættingarsamband er á milli breyta. Það verður að teljast líklegt að slíkt samband sé á milli fasteignaverðs og launa og/eða fasteignaverðs og leigu.
 
 Ef tvær ósístæðar tímaraðir (e. non-stationary) verða sístæðar við að taka mismun d sinnum (t.d. einusinni) og til er línulegt samband á milli þessara breyta sem er þáttað (e. integrated) af gráðu d-1, þá eru breyturnar sagðar samþættar. Tökum dæmi.  
 Grafið að neðan sýnir vísitölu íbúðaverðs á höfuðborgarsvæðinu og vísitölu útborgaðra heildarlauna. Á grafinu að dæma virðist vera langtíma samband á milli breytanna þó það komi tímabil þar sem ójafnvægi myndast. Ef það er samþættingarsamband á milli breytann þá mun fyrr eða síðar gapið þarna á milli lokast.  
@@ -149,9 +158,10 @@ ggplot(price_rent,
 ```
 
 
-Hér verður kannað hvort samþættingarsamband sé á milli fasteignaverðs, leigu og launa. Ef svo er þá er hentugar að styðjast við VEC líkan en VAR til að ná utan um þetta langtímasamband. Fyrst þarf að velja fjölda tafinna gilda. Það geri ég með `VARselect`. AIC, HQ, SC og FPE gefa öll misjafna niðurstöðu. Fjögur tafin gildi virðist þó duga.    
+Hér verður kannað hvort samþættingarsamband sé á milli fasteignaverðs, leigu og launa. Ef svo er þá er hentugar að styðjast við VEC líkan en VAR. Fyrst þarf að velja fjölda tafinna gilda. Það geri ég með `VARselect`. AIC, HQ, SC og FPE gefa öll misjafna niðurstöðu. Sagt er að AIC eigi það til að velja of mörg tafin gildi. HQ og BIC/SC virðast velja mjög fá tafin gildi, 1. Til að kanna hvort það sé samþættingarsamband þá þarf ég að nota í það minnsta tvö tafin gildi. Styðst því við AIC hér sem segir að fjögur tafin gildi séu heppilegasta lag length. Taflan að neðan sýnir fjölda tafinna gilda m.v. mismunandi criteríur og hvort ég noti constant, trend eða bæði. Þar sem ég er með þrjár breytur sem hækka yfir tíma þá tel ég heppilegast að hafa trend auk þess sem ég tel eðlilegast að hafa einnig constnat. Þannig að **both** dálkurinn er sá sem ég mun líta til.  
 
-```{r coint_test, echo=TRUE}
+
+```{r}
 
 gogn_2 <- gogn %>% 
   mutate(d_debt = utlan_heimila/lag(utlan_heimila, 12) - 1,
@@ -161,60 +171,160 @@ gogn_2 <- gogn %>%
   dplyr::select(-c(ibudarhus, greidd_husaleiga, utborgad, utlan_heimila)) %>% 
   na.omit()
 
-VARselect(gogn_2[,-1], lag.max = 12, type = c("both"), season = 12)$selection
+lag_max <- 12
+
+var_none <- VARselect(gogn_2[,-1], lag.max = lag_max, type = c("none"))$selection %>% as.data.frame()
+var_const <- VARselect(gogn_2[,-1], lag.max = lag_max, type = c("const"))$selection %>% as.data.frame()
+var_trend <- VARselect(gogn_2[,-1], lag.max = lag_max, type = c("trend"))$selection %>% as.data.frame()
+var_both <- VARselect(gogn_2[,-1], lag.max = lag_max, type = c("both"))$selection %>% as.data.frame()
+
+lag_result <- cbind(var_none, var_const, var_trend, var_both)
+colnames(lag_result) <- c("none", "const", "trend", "both")
+
+lag_result %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>% 
+  column_spec(c(1:4), width = "2cm")
+```
+
+Eftir að hafa valið fjölda tafinna gilda þá get ég framkvæmt Johansen próf til að kanna hvort samþættingarsamband sé til staðar. Óháð því hvort ég nota *intercept*, *trend* eða hvorugt þá er alltaf sama niðursatða eða tvö samþættingarsambönd.  
+
+```{r, echo=TRUE}
 
 # No intercept and no trend variable in cointegration
 summary(ca.jo(as.matrix(gogn_2[,-1]),
-      type = "eigen",
+      type = "trace",
       ecdet = "none",
-      K = 4,
-      season = 12))
+      K = 4))
 
 # Constant term in cointegration
 summary(ca.jo(as.matrix(gogn_2[,-1]),
-      type = "eigen",
+      type = "trace",
       ecdet = "const",
-      K = 4,
-      season = 12))
+      K = 4))
 
 # Trend term in cointegration
-summary(ca.jo(as.matrix(gogn_2[,-1]),
-      type = "eigen",
-      ecdet = "trend",
-      K = 4,
-      season = 12))
+# summary(ca.jo(as.matrix(gogn_2[,-1]),
+#       type = "trace",
+#       ecdet = "trend",
+#       K = 4))
 
 ```
 
-Engin samhljómur er í prófunum um hversu mörg samþættingarsambönd eru. Niðurstöðurnar eru 0, 1 eða tvö. Ég mun prófa öll að neðan og athuga hvort IRF sé ólíkt eftir því hvaða leið er farin.  
 
 
 </details>
 
-# VAR líkan
+# VEC líkan
+
+```{r, vec}
+
+gogn_2 <- gogn_2 %>% 
+  select()
+
+coint_test <- ca.jo(as.matrix(gogn_2[,-1]),
+      type = "trace",
+      ecdet = "both",
+      K = 4)
+
+vec_likan <- cajools(coint_test)
+
+vec_likan <- VECM(data = gogn_2[,-1],
+                  lag = 4,
+                  r = 2,
+                  include = "const")
+
+vec_irf <- tsDyn::irf(vec_likan, n.ahead = 24)
+plot(vec_irf)
+
+```
+
+
+
+## VEC spá
 
 ```{r}
-var_gogn <- gogn %>% 
-  mutate(d_house = ibudarhus/lag(ibudarhus, 12) - 1,
-         d_utlan = utlan_heimila/lag(utlan_heimila, 12) - 1,
-         d_leiga = greidd_husaleiga/lag(greidd_husaleiga, 12) - 1,
-         d_laun = utborgad/lag(utborgad, 12) - 1) %>% 
-  dplyr::select(date, d_house, d_utlan, d_leiga, max_hlutfall, laegstu_vextir, d_laun) %>% 
-  na.omit()
+horizon <- 24
+lookback <- 120
+vec_pred <- predict(vec_likan, n.ahead = horizon)
 
-ts_house <- ts(var_gogn$d_house, frequency = 12, start = c(1998, 12))
-ts_laun <- ts(var_gogn$d_laun, frequency = 12, start = c(1998, 12))
-ts_leiga <- ts(var_gogn$d_leiga, frequency = 12, start = c(1998, 12))
-ts_debt <- ts(var_gogn$d_utlan, frequency = 12, start = c(1998, 12))
+new_date <- seq.Date(from = as.Date("2019-08-01"),
+                     length.out = horizon,
+                     by = "month")
+
+df_pred <- tibble(date = c(tail(gogn_2$date, lookback), new_date),
+                  price = c(exp(tail(gogn_2$log_price, lookback)), exp(vec_pred[,4])),
+                  what = c(rep("raun", lookback), rep("spa", horizon)))
+
+
+ggplot(df_pred,
+       aes(x = date,
+           y = price,
+           col = what)) + 
+  geom_path()
+
+```
+
+
+# VAR
+Það má einnig íhuga VAR líkan.
+
+```{r}
+
+# var_gogn <- gogn %>% 
+#   mutate(d_house = ibudarhus/lag(ibudarhus, 12) - 1,
+#          d_utlan = utlan_heimila/lag(utlan_heimila, 12) - 1,
+#          d_leiga = greidd_husaleiga/lag(greidd_husaleiga, 12) - 1,
+#          d_laun = utborgad/lag(utborgad, 12) - 1) %>% 
+#   dplyr::select(date, d_house, d_utlan, d_leiga, max_hlutfall, laegstu_vextir, d_laun) %>% 
+#   na.omit()
+
+var_gogn <- gogn_2
+
+ts_house <- ts(var_gogn$log_price, frequency = 12, start = c(1998, 12))
+ts_laun <- ts(var_gogn$log_laun, frequency = 12, start = c(1998, 12))
+ts_leiga <- ts(var_gogn$log_leiga, frequency = 12, start = c(1998, 12))
+ts_debt <- ts(var_gogn$d_debt, frequency = 12, start = c(1998, 12))
 ts_vextir <- ts(var_gogn$laegstu_vextir, frequency = 12, start = c(1998, 12))
 ts_hlutfall <- ts(var_gogn$max_hlutfall, frequency = 12, start = c(1998, 12))
 
-ts_data <- ts.union(ts_house, ts_leiga, ts_vextir, ts_hlutfall, ts_debt, ts_laun)
+ts_data <- ts.union(ts_hlutfall,
+                    ts_vextir,
+                    ts_debt,
+                    ts_house,
+                    ts_leiga,
+                    ts_laun)
 
-VARselect(ts_data, lag.max = 12, type = c("const"))$select
+VARselect(ts_data, lag.max = 24, type = c("both"))$select
 
-var1 <- VAR(ts_data, p = 4, type = "const")
+var1 <- VAR(ts_data, p = 24, type = "both")
 irf1 <- irf(var1, n.ahead = 36)
 
 ```
 
+
+
+## VAR spá
+
+```{r}
+horizon <- 24
+lookback <- 120
+var_pred <- predict(var1, n.ahead = horizon)
+var_pred_house <- var_pred$fcst$ts_house[,1]
+
+new_date <- seq.Date(from = as.Date("2019-08-01"),
+                     length.out = horizon,
+                     by = "month")
+
+df_pred_var <- tibble(date = c(tail(gogn_2$date, lookback), new_date),
+                  price = c(exp(tail(gogn_2$log_price, lookback)), exp(var_pred_house)),
+                  what = c(rep("raun", lookback), rep("spa", horizon)))
+
+
+ggplot(df_pred_var,
+       aes(x = date,
+           y = price,
+           col = what)) + 
+  geom_path()
+
+```
