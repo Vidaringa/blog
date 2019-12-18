@@ -198,4 +198,4 @@ fit_full %>% forecast(h = 13, level = c(50, 95)) %>% autoplot(include = 60) +
 ```
 
 
-Ég ætla ekki að hoppa á þann vagn, eins og er, sem spáir lækkun fasteignaverðs á næstunni. Þó markaðurinn sé í hægagangi eru enn ekki nein merki um lækkun næsta árið. Ófyrirséðir skellir geta þó breytt því tiltölulega snökkt.  
+Ég sé ekki fyrir mér að fasteignaverð fari lækkandi næsta árið. Það gæti þó verið gagnlegt að styðjast við VAR líkan sem tæki tillit til annarra þátta á borð við vexti, skuldsetningu, leiguverð, laun og fleira. Markaðurinn er í hægagangi sem stendur en lítið þarf til að þenslu merki fari að myndast. Ýmislegt ófyrirséð getur þó haft mikil áhrif, svo sem Brexit eða kreppa í Þýskalandi.  
