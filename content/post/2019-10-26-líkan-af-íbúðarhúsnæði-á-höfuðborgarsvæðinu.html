@@ -67,8 +67,7 @@ ggplot(price_rent,
         legend.title = element_blank()) +
   scale_color_tableau()</code></pre>
 <p><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/coint_graph-1.png" width="768" /></p>
-<p>Hér verður kannað hvort samþættingarsamband sé á milli fasteignaverðs, leigu og launa. Ef svo er þá er hentugar að styðjast við VEC líkan en VAR. Fyrst þarf að velja fjölda tafinna gilda. Það geri ég með <code>VARselect</code>. AIC, HQ, SC og FPE gefa öll misjafna niðurstöðu. Sagt er að AIC eigi það til að velja of mörg tafin gildi. HQ og BIC/SC virðast velja mjög fá tafin gildi, 1. Til að kanna hvort það sé samþættingarsamband þá þarf ég að nota í það minnsta tvö tafin gildi. Styðst því við AIC hér sem segir að fjögur tafin gildi séu heppilegasta lag length.</p>
-<p>Fjögur tafin gildi virðist þó duga. Þá er nota ég einnig constant og deterministic regressors ásamt árstíðarbundnum dummy breytum. Þetta geri ég með <code>type = both</code> og <code>season = 12</code>. Fjöldi tafinna gilda sem eru valin fer einnig eftir því hvor ég nota const, trend eða both í <code>type</code>. Eitt tafið gildi virðist vera nóg en það er oft lítið fyrir Jóhansen prófið sem ég framkvæmi næst. Taflan að neðan sýnir fjölda tafinna gilda eftir</p>
+<p>Hér verður kannað hvort samþættingarsamband sé á milli fasteignaverðs, leigu og launa. Ef svo er þá er hentugar að styðjast við VEC líkan en VAR. Fyrst þarf að velja fjölda tafinna gilda. Það geri ég með <code>VARselect</code>. AIC, HQ, SC og FPE gefa öll misjafna niðurstöðu. Sagt er að AIC eigi það til að velja of mörg tafin gildi. HQ og BIC/SC virðast velja mjög fá tafin gildi, 1. Til að kanna hvort það sé samþættingarsamband þá þarf ég að nota í það minnsta tvö tafin gildi. Styðst því við AIC hér sem segir að fjögur tafin gildi séu heppilegasta lag length. Taflan að neðan sýnir fjölda tafinna gilda m.v. mismunandi criteríur og hvort ég noti constant, trend eða bæði. Þar sem ég er með þrjár breytur sem hækka yfir tíma þá tel ég heppilegast að hafa trend auk þess sem ég tel eðlilegast að hafa einnig constnat. Þannig að <strong>both</strong> dálkurinn er sá sem ég mun líta til.</p>
 <table class="table table-striped table-hover table-condensed" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -159,200 +158,152 @@ FPE(n)
 </tr>
 </tbody>
 </table>
+<p>Eftir að hafa valið fjölda tafinna gilda þá get ég framkvæmt Johansen próf til að kanna hvort samþættingarsamband sé til staðar. Óháð því hvort ég nota <em>intercept</em>, <em>trend</em> eða hvorugt þá er alltaf sama niðursatða eða tvö samþættingarsambönd.</p>
 <pre class="r"><code># No intercept and no trend variable in cointegration
 summary(ca.jo(as.matrix(gogn_2[,-1]),
-      type = &quot;eigen&quot;,
+      type = &quot;trace&quot;,
       ecdet = &quot;none&quot;,
-      K = 4,
-      season = 12))</code></pre>
+      K = 4))</code></pre>
 <pre><code>## 
 ## ###################### 
 ## # Johansen-Procedure # 
 ## ###################### 
 ## 
-## Test type: maximal eigenvalue statistic (lambda max) , with linear trend 
+## Test type: trace statistic , with linear trend 
 ## 
 ## Eigenvalues (lambda):
-## [1] 0.22304041 0.13700498 0.06190317 0.03645036 0.02551851 0.01707627
+## [1] 0.22928294 0.13345740 0.06276566 0.03680630 0.02455120 0.01615179
 ## 
 ## Values of teststatistic and critical values of test:
 ## 
-##           test 10pct  5pct  1pct
-## r &lt;= 5 |  4.20  6.50  8.18 11.65
-## r &lt;= 4 |  6.31 12.91 14.90 19.19
-## r &lt;= 3 |  9.06 18.90 21.07 25.75
-## r &lt;= 2 | 15.59 24.78 27.14 32.14
-## r &lt;= 1 | 35.95 30.84 33.32 38.78
-## r = 0  | 61.58 36.25 39.43 44.59
+##            test 10pct  5pct   1pct
+## r &lt;= 5 |   3.97  6.50  8.18  11.65
+## r &lt;= 4 |  10.04 15.66 17.95  23.52
+## r &lt;= 3 |  19.19 28.71 31.52  37.22
+## r &lt;= 2 |  35.01 45.23 48.28  55.43
+## r &lt;= 1 |  69.96 66.49 70.60  78.87
+## r = 0  | 133.50 85.18 90.39 104.20
 ## 
 ## Eigenvectors, normalised to first column:
 ## (These are the cointegration relations)
 ## 
 ##                   max_hlutfall.l4 laegstu_vextir.l4  d_debt.l4 log_price.l4
-## max_hlutfall.l4         1.0000000          1.000000  1.0000000    1.0000000
-## laegstu_vextir.l4     -42.0580926         19.427077 42.5852484   -3.0913245
-## d_debt.l4              -2.0862092          2.433279 -0.8059334    0.4990821
-## log_price.l4           -0.4189044         -1.653161 -0.5881706   -1.6115649
-## log_leiga.l4           -3.2542993         -1.029378 -0.7711250   -0.3626862
-## log_laun.l4             3.4919353          3.434418  1.7234209    2.4236111
+## max_hlutfall.l4         1.0000000         1.0000000  1.0000000    1.0000000
+## laegstu_vextir.l4     -40.7486194        21.4646788 40.8880498   -9.4370350
+## d_debt.l4              -1.9715003         2.5225915 -0.7533049    0.6749934
+## log_price.l4           -0.4613162        -1.6559472 -0.5902386   -2.0583970
+## log_leiga.l4           -3.2133754        -0.7651733 -0.7182214   -0.6585836
+## log_laun.l4             3.5221218         3.1593097  1.6564036    3.3662389
 ##                   log_leiga.l4 log_laun.l4
-## max_hlutfall.l4     1.00000000  1.00000000
-## laegstu_vextir.l4  14.46549098 10.82233095
-## d_debt.l4           0.08815393 -0.09729557
-## log_price.l4       -0.13219111 -1.98758039
-## log_leiga.l4        0.87547576  0.87075347
-## log_laun.l4        -0.94549886  0.73689541
+## max_hlutfall.l4      1.0000000   1.0000000
+## laegstu_vextir.l4   11.9280022   9.5199934
+## d_debt.l4            0.1177952  -0.1016228
+## log_price.l4        -0.2123059  -1.8302553
+## log_leiga.l4         0.8273011   0.8167055
+## log_laun.l4         -0.7877029   0.6750639
 ## 
 ## Weights W:
 ## (This is the loading matrix)
 ## 
 ##                  max_hlutfall.l4 laegstu_vextir.l4     d_debt.l4  log_price.l4
-## max_hlutfall.d      0.0302324239     -0.0090998118 -0.0313625686 -0.0089166793
-## laegstu_vextir.d    0.0005443599      0.0003842356 -0.0004005599  0.0004131244
-## d_debt.d            0.0471301128     -0.0267563627  0.0441614087 -0.0038093761
-## log_price.d         0.0300280633      0.0077257840  0.0072127594  0.0062653293
-## log_leiga.d         0.0059122834      0.0143568464  0.0087119645 -0.0102960520
-## log_laun.d          0.0068169309      0.0002152837  0.0005892370 -0.0030333701
-##                   log_leiga.l4   log_laun.l4
-## max_hlutfall.d   -0.0115886911 -0.0005909396
-## laegstu_vextir.d  0.0005260569 -0.0001590910
-## d_debt.d          0.0005613103 -0.0040869754
-## log_price.d      -0.0057256240  0.0029867549
-## log_leiga.d      -0.0034429518 -0.0013366742
-## log_laun.d        0.0073137841  0.0009373368</code></pre>
+## max_hlutfall.d      0.0313980020     -9.594581e-03 -0.0347815253 -0.0061970693
+## laegstu_vextir.d    0.0006028059      4.085343e-04 -0.0004270674  0.0002532025
+## d_debt.d            0.0462855320     -2.960611e-02  0.0453171599 -0.0027346468
+## log_price.d         0.0332854971      6.717975e-03  0.0076232325  0.0052170962
+## log_leiga.d         0.0068044183      1.449670e-02  0.0108470559 -0.0078142205
+## log_laun.d          0.0067671637     -7.205856e-06  0.0006925713 -0.0027003419
+##                  log_leiga.l4   log_laun.l4
+## max_hlutfall.d   -0.012254390 -0.0010122587
+## laegstu_vextir.d  0.000610510 -0.0001796327
+## d_debt.d          0.001178710 -0.0044454037
+## log_price.d      -0.005131347  0.0034169612
+## log_leiga.d      -0.005326228 -0.0015710243
+## log_laun.d        0.006901375  0.0011266054</code></pre>
 <pre class="r"><code># Constant term in cointegration
 summary(ca.jo(as.matrix(gogn_2[,-1]),
-      type = &quot;eigen&quot;,
+      type = &quot;trace&quot;,
       ecdet = &quot;const&quot;,
-      K = 4,
-      season = 12))</code></pre>
+      K = 4))</code></pre>
 <pre><code>## 
 ## ###################### 
 ## # Johansen-Procedure # 
 ## ###################### 
 ## 
-## Test type: maximal eigenvalue statistic (lambda max) , without linear trend and constant in cointegration 
+## Test type: trace statistic , without linear trend and constant in cointegration 
 ## 
 ## Eigenvalues (lambda):
-## [1]  2.508226e-01  1.776160e-01  8.920426e-02  5.891585e-02  3.105174e-02
-## [6]  2.167376e-02 -1.323273e-16
+## [1]  2.592404e-01  1.756639e-01  8.769650e-02  6.014290e-02  2.879074e-02
+## [6]  2.126087e-02 -7.479663e-19
 ## 
 ## Values of teststatistic and critical values of test:
 ## 
-##           test 10pct  5pct  1pct
-## r &lt;= 5 |  5.35  7.52  9.24 12.97
-## r &lt;= 4 |  7.70 13.75 15.67 20.20
-## r &lt;= 3 | 14.82 19.77 22.00 26.81
-## r &lt;= 2 | 22.80 25.56 28.14 33.24
-## r &lt;= 1 | 47.71 31.66 34.40 39.79
-## r = 0  | 70.46 37.45 40.30 46.82
+##            test 10pct   5pct   1pct
+## r &lt;= 5 |   5.24  7.52   9.24  12.97
+## r &lt;= 4 |  12.37 17.85  19.96  24.60
+## r &lt;= 3 |  27.51 32.00  34.91  41.07
+## r &lt;= 2 |  49.90 49.65  53.12  60.16
+## r &lt;= 1 |  97.04 71.86  76.07  84.45
+## r = 0  | 170.26 97.18 102.14 111.01
 ## 
 ## Eigenvectors, normalised to first column:
 ## (These are the cointegration relations)
 ## 
 ##                   max_hlutfall.l4 laegstu_vextir.l4   d_debt.l4 log_price.l4
-## max_hlutfall.l4         1.0000000          1.000000    1.000000    1.0000000
-## laegstu_vextir.l4     -26.5085422        676.803293 -141.719125   34.8609055
-## d_debt.l4              -1.3325974         38.406305    6.726807   -0.5697929
-## log_price.l4           -0.5517935         -9.239696   -5.108876   -0.8241985
-## log_leiga.l4           -2.6379906         24.182137   -7.094276   -1.0568226
-## log_laun.l4             3.1311682         -7.702613   14.347650    2.3520151
-## constant              -19.8001577        -22.153475 -102.857025  -20.6818319
-##                   log_leiga.l4 log_laun.l4   constant
-## max_hlutfall.l4      1.0000000  1.00000000  1.0000000
-## laegstu_vextir.l4    4.5282753 23.56257407 20.1066672
-## d_debt.l4            0.3173618 -0.03507737 -0.2172660
-## log_price.l4        -0.9357552  1.11870999 -0.4402117
-## log_leiga.l4         0.5093953  0.86919253  0.3385488
-## log_laun.l4          0.4772411 -2.24448853 -0.1900143
-## constant            -4.4572138 14.45740221  1.1911911
+## max_hlutfall.l4          1.000000          1.000000    1.000000    1.0000000
+## laegstu_vextir.l4      -26.629402        522.884989 -121.503455   33.8789823
+## d_debt.l4               -1.300794         29.244403    6.650566   -0.5171324
+## log_price.l4            -0.567721         -6.868547   -4.981583   -0.8190897
+## log_leiga.l4            -2.623227         19.668897   -5.964219   -0.9702827
+## log_laun.l4              3.138485         -7.565966   13.012059    2.2390632
+## constant               -19.884513         -4.492534  -94.389821  -19.7660769
+##                   log_leiga.l4  log_laun.l4   constant
+## max_hlutfall.l4      1.0000000  1.000000000  1.0000000
+## laegstu_vextir.l4    3.1507670 20.925485993 18.5189653
+## d_debt.l4            0.3206755  0.002514692 -0.2063983
+## log_price.l4        -0.9511349  0.984703484 -0.4721658
+## log_leiga.l4         0.5974680  0.827987455  0.3257354
+## log_laun.l4          0.3835970 -2.061001853 -0.1461079
+## constant            -3.6486674 13.310326874  0.9769153
 ## 
 ## Weights W:
 ## (This is the loading matrix)
 ## 
 ##                  max_hlutfall.l4 laegstu_vextir.l4     d_debt.l4  log_price.l4
-## max_hlutfall.d      0.0182813816     -1.599803e-03  0.0011790318 -3.106588e-02
-## laegstu_vextir.d    0.0003786077     -7.321068e-06  0.0001492573 -2.742268e-05
-## d_debt.d            0.0270744967     -2.931852e-03 -0.0036072152  4.187120e-02
-## log_price.d         0.0373203409      1.435179e-06  0.0008257883  9.522196e-03
-## log_leiga.d         0.0196681105      1.105349e-03  0.0004088194  6.460580e-03
-## log_laun.d          0.0138015661      2.275325e-04 -0.0013211146 -4.191874e-03
+## max_hlutfall.d      0.0203842371     -2.028164e-03  0.0010470120 -3.536544e-02
+## laegstu_vextir.d    0.0004314709     -9.361138e-06  0.0001664080 -4.784602e-05
+## d_debt.d            0.0255294206     -3.910307e-03 -0.0043529878  4.215628e-02
+## log_price.d         0.0392187171     -1.321589e-04  0.0009607655  1.052264e-02
+## log_leiga.d         0.0209161434      1.510532e-03  0.0001779647  7.927096e-03
+## log_laun.d          0.0136315293      3.154228e-04 -0.0014699330 -4.175855e-03
 ##                   log_leiga.l4   log_laun.l4      constant
-## max_hlutfall.d   -0.0165000797 -0.0016209172 -5.520516e-15
-## laegstu_vextir.d  0.0005243704  0.0002906342 -1.342934e-15
-## d_debt.d         -0.0109319128  0.0057253979 -5.887896e-14
-## log_price.d       0.0063847958 -0.0055614895 -7.525260e-14
-## log_leiga.d      -0.0156814977  0.0019440555 -2.912491e-14
-## log_laun.d        0.0033206583  0.0010024337 -3.086178e-15</code></pre>
+## max_hlutfall.d   -0.0151155274 -0.0013639351 -2.800698e-14
+## laegstu_vextir.d  0.0003981031  0.0003295778  9.282366e-16
+## d_debt.d         -0.0094512699  0.0060241014  1.086443e-14
+## log_price.d       0.0065454105 -0.0059859581  3.926186e-14
+## log_leiga.d      -0.0150156061  0.0019205738  1.313230e-14
+## log_laun.d        0.0034793900  0.0009996139 -4.029870e-15</code></pre>
 <pre class="r"><code># Trend term in cointegration
-summary(ca.jo(as.matrix(gogn_2[,-1]),
-      type = &quot;eigen&quot;,
-      ecdet = &quot;trend&quot;,
-      K = 4,
-      season = 12))</code></pre>
-<pre><code>## 
-## ###################### 
-## # Johansen-Procedure # 
-## ###################### 
-## 
-## Test type: maximal eigenvalue statistic (lambda max) , with linear trend in cointegration 
-## 
-## Eigenvalues (lambda):
-## [1] 2.419238e-01 1.382234e-01 9.165892e-02 5.587544e-02 3.626920e-02
-## [6] 2.211013e-02 1.117346e-17
-## 
-## Values of teststatistic and critical values of test:
-## 
-##           test 10pct  5pct  1pct
-## r &lt;= 5 |  5.46 10.49 12.25 16.26
-## r &lt;= 4 |  9.01 16.85 18.96 23.65
-## r &lt;= 3 | 14.03 23.11 25.54 30.34
-## r &lt;= 2 | 23.46 29.12 31.46 36.65
-## r &lt;= 1 | 36.30 34.75 37.52 42.36
-## r = 0  | 67.58 40.91 43.97 49.51
-## 
-## Eigenvectors, normalised to first column:
-## (These are the cointegration relations)
-## 
-##                   max_hlutfall.l4 laegstu_vextir.l4    d_debt.l4 log_price.l4
-## max_hlutfall.l4        1.00000000        1.00000000  1.000000000   1.00000000
-## laegstu_vextir.l4     -0.55577473      -30.61336678 37.120916769 -64.33078736
-## d_debt.l4             -0.94709990        6.88941059  0.100316598   9.06470248
-## log_price.l4          -0.30197094       -4.60096595 -0.328067759   2.88341542
-## log_leiga.l4          -1.19207684       -5.16953654  0.522264862  15.12564708
-## log_laun.l4            0.28485215       16.34114991 -1.719469315 -38.63487744
-## trend.l4               0.00619706       -0.02388378  0.008744434   0.09123323
-##                   log_leiga.l4  log_laun.l4    trend.l4
-## max_hlutfall.l4    1.000000000  1.000000000  1.00000000
-## laegstu_vextir.l4  1.846627029  7.141896363 86.39804986
-## d_debt.l4          0.453064663 -0.017667846  1.04426649
-## log_price.l4      -1.346025740  0.714520548  1.05326713
-## log_leiga.l4      -0.088349951  0.911295409  0.39824550
-## log_laun.l4        1.524400866 -0.563119711 -9.54210261
-## trend.l4           0.001281591 -0.007174733  0.04829104
-## 
-## Weights W:
-## (This is the loading matrix)
-## 
-##                  max_hlutfall.l4 laegstu_vextir.l4    d_debt.l4  log_price.l4
-## max_hlutfall.d       0.055350819     -0.0019551230 -0.095695625  1.755208e-03
-## laegstu_vextir.d     0.000847737      0.0001417416 -0.001465228  1.652443e-05
-## d_debt.d             0.107134567     -0.0080614025 -0.004917202 -4.446584e-03
-## log_price.d          0.071563393      0.0025354317  0.019903329 -3.781565e-04
-## log_leiga.d          0.007960449      0.0047492946  0.001329398 -9.574746e-04
-## log_laun.d           0.022134626     -0.0001545152  0.027030298  5.362547e-04
-##                   log_leiga.l4   log_laun.l4      trend.l4
-## max_hlutfall.d   -0.0120237450 -0.0027629266 -1.535224e-14
-## laegstu_vextir.d  0.0005159894  0.0003142449  3.953432e-15
-## d_debt.d         -0.0067443720  0.0050607417  7.983201e-14
-## log_price.d       0.0079091807 -0.0048400372  7.134272e-14
-## log_leiga.d      -0.0135613830  0.0006391947  5.823907e-14
-## log_laun.d       -0.0026513690  0.0011558951 -3.177400e-14</code></pre>
-<p>Engin samhljómur er í prófunum um hversu mörg samþættingarsambönd eru. Niðurstöðurnar eru 0, 1 eða tvö. Ég mun prófa öll að neðan og athuga hvort IRF sé ólíkt eftir því hvaða leið er farin.</p>
+# summary(ca.jo(as.matrix(gogn_2[,-1]),
+#       type = &quot;trace&quot;,
+#       ecdet = &quot;trend&quot;,
+#       K = 4))</code></pre>
 </details>
 </div>
-<div id="var-líkan" class="section level1">
-<h1>VAR líkan</h1>
+<div id="vec-líkan" class="section level1">
+<h1>VEC líkan</h1>
+<p><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/vec-1.png" width="768" /><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/vec-2.png" width="768" /><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/vec-3.png" width="768" /><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/vec-4.png" width="768" /><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/vec-5.png" width="768" /><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/vec-6.png" width="768" /></p>
+<div id="vec-spá" class="section level2">
+<h2>VEC spá</h2>
+<p><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/unnamed-chunk-5-1.png" width="768" /></p>
+</div>
+</div>
+<div id="var" class="section level1">
+<h1>VAR</h1>
+<p>Það má einnig íhuga VAR líkan.</p>
 <pre><code>## AIC(n)  HQ(n)  SC(n) FPE(n) 
-##      4      3      1      4</code></pre>
+##     24      3      1     24</code></pre>
+<div id="var-spá" class="section level2">
+<h2>VAR spá</h2>
+<p><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/unnamed-chunk-7-1.png" width="768" /></p>
+</div>
 </div>

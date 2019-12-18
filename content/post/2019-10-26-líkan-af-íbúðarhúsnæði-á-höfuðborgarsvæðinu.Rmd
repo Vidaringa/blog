@@ -185,6 +185,7 @@ lag_result %>%
   kable() %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>% 
   column_spec(c(1:4), width = "2cm")
+
 ```
 
 Eftir að hafa valið fjölda tafinna gilda þá get ég framkvæmt Johansen próf til að kanna hvort samþættingarsamband sé til staðar. Óháð því hvort ég nota *intercept*, *trend* eða hvorugt þá er alltaf sama niðursatða eða tvö samþættingarsambönd.  
@@ -219,12 +220,12 @@ summary(ca.jo(as.matrix(gogn_2[,-1]),
 
 ```{r, vec}
 
-gogn_2 <- gogn_2 %>% 
-  select()
+# gogn_2 <- gogn_2 %>% 
+#   select()
 
 coint_test <- ca.jo(as.matrix(gogn_2[,-1]),
       type = "trace",
-      ecdet = "both",
+      ecdet = "trend",
       K = 4)
 
 vec_likan <- cajools(coint_test)

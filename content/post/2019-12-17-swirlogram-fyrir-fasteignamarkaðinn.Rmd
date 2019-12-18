@@ -1,0 +1,201 @@
+---
+title: Fasteignamarkaðurinn á höfuðborgarsvæðinu - Stutt greining
+author: Viðar
+date: '2019-12-17'
+categories:
+  - husnaedi
+slug: swirlogram-fyrir-fasteignamarkaðinn
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.width = 8)
+
+library(tidyverse)
+library(httr)
+library(lubridate)
+library(forecast)
+
+```
+
+
+
+```{r hus_price, include=FALSE}
+url <- "https://www.skra.is/library/Skrar/191217-N%C3%BD%C3%BAtg%C3%A1fur%C3%B6%C3%B0.xlsx"
+GET(url, write_disk("skra.xlsx", overwrite = TRUE))
+
+df <- readxl::read_excel("skra.xlsx")
+max_ar <- max(df$...1, na.rm = TRUE)
+max_man <- head(na.omit(df$...2), 1)
+manudir_heiti <- c("janúar", "febrúar", "mars", "apríl", "maí","júní",
+                   "júlí", "ágúst", "september", "október", "nóvember", "desember")
+
+max_man_no = which(manudir_heiti == max_man)
+
+max_dags <- make_date(year = max_ar, month = max_man_no, 1)
+
+df <- df[,3]
+df$index <- 1:nrow(df)
+df <- df %>%
+        arrange(desc(index)) %>%
+        dplyr::select(-index)
+
+colnames(df) <- c("ibudaverd_hbs")
+df$ibudaverd_hbs <- as.numeric(df$ibudaverd_hbs)
+df <- df %>% na.omit()
+
+df$date <- seq.Date(from = as.Date("1994-01-01"),
+                    to = as.Date(max_dags),
+                    "months")
+df <- df %>%
+        arrange(date)
+
+```
+
+
+```{r vnv}
+
+vnv <- read_csv2("https://px.hagstofa.is:443/pxis/sq/07c2b461-e9e8-44fe-a348-ae22794fa965",
+                 locale = locale(encoding = "latin1"))
+
+vnv_min_ar <- min(vnv$Ár)
+vnv_max_ar <- max(vnv$Ár)
+
+vnv_min_date <- make_date(vnv_min_ar, month = 1, day = 1)
+vnv_max_date <- make_date(vnv_max_ar, month = 12, day = 1)
+
+vnv_date <- seq.Date(vnv_min_date, vnv_max_date, "months")
+
+vnv$date <- vnv_date
+vnv <- vnv[,c(6, 5)]
+colnames(vnv)[2] <- "vnv"
+
+vnv <- vnv %>%
+        filter(!(vnv %in% c(".", "..")))
+
+vnv$vnv <- as.numeric(vnv$vnv)
+
+
+```
+
+Þjóðskrá Íslands birti í dag uppfærða vísitölu íbúðaverðs á höfuðborgarsvæðinu. Vísitalan lækkaði um 0.3% milli mánaða og 2.4% seinustu tólf mánuði. Grafið að neðan sýnir tólf mánaða breytingu vísitölunnar. Líkt og margir aðrir hagvísar sýna þá er staðan í dag ekki ólík stöðnni eftir Dot-com, sirka 2001-2002.
+
+
+```{r graph}
+
+g_12 <- df %>% 
+  mutate(breyting = ibudaverd_hbs/lag(ibudaverd_hbs, 12) - 1) %>% 
+  na.omit() %>% 
+  ggplot(aes(x = date,
+             y = breyting)) + 
+  geom_line(col = "darkblue") + 
+  theme_classic() + 
+  scale_y_continuous(labels = scales::percent) + 
+  geom_hline(yintercept = 0,
+             linetype = "dashed",
+             col = "darkgrey") +
+  labs(x = NULL, y = NULL)
+
+plotly::ggplotly(g_12)
+
+```
+
+
+## Swirlogram
+Mér finnst alltaf gagnlegt að skoða swirlogram. Ég tók fyrst eftir slíku í greiningu hjá Goldman Sachs þegar þeir voru að vinna með eigin útreikninga af leiðandi hagvísi.  
+Grafið að neðan sýnir swirlogram fyrir íbúðamarkaðinn á höfuðborgarsvæðinu frá árinu 2005. Grafið sýnir að fasteignamarkaðurinn datt í hægagang í upphafi árs 2008 og er þar enn. Nýjustu gildin gefa þó vísbendingu um að þensla gæti farið að myndast.  
+
+
+```{r calc, fig.height=6}
+
+a = 0.3
+
+df$exps <- df$ibudaverd_hbs
+
+for(i in 2:nrow(df)) {
+        df$exps[i] = df$ibudaverd_hbs[i] *  a + (1 - a) * df$exps[i - 1]
+}
+
+df_graph <- df %>%
+        left_join(vnv) %>%
+        mutate(sma = TTR::SMA(ibudaverd_hbs, 12),
+               growth = exps/lag(exps, 12) - 1,
+               acceleration = (growth - lag(growth, 12))/12,
+               year = year(date),
+               label_year = case_when(month(date) == 1 ~ year,
+                                      TRUE ~ NA_real_)) %>%
+        mutate(raunverd = ibudaverd_hbs/vnv,
+               sma_real = TTR::SMA(raunverd, 12),
+               real_gr = sma_real/lag(sma_real, 12) - 1,
+               real_acc = (real_gr - lag(real_gr, 12))/12) %>%
+        filter(year >= 1997)
+
+
+
+ggplot(filter(df_graph, year >= 2005),
+       aes(x = growth,
+           y = acceleration,
+           col = year)) +
+        geom_path(lwd = 1) +
+        geom_point() +
+        scale_color_gradient(low = "#ff5959",  high = "#49beb7") +
+        geom_vline(xintercept = 0) +
+        geom_hline(yintercept = 0) +
+        geom_label(aes(label = label_year)) +
+        annotate("text", label = "Þensla", x = 0.35, y = 0.022, col = "darkblue", size = 5, hjust = 1) +
+        annotate("text", label = "Hægagangur", x = 0.35, y = -0.02, col = "darkblue", size = 5, hjust = 1) +
+        annotate("text", label = "Niðursveifla", x = -0.1, y = -0.02, col = "darkblue", size = 5, hjust = 0) +
+        annotate("text", label = "Bati", x = -0.1, y = 0.022, col = "darkblue", size = 5, hjust = 0) +
+        labs(x = "12 mánaða breyting fasteignaverðs (smooth röð)",
+             y = "Hröðun (breyting á 12 mánaða breytingu)",
+             title = "Swirlogram fyrir fasteignamarkaðinn á höfuðborgarsvæðinu 2005 - 2019") +
+         scale_y_continuous(labels = scales::percent) +
+        scale_x_continuous(labels = scales::percent) +
+        theme(legend.title = element_blank(),
+              legend.position = "bottom")
+
+```
+
+## Spá
+Fyrir skammtímaspár er hægt að styðjast við ARIMA líkön. VAR líkön eru þó líklegri til að ná betri skammtímaspám. Fyrir langtímaspá er líklegt að VEC líkön muni standa sig best.  
+Hér mun ég aðeins birta spá með ARIMA líkani. VAR og VEC fá að bíða sem stendur.  
+Grafið að neðan sýnir spá fyrir janúar 2019 til og með desember 2019. Raunþróun er við neðri mörk 50% spábilsins.
+
+```{r fit_train}
+df_hus <- df %>% 
+  mutate(breyting = ibudaverd_hbs/lag(ibudaverd_hbs, 12) - 1) %>% na.omit()
+
+ts_hus <- ts(df_hus$breyting,
+             start = c(1995, 1),
+             frequency = 12)
+
+
+fit <- auto.arima(window(ts_hus, end = c(2018, 12)),
+                       stepwise = FALSE,
+                       approximation = FALSE)
+
+fit %>% forecast(h = 12, level = c(50, 95)) %>% autoplot(include = 60) +
+  autolayer(window(ts_hus, start = c(2019, 1)), series = "raun") + 
+  labs(y = NULL, x = NULL, subtitle = "Rauða línan sýnir raun þróun fasteignaverðs") + 
+  scale_y_continuous(labels = scales::percent) + 
+  geom_hline(yintercept = 0, linetype = "dashed") + 
+  theme(legend.position = "none")
+
+```
+
+Næst bý ég til líkan fyrir allt gagnasettið og birti spá út næsta ár. Spáin gerir ráð fyrir hækkun á næsta ári og að 50% spábilið verði fyrir ofan núllið nema í nóvember og desember 2020.  
+
+```{r, fit_full}
+
+fit_full <- auto.arima(ts_hus,
+                       stepwise = FALSE,
+                       approximation = FALSE)
+
+fit_full %>% forecast(h = 13, level = c(50, 95)) %>% autoplot(include = 60) +
+  geom_hline(yintercept = 0, linetype = "dashed") + 
+  labs(y = NULL, x = NULL) + 
+  scale_y_continuous(labels = scales::percent)
+
+```
+
+
+Ég ætla ekki að hoppa á þann vagn, eins og er, sem spáir lækkun fasteignaverðs á næstunni. Þó markaðurinn sé í hægagangi eru enn ekki nein merki um lækkun næsta árið. Ófyrirséðir skellir geta þó breytt því tiltölulega snökkt.  
