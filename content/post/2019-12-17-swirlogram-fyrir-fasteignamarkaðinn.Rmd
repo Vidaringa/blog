@@ -77,7 +77,7 @@ vnv$vnv <- as.numeric(vnv$vnv)
 
 ```
 
-Þjóðskrá Íslands birti í dag uppfærða vísitölu íbúðaverðs á höfuðborgarsvæðinu. Vísitalan lækkaði um 0.3% milli mánaða og 2.4% seinustu tólf mánuði. Grafið að neðan sýnir tólf mánaða breytingu vísitölunnar. Líkt og margir aðrir hagvísar sýna þá er staðan í dag ekki ólík stöðnni eftir Dot-com, sirka 2001-2002.
+Þjóðskrá Íslands birti í dag uppfærða vísitölu íbúðaverðs á höfuðborgarsvæðinu. Vísitalan lækkaði um 0.3% milli mánaða en hefur hækkað um 2.4% seinustu tólf mánuði. Grafið að neðan sýnir tólf mánaða breytingu vísitölunnar. Líkt og margir aðrir hagvísar sýna þá er staðan í dag ekki ólík stöðnni eftir Dot-com, sirka 2001-2002.
 
 
 ```{r graph}

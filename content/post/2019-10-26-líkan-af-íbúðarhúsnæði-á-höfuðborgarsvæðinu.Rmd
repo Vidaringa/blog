@@ -272,60 +272,90 @@ ggplot(df_pred,
 
 ```{r}
 
-# var_gogn <- gogn %>% 
-#   mutate(d_house = ibudarhus/lag(ibudarhus, 12) - 1,
-#          d_utlan = utlan_heimila/lag(utlan_heimila, 12) - 1,
-#          d_leiga = greidd_husaleiga/lag(greidd_husaleiga, 12) - 1,
-#          d_laun = utborgad/lag(utborgad, 12) - 1) %>% 
-#   dplyr::select(date, d_house, d_utlan, d_leiga, max_hlutfall, laegstu_vextir, d_laun) %>% 
-#   na.omit()
+var_gogn <- gogn %>%
+  mutate(d_house = ibudarhus/lag(ibudarhus, 12) - 1,
+         d_utlan = utlan_heimila/lag(utlan_heimila, 12) - 1) %>%
+  dplyr::select(date, d_house, d_utlan, max_hlutfall, laegstu_vextir) %>%
+  na.omit()
 
-var_gogn <- gogn_2
-
-ts_house <- ts(var_gogn$log_price, frequency = 12, start = c(1998, 12))
-ts_laun <- ts(var_gogn$log_laun, frequency = 12, start = c(1998, 12))
-ts_leiga <- ts(var_gogn$log_leiga, frequency = 12, start = c(1998, 12))
-ts_debt <- ts(var_gogn$d_debt, frequency = 12, start = c(1998, 12))
-ts_vextir <- ts(var_gogn$laegstu_vextir, frequency = 12, start = c(1998, 12))
+ts_house <- ts(var_gogn$d_house, frequency = 12, start = c(1998, 12))
+ts_utlan <- ts(var_gogn$d_utlan, frequency = 12, start = c(1998, 12))
 ts_hlutfall <- ts(var_gogn$max_hlutfall, frequency = 12, start = c(1998, 12))
+ts_vextir <- ts(var_gogn$laegstu_vextir, frequency = 12, start = c(1998, 12))
 
-ts_data <- ts.union(ts_hlutfall,
-                    ts_vextir,
-                    ts_debt,
-                    ts_house,
-                    ts_leiga,
-                    ts_laun)
+ts_data <- ts.union(ts_house,
+                    ts_utlan,
+                    ts_hlutfall,
+                    ts_vextir)
 
-VARselect(ts_data, lag.max = 24, type = c("both"))$select
-
-var1 <- VAR(ts_data, p = 24, type = "both")
-irf1 <- irf(var1, n.ahead = 36)
+# VARselect(ts_data, lag.max = 48, type = c("const"))$select
+# 
+# var1 <- VAR(ts_data, p = 47, type = "const")
+# irf1 <- irf(var1, n.ahead = 36)
 
 ```
-
 
 
 ## VAR spá
 
 ```{r}
-horizon <- 24
+
+train_data <- window(ts_data, end = c(2014, 6))
+
+VARselect(train_data, lag.max = 24, type = c("const"))$select
+var1 <- VAR(train_data, p = 12, type = "const")
+
+
+horizon <- 12
 lookback <- 120
 var_pred <- predict(var1, n.ahead = horizon)
 var_pred_house <- var_pred$fcst$ts_house[,1]
 
-new_date <- seq.Date(from = as.Date("2019-08-01"),
+
+fra_date <- as.Date(time(tail(train_data, 1))) + months(1)
+
+new_date <- seq.Date(from = as.Date(fra_date),
                      length.out = horizon,
                      by = "month")
 
-df_pred_var <- tibble(date = c(tail(gogn_2$date, lookback), new_date),
-                  price = c(exp(tail(gogn_2$log_price, lookback)), exp(var_pred_house)),
-                  what = c(rep("raun", lookback), rep("spa", horizon)))
+raun_price <- head(window(ts_data, start = c(2014, 7)), horizon)[, 1]
+
+df_pred_var <- tibble(date = c(as.Date(time(tail(train_data, lookback))), new_date),
+                  spa = c(tail(train_data[,1], lookback), var_pred_house),
+                  raun = c(tail(train_data[,1], lookback), raun_price),
+                  what = c(rep("raun", lookback), rep("spa", horizon))) %>% 
+  pivot_longer(cols = c(spa, raun),
+               names_to = "key",
+               values_to = "value")
 
 
 ggplot(df_pred_var,
-       aes(x = date,
-           y = price,
-           col = what)) + 
-  geom_path()
+                aes(x = date,
+                    y = value,
+                    col = key)) + 
+  geom_line()
+
 
 ```
+
+
+
+```{r}
+
+
+# EÐA!!
+# var_gogn <- gogn_2
+
+# ts_house <- ts(var_gogn$log_price, frequency = 12, start = c(1998, 12))
+# ts_laun <- ts(var_gogn$log_laun, frequency = 12, start = c(1998, 12))
+# ts_leiga <- ts(var_gogn$log_leiga, frequency = 12, start = c(1998, 12))
+# ts_debt <- ts(var_gogn$d_debt, frequency = 12, start = c(1998, 12))
+# ts_vextir <- ts(var_gogn$laegstu_vextir, frequency = 12, start = c(1998, 12))
+# ts_hlutfall <- ts(var_gogn$max_hlutfall, frequency = 12, start = c(1998, 12))
+
+# ts_data <- ts.union(ts_hlutfall,
+#                     ts_vextir,
+#                     ts_debt,
+#                     ts_house)
+```
+
