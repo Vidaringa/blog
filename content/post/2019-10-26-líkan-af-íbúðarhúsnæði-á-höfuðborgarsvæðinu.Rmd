@@ -29,6 +29,9 @@ library(kableExtra)
 library(seasonal)
 library(tseries)
 library(tsDyn)
+library(caret)
+# library(xts)
+
 
 # options(kableExtra.html.bsTable = TRUE)
 
@@ -38,7 +41,7 @@ Fyrir stuttu síðan tók ég saman gögn um hámarkshlutfall sem íslenskar fj�
 
 
 ## Gögn
-Gögnin sem ég nota eru fengin úr nokkrum áttum. Allt eru þetta mánaðarleg gögn. Fyrir verð á íbúðarhúsnæði nota ég vísitölu íbúðaverðs á höfuðborgarsvæðinu sem Þjóðskrá gefur út. Þá er ég með upplýsingar um skuldir heimilana sem ég fékk hjá Seðlabanka Íslands. Þetta eru allar skuldir heimila en ekki aðeins húsnæðisskuldir. Ég geng út frá því í greiningunni að þessi tímaröð og sú sem ætti aðeins við um lán til fasteignakaupa séu nátengdar (svo þarf ekki að vera). Þá er ég með upplýsingar um hámarks lánshlutfall sem bankarnir þrír ásamt Íbúðalánasjóði lána til fasteignakaupa, sjá [hér](https://drive.google.com/open?id=1rqTnfF3TyLHb_mClsCPYEfMnhj6oGmCc). Þessum gögnum safnaði ég af [Vefsafn.is](www.vefsafn.is). Ekki voru til samfelldar upplýsingar af vefsvæðum gömlu bankanna og því gat verið að ég hafði upplýsingar um hámarksútlán í október en síðan ekkert fyrr en í febrúar árið eftir. Ef breytingar áttu sér stað á tímabilinu þurfti ég að geta mér til um hvenær þær breytingar hafi átt sér stað. Athugasemdir um söfnun þessara gagna er að vinna í Excel skjalinu sem ég hlekkjaði á hér að ofan. Þá er ég með lægstu vexti sem eru í boði til fasteignakaupa, útborguð heildarlaun og vísitölu húsaleigu fyrir landið allt. Þetta eru ekki fullkomin gögn, t.d. væri best að hafa vísitölu leiguhúsnæðis aðeins fyrir höfuðborgarsvæðið og alveg aftur til t.d. 1990. 
+Gögnin sem ég nota eru fengin úr ólíkum áttum. Allt eru þetta mánaðarleg gögn. Fyrir verð á íbúðarhúsnæði nota ég vísitölu íbúðaverðs á höfuðborgarsvæðinu sem Þjóðskrá gefur út. Þá er ég með upplýsingar um skuldir heimilana sem ég fékk hjá Seðlabanka Íslands. Þetta eru allar skuldir heimila en ekki aðeins húsnæðisskuldir. Ég geng út frá því í greiningunni að þessi tímaröð og sú sem ætti aðeins við um lán til fasteignakaupa séu nátengdar (svo þarf ekki að vera). Þá er ég með upplýsingar um hámarks lánshlutfall sem bankarnir þrír ásamt Íbúðalánasjóði lána til fasteignakaupa, sjá [hér](https://drive.google.com/open?id=1rqTnfF3TyLHb_mClsCPYEfMnhj6oGmCc). Þessum gögnum safnaði ég af [Vefsafn.is](www.vefsafn.is). Ekki voru til samfelldar upplýsingar af vefsvæðum gömlu bankanna og því gat verið að ég hafði upplýsingar um hámarksútlán í október en síðan ekkert fyrr en í febrúar árið eftir. Ef breytingar áttu sér stað á tímabilinu þurfti ég að geta mér til um hvenær þær breytingar hafi átt sér stað. Athugasemdir um söfnun þessara gagna er að vinna í Excel skjalinu sem ég hlekkjaði á hér að ofan. Þá er ég með lægstu vexti sem eru í boði til fasteignakaupa, útborguð heildarlaun og vísitölu húsaleigu fyrir landið allt. Þetta eru ekki fullkomin gögn, t.d. væri best að hafa vísitölu leiguhúsnæðis aðeins fyrir höfuðborgarsvæðið og alveg aftur til t.d. 1990. 
 
 
 ## Grafísk greining
@@ -84,7 +87,7 @@ gogn_graph %>%
 Næst sýni ég dreifingu eftir hámarks lánshlutfalli. Hér mætti einnig skoða meðallánshlutfall sem lánastofnanir buðu. Ég ákvað þó að fara þá leið í þessari greiningu að nota hæsta hlutfallið sem var í boði á hverjum tíma.  
 Ég er almennt ekki hlynntur því að birta gröf sem sýnir samband tveggja breyta þegar vitað er að aðrar breytur kunna að hafa áhrif. Ástæðan er sú að það er auðvelt að sýna jákvætt samband milli tveggja breyta en sambandið hverfur eða jafnvel breytir um formerki við það eitt að taka tillit til þriðju breytunnar. Hér geri ég þó undantekningu með því að sýna samband milli tólf mánaða hækkun fasteignaverðs og hámarks hlutfalls með þeim fyrirvörum að þetta kunni að breytast eftir að tekið er tillit til annarra breyta.    
 
-Neðangreint graf kallst box-plot. Box plot samanstendur af *hinges* og *whiskers*. Hinges eru efri og neðri mörk kassans. Efri mörkin eru efri fjórðungsmörk og neðri mörkin eru neðri fjórðungsmörk. Neðri fjórðungsmörk eru skilgreind á þann hátt að 25% gildanna (tólf mánað breyting í þessu dæmi) eru undir neðri fjórðungsmörkum. Á sama hátt eru 25% gildanna yfir efri fjórðungsmörkum.   
+Neðangreint graf kallst box-plot. Box plot samanstendur af *hinges* og *whiskers*. Hinges eru efri og neðri mörk kassans. Efri mörkin eru efri fjórðungsmörk og neðri mörkin eru neðri fjórðungsmörk. Neðri fjórðungsmörk eru skilgreind á þann hátt að 25% gildanna (tólf mánað breyting í þessu dæmi) eru undir neðri fjórðungsmörkum. Á sama hátt eru 25% gildanna yfir efri fjórðungsmörkunum.   
 Whiskers eru lóðréttu strikin sem koma upp úr og niður úr boxinu. Efra stirkið nær frá efir mörkum boxins upp í hæsta gildið þó aldrei hærra en 1.5 x IQR, sama á við um neðra strikið. Gildi sem fara út fyrir *whiskers* kallst útlagar.  
 (IQR: inter quartile range eða bil milli efri og neðri marka boxins).
 
@@ -160,8 +163,7 @@ ggplot(price_rent,
 
 Hér verður kannað hvort samþættingarsamband sé á milli fasteignaverðs, leigu og launa. Ef svo er þá er hentugar að styðjast við VEC líkan en VAR. Fyrst þarf að velja fjölda tafinna gilda. Það geri ég með `VARselect`. AIC, HQ, SC og FPE gefa öll misjafna niðurstöðu. Sagt er að AIC eigi það til að velja of mörg tafin gildi. HQ og BIC/SC virðast velja mjög fá tafin gildi, 1. Til að kanna hvort það sé samþættingarsamband þá þarf ég að nota í það minnsta tvö tafin gildi. Styðst því við AIC hér sem segir að fjögur tafin gildi séu heppilegasta lag length. Taflan að neðan sýnir fjölda tafinna gilda m.v. mismunandi criteríur og hvort ég noti constant, trend eða bæði. Þar sem ég er með þrjár breytur sem hækka yfir tíma þá tel ég heppilegast að hafa trend auk þess sem ég tel eðlilegast að hafa einnig constnat. Þannig að **both** dálkurinn er sá sem ég mun líta til.  
 
-
-```{r}
+```{r elastic}
 
 gogn_2 <- gogn %>% 
   mutate(d_debt = utlan_heimila/lag(utlan_heimila, 12) - 1,
@@ -169,7 +171,14 @@ gogn_2 <- gogn %>%
          log_leiga = log(greidd_husaleiga),
          log_laun = log(utborgad)) %>% 
   dplyr::select(-c(ibudarhus, greidd_husaleiga, utborgad, utlan_heimila)) %>% 
-  na.omit()
+  na.omit() %>% head(-24)
+
+```
+
+
+
+```{r}
+
 
 lag_max <- 12
 
@@ -205,10 +214,10 @@ summary(ca.jo(as.matrix(gogn_2[,-1]),
       K = 4))
 
 # Trend term in cointegration
-# summary(ca.jo(as.matrix(gogn_2[,-1]),
-#       type = "trace",
-#       ecdet = "trend",
-#       K = 4))
+summary(ca.jo(as.matrix(gogn_2[,-1]),
+      type = "trace",
+      ecdet = "trend",
+      K = 4))
 
 ```
 
@@ -235,7 +244,7 @@ vec_likan <- VECM(data = gogn_2[,-1],
                   r = 2,
                   include = "const")
 
-vec_irf <- tsDyn::irf(vec_likan, n.ahead = 24)
+vec_irf <- tsDyn::irf(vec_likan, n.ahead = 24, cumulative = TRUE)
 plot(vec_irf)
 
 ```
@@ -272,16 +281,20 @@ ggplot(df_pred,
 
 ```{r}
 
-var_gogn <- gogn %>%
-  mutate(d_house = ibudarhus/lag(ibudarhus, 12) - 1,
-         d_utlan = utlan_heimila/lag(utlan_heimila, 12) - 1) %>%
-  dplyr::select(date, d_house, d_utlan, max_hlutfall, laegstu_vextir) %>%
-  na.omit()
+# var_gogn <- gogn %>%
+#   mutate(d_house = ibudarhus/lag(ibudarhus, 12) - 1,
+#          d_utlan = utlan_heimila/lag(utlan_heimila, 12) - 1) %>%
+#   dplyr::select(date, d_house, d_utlan, max_hlutfall, laegstu_vextir) %>%
+#   na.omit()
 
-ts_house <- ts(var_gogn$d_house, frequency = 12, start = c(1998, 12))
-ts_utlan <- ts(var_gogn$d_utlan, frequency = 12, start = c(1998, 12))
+var_gogn <- gogn_2
+
+ts_house <- ts(var_gogn$log_price, frequency = 12, start = c(1998, 12))
+ts_utlan <- ts(var_gogn$d_debt, frequency = 12, start = c(1998, 12))
 ts_hlutfall <- ts(var_gogn$max_hlutfall, frequency = 12, start = c(1998, 12))
 ts_vextir <- ts(var_gogn$laegstu_vextir, frequency = 12, start = c(1998, 12))
+ts_leiga <- ts(var_gogn$log_leiga, frequency = 12, start = c(1998, 12))
+ts_laun <- ts(var_gogn$log_laun, frequency = 12, start = c(1998,12))
 
 ts_data <- ts.union(ts_house,
                     ts_utlan,
@@ -302,7 +315,7 @@ ts_data <- ts.union(ts_house,
 
 train_data <- window(ts_data, end = c(2014, 6))
 
-VARselect(train_data, lag.max = 24, type = c("const"))$select
+VARselect(train_data, lag.max = 48, type = c("const"))$select
 var1 <- VAR(train_data, p = 12, type = "const")
 
 
