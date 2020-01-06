@@ -18,22 +18,23 @@ topics: []
 <script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
 
 
-<p>Fyrir stuttu síðan tók ég saman gögn um hámarkshlutfall sem íslenskar fjármálastofnanir lána til fasteignakaupa. Ég hafði áhuga á því að skoða þetta hlutfall í samhengi við hækkun fasteignaverðs á höfuðborgarsvæðinu. Að neðan mun ég skoða gögnin með myndrænum hætti auk þess sem ég met VAR (og VEC líkan ef það hentar) til að varpa ljósi á áhrif hámarks lánshlutfalls á þróun fasteignaverðs.</p>
+<p>Fyrir stuttu síðan tók ég saman gögn um hámarkshlutfall sem íslenskar fjármálastofnanir lána til fasteignakaupa. Það eru eflaust fáir hagfræðingarnir sem telja hærra lánshlutfall ekki leiða til hækkun fasteignaverðs. Hér mun ég skoða hvaða áhrif hærra lánshlutfall hefur á fasteignaverð. Því er mögulega hægt að svara með hefðbundnum tölfræðilíkönum á borð við VAR eða VEC líkön. Sökum þess hve sjaldan hámarkshlutfall breytist á tímabilinu 1994 - 2019 er ekki ólíklegt að hefðbundin línuleg líkön eigi erfitt með að pikka upp áhrifin.
+Í stað þess að láta þar við sitja verður einnig stuðst við algorithma vélarnsáms (e. machine learning algorithm). Tree-based líkön á borð við random forest gætu til dæmis komið að gagni.</p>
 <div id="gögn" class="section level2">
 <h2>Gögn</h2>
-<p>Gögnin sem ég nota eru fengin úr nokkrum áttum. Allt eru þetta mánaðarleg gögn. Fyrir verð á íbúðarhúsnæði nota ég vísitölu íbúðaverðs á höfuðborgarsvæðinu sem Þjóðskrá gefur út. Þá er ég með upplýsingar um skuldir heimilana sem ég fékk hjá Seðlabanka Íslands. Þetta eru allar skuldir heimila en ekki aðeins húsnæðisskuldir. Ég geng út frá því í greiningunni að þessi tímaröð og sú sem ætti aðeins við um lán til fasteignakaupa séu nátengdar (svo þarf ekki að vera). Þá er ég með upplýsingar um hámarks lánshlutfall sem bankarnir þrír ásamt Íbúðalánasjóði lána til fasteignakaupa, sjá <a href="https://drive.google.com/open?id=1rqTnfF3TyLHb_mClsCPYEfMnhj6oGmCc">hér</a>. Þessum gögnum safnaði ég af <a href="www.vefsafn.is">Vefsafn.is</a>. Ekki voru til samfelldar upplýsingar af vefsvæðum gömlu bankanna og því gat verið að ég hafði upplýsingar um hámarksútlán í október en síðan ekkert fyrr en í febrúar árið eftir. Ef breytingar áttu sér stað á tímabilinu þurfti ég að geta mér til um hvenær þær breytingar hafi átt sér stað. Athugasemdir um söfnun þessara gagna er að vinna í Excel skjalinu sem ég hlekkjaði á hér að ofan. Þá er ég með lægstu vexti sem eru í boði til fasteignakaupa, útborguð heildarlaun og vísitölu húsaleigu fyrir landið allt. Þetta eru ekki fullkomin gögn, t.d. væri best að hafa vísitölu leiguhúsnæðis aðeins fyrir höfuðborgarsvæðið og alveg aftur til t.d. 1990.</p>
+<p>Gögnin sem ég nota eru fengin úr ólíkum áttum. Allt eru þetta mánaðarleg gögn. Fyrir verð á íbúðarhúsnæði nota ég vísitölu íbúðaverðs á höfuðborgarsvæðinu sem Þjóðskrá gefur út. Þá er ég með upplýsingar um skuldir heimilana sem ég fékk hjá Seðlabanka Íslands. Þetta eru allar skuldir heimila en ekki aðeins húsnæðisskuldir. Ég geng út frá því í greiningunni að þessi tímaröð og sú sem ætti aðeins við um lán til fasteignakaupa séu nátengdar (svo þarf ekki að vera). Þá er ég með upplýsingar um hámarks lánshlutfall sem bankarnir þrír ásamt Íbúðalánasjóði lána til fasteignakaupa, sjá <a href="https://drive.google.com/open?id=1rqTnfF3TyLHb_mClsCPYEfMnhj6oGmCc">hér</a>. Þessum gögnum safnaði ég af <a href="www.vefsafn.is">Vefsafn.is</a>. Ekki voru til samfelldar upplýsingar af vefsvæðum gömlu bankanna og því gat verið að ég hafði upplýsingar um hámarksútlán í október en síðan ekkert fyrr en í febrúar árið eftir. Ef breytingar áttu sér stað á tímabilinu þurfti ég að geta mér til um hvenær þær breytingar hafi átt sér stað. Athugasemdir um söfnun þessara gagna er að vinna í Excel skjalinu sem ég hlekkjaði á hér að ofan. Þá er ég með lægstu vexti sem eru í boði til fasteignakaupa, útborguð heildarlaun og vísitölu húsaleigu fyrir landið allt. Þetta eru ekki fullkomin gögn, t.d. væri best að hafa vísitölu leiguhúsnæðis aðeins fyrir höfuðborgarsvæðið og alveg aftur til t.d. 1990.</p>
 </div>
 <div id="grafísk-greining" class="section level2">
 <h2>Grafísk greining</h2>
-<p>Fyrsta myndin sýnir þróun þeirra sex breyta sem ég mun styðjast við. Gífurleg hækkun fasteignaverðs átti sér stað frá lok árs 2004 þegar bæði hámars hlutfall hækkaði úr 65% í 100% á 2-3 mánuðum og vextir fasteignalána voru lækkaðir.</p>
+<p>Fyrsta myndin sýnir þróun þeirra sex breyta sem ég mun styðjast við. Gífurleg hækkun fasteignaverðs átti sér stað frá lok árs 2004 þegar bæði hámars hlutfall hækkaði úr 65% í 100% á 2-3 mánuðum og vextir fasteignalána lækkuðu umtalsvert.</p>
 <p><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/unnamed-chunk-1-1.png" width="768" /></p>
-<p>Næst sýni ég dreifingu eftir hámarks lánshlutfalli. Hér mætti einnig skoða meðallánshlutfall sem lánastofnanir buðu. Ég ákvað þó að fara þá leið í þessari greiningu að nota hæsta hlutfallið sem var í boði á hverjum tíma.<br />
-Ég er almennt ekki hlynntur því að birta gröf sem sýnir samband tveggja breyta þegar vitað er að aðrar breytur kunna að hafa áhrif. Ástæðan er sú að það er auðvelt að sýna jákvætt samband milli tveggja breyta en sambandið hverfur eða jafnvel breytir um formerki við það eitt að taka tillit til þriðju breytunnar. Hér geri ég þó undantekningu með því að sýna samband milli tólf mánaða hækkun fasteignaverðs og hámarks hlutfalls með þeim fyrirvörum að þetta kunni að breytast eftir að tekið er tillit til annarra breyta.</p>
-<p>Neðangreint graf kallst box-plot. Box plot samanstendur af <em>hinges</em> og <em>whiskers</em>. Hinges eru efri og neðri mörk kassans. Efri mörkin eru efri fjórðungsmörk og neðri mörkin eru neðri fjórðungsmörk. Neðri fjórðungsmörk eru skilgreind á þann hátt að 25% gildanna (tólf mánað breyting í þessu dæmi) eru undir neðri fjórðungsmörkum. Á sama hátt eru 25% gildanna yfir efri fjórðungsmörkum.<br />
+<p>Næst sýni ég dreifingu eftir hámarks lánshlutfalli. Hér mætti einnig skoða meðallánshlutfall sem lánastofnanir buðu. Ég ákvað þó að fara þá leið í þessari greiningu að nota hæsta hlutfallið sem var í boði á hverjum tíma. Munurinn á hámarkshlutfalli og meðalhlutfalli (banka, lífeyrissjóða og íLS) er lítill.<br />
+Ég er almennt ekki hlynntur því að birta gröf sem sýnir samband tveggja breyta þegar vitað er að aðrar breytur kunna að hafa áhrif. Ástæðan er sú að það er auðvelt að sýna jákvætt samband milli tveggja breyta en sambandið hverfur eða jafnvel breytir um formerki við það eitt að taka tillit til þriðju breytunnar. Hér geri ég þó undantekningu með því að sýna hversu mikið fasteignaverð hefur hækkað á mismunandi tímum eftir því hvert hámarkslánshlutfall var.</p>
+<p>Neðangreint graf kallst box-plot. Box plot samanstendur af <em>hinges</em> og <em>whiskers</em>. Hinges eru efri og neðri mörk kassans. Efri mörkin eru efri fjórðungsmörk og neðri mörkin eru neðri fjórðungsmörk. Neðri fjórðungsmörk eru skilgreind á þann hátt að 25% gildanna (tólf mánað breyting fasteignaverð í þessu dæmi) eru undir neðri fjórðungsmörkum. Á sama hátt eru 25% gildanna yfir efri fjórðungsmörkunum.<br />
 Whiskers eru lóðréttu strikin sem koma upp úr og niður úr boxinu. Efra stirkið nær frá efir mörkum boxins upp í hæsta gildið þó aldrei hærra en 1.5 x IQR, sama á við um neðra strikið. Gildi sem fara út fyrir <em>whiskers</em> kallst útlagar.<br />
 (IQR: inter quartile range eða bil milli efri og neðri marka boxins).</p>
 <p><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/unnamed-chunk-2-1.png" width="768" /></p>
-<p>Út frá myndunum að ofan er hægt að draga þá ályktun að þegar lánshlutfall er hærra, þá er tólf mánaða hækkun fasteignaverðs hærri.</p>
+<p>Út frá myndunum að ofan er hægt að draga þá ályktun að þegar lánshlutfall er hærra, þá er tólf mánaða hækkun fasteignaverðs hærri. Í það minnsta hefur fasteignaverð á höfuðborgarsvæðinu aldrei hækkað meira en 25% nema þegar hámarkslánshlutfallið var 100%.</p>
 <p>Gröf ein og sér svara því þó ekki fyllilega hver áhrif hærra lánshlutfalls er á fasteignaverðs. Til að fá betra svar sný ég mér að tölfræðilíkönum.</p>
 </div>
 <div id="var-og-vec-líkön" class="section level2">
@@ -67,7 +68,29 @@ ggplot(price_rent,
         legend.title = element_blank()) +
   scale_color_tableau()</code></pre>
 <p><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/coint_graph-1.png" width="768" /></p>
-<p>Hér verður kannað hvort samþættingarsamband sé á milli fasteignaverðs, leigu og launa. Ef svo er þá er hentugar að styðjast við VEC líkan en VAR. Fyrst þarf að velja fjölda tafinna gilda. Það geri ég með <code>VARselect</code>. AIC, HQ, SC og FPE gefa öll misjafna niðurstöðu. Sagt er að AIC eigi það til að velja of mörg tafin gildi. HQ og BIC/SC virðast velja mjög fá tafin gildi, 1. Til að kanna hvort það sé samþættingarsamband þá þarf ég að nota í það minnsta tvö tafin gildi. Styðst því við AIC hér sem segir að fjögur tafin gildi séu heppilegasta lag length. Taflan að neðan sýnir fjölda tafinna gilda m.v. mismunandi criteríur og hvort ég noti constant, trend eða bæði. Þar sem ég er með þrjár breytur sem hækka yfir tíma þá tel ég heppilegast að hafa trend auk þess sem ég tel eðlilegast að hafa einnig constnat. Þannig að <strong>both</strong> dálkurinn er sá sem ég mun líta til.</p>
+<p>Hér verður kannað hvort samþættingarsamband sé á milli fasteignaverðs, leigu og launa. Ef svo er þá er hentugar að styðjast við VEC líkan en VAR, í það minnsta fyrir greiningu sem nær til langs tíma. Fyrst þarf að velja fjölda tafinna gilda. Það geri ég með <code>VARselect</code>. AIC, HQ, SC og FPE gefa öll misjafna niðurstöðu. Sagt er að AIC eigi það til að velja of mörg tafin gildi. HQ og BIC/SC virðast velja mjög fá tafin gildi, 1. Til að kanna hvort það sé samþættingarsamband þá þarf ég að nota í það minnsta tvö tafin gildi. Styðst því við AIC/FPE hér sem segir að fjögur tafin gildi séu heppilegasta lag length. Taflan að neðan sýnir fjölda tafinna gilda m.v. mismunandi criteríur og hvort ég noti constant, trend eða bæði. Þar sem ég er með þrjár breytur sem hækka yfir tíma þá tel ég heppilegast að hafa trend auk þess sem ég tel eðlilegast að hafa einnig constnat. Þannig að <strong>both</strong> dálkurinn er sá sem ég mun líta til.</p>
+<p>Til að nota <code>VARSelect</code> fallið í <strong>vars</strong> pakkanum þarf að velja hæsta fjölda tafinna gilda sem verða prófuð. Ef ég nota lax.max = 12, þ.e. prófa VAR(1), VAR(2), …, VAR(12) þá er besta líkanið (m.v. AIC og FPE) það sem hefur fjögur tafin gildi. Ef ég hins vegar set lax.max = 24 þá prófa ég alveg upp í VAR(24) en þá velja AIC, HQ og FPE 24 tafin gildi. Þetta er vandamál sem eflaust má rekja til þess að gagnasettið er ekki sérlega stórt. Sjá umfjöllund <a href="https://stats.stackexchange.com/questions/399772/aic-bic-values-keep-changing-with-lag-max-in-var-model">hér</a>. Ég nota lag.max = 12 hér að neðan.</p>
+<pre class="r"><code>gogn_2 &lt;- gogn %&gt;% 
+  mutate(d_debt = utlan_heimila/lag(utlan_heimila, 12) - 1,
+         log_price = log(ibudarhus),
+         log_leiga = log(greidd_husaleiga),
+         log_laun = log(utborgad)) %&gt;% 
+  dplyr::select(-c(ibudarhus, greidd_husaleiga, utborgad, utlan_heimila, avg_hlutfall)) %&gt;% 
+  na.omit()</code></pre>
+<pre class="r"><code>lag_max &lt;- 12
+
+var_none &lt;- VARselect(gogn_2[,-1], lag.max = lag_max, type = c(&quot;none&quot;))$selection %&gt;% as.data.frame()
+var_const &lt;- VARselect(gogn_2[,-1], lag.max = lag_max, type = c(&quot;const&quot;))$selection %&gt;% as.data.frame()
+var_trend &lt;- VARselect(gogn_2[,-1], lag.max = lag_max, type = c(&quot;trend&quot;))$selection %&gt;% as.data.frame()
+var_both &lt;- VARselect(gogn_2[,-1], lag.max = lag_max, type = c(&quot;both&quot;))$selection %&gt;% as.data.frame()
+
+lag_result &lt;- cbind(var_none, var_const, var_trend, var_both)
+colnames(lag_result) &lt;- c(&quot;none&quot;, &quot;const&quot;, &quot;trend&quot;, &quot;both&quot;)
+
+lag_result %&gt;% 
+  kable() %&gt;% 
+  kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;)) %&gt;% 
+  column_spec(c(1:4), width = &quot;2cm&quot;)</code></pre>
 <table class="table table-striped table-hover table-condensed" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -158,7 +181,8 @@ FPE(n)
 </tr>
 </tbody>
 </table>
-<p>Eftir að hafa valið fjölda tafinna gilda þá get ég framkvæmt Johansen próf til að kanna hvort samþættingarsamband sé til staðar. Óháð því hvort ég nota <em>intercept</em>, <em>trend</em> eða hvorugt þá er alltaf sama niðursatða eða tvö samþættingarsambönd.</p>
+<p>Eftir að hafa valið fjölda tafinna gilda þá get ég framkvæmt Johansen próf til að kanna hvort samþættingarsamband sé til staðar. Óháð því hvort ég nota <em>intercept</em>, <em>trend</em> eða hvorugt þá er alltaf sama niðursatða, þ.e. tvö samþættingarsambönd. Til að svar því hversu mörg samþættingarsambönd eru þá er lesið úr efstu töflunum sem birtast í þessum þremur output-um að neðan. Í fyrsta output-inu má sjá r = 0, r &lt;= 1, … r &lt;= 6. Þarna er verið að kanna hversu mörg samþættingarsambönd eru til staðar. Ég er almennt ekki mikill aðdáandi þess að velja 5% marktæknistig (e. significance level) bara af því að það er “hefð” í hagfræðinni. Í fyrsta output-inu að neðan er ekki hægt að hafna tilgátunni um tvö samþættingarsambönd við 5% marktæknistig en það er hægt m.v. 10%.</p>
+<p>M.v. 5% marktæknistig (5pct) þá er test statistic hærra fyrir r = 0 (test = 167.03 vs. 5pct = 124.25). Svona höldum við áfram upp töfluna þangað til við getum ekki hafnað H0. Þegar r &lt;= 1 þá getum við ekki hafnað tilgátunni um eitt eða færri samþættingarsambönd, næ því hins vegar m.v. 10% marktæknistig. Ef við lesum eins út úr hinum tveimur töflunum þá fæst sú niðurstaða að tvö samþættingarsambönd séu til staðar.</p>
 <pre class="r"><code># No intercept and no trend variable in cointegration
 summary(ca.jo(as.matrix(gogn_2[,-1]),
       type = &quot;trace&quot;,
@@ -283,15 +307,75 @@ summary(ca.jo(as.matrix(gogn_2[,-1]),
 ## log_leiga.d      -0.0150156061  0.0019205738  1.313230e-14
 ## log_laun.d        0.0034793900  0.0009996139 -4.029870e-15</code></pre>
 <pre class="r"><code># Trend term in cointegration
-# summary(ca.jo(as.matrix(gogn_2[,-1]),
-#       type = &quot;trace&quot;,
-#       ecdet = &quot;trend&quot;,
-#       K = 4))</code></pre>
+summary(ca.jo(as.matrix(gogn_2[,-1]),
+      type = &quot;trace&quot;,
+      ecdet = &quot;trend&quot;,
+      K = 4))</code></pre>
+<pre><code>## 
+## ###################### 
+## # Johansen-Procedure # 
+## ###################### 
+## 
+## Test type: trace statistic , with linear trend in cointegration 
+## 
+## Eigenvalues (lambda):
+## [1]  2.459052e-01  1.341565e-01  1.001551e-01  5.382448e-02  3.620266e-02
+## [6]  2.176422e-02 -2.320071e-17
+## 
+## Values of teststatistic and critical values of test:
+## 
+##            test  10pct   5pct   1pct
+## r &lt;= 5 |   5.37  10.49  12.25  16.26
+## r &lt;= 4 |  14.37  22.76  25.32  30.45
+## r &lt;= 3 |  27.87  39.06  42.44  48.45
+## r &lt;= 2 |  53.62  59.14  62.99  70.05
+## r &lt;= 1 |  88.76  83.20  87.31  96.58
+## r = 0  | 157.63 110.42 114.90 124.75
+## 
+## Eigenvectors, normalised to first column:
+## (These are the cointegration relations)
+## 
+##                   max_hlutfall.l4 laegstu_vextir.l4    d_debt.l4 log_price.l4
+## max_hlutfall.l4       1.000000000         1.0000000  1.000000000   1.00000000
+## laegstu_vextir.l4    -1.509287381        -9.3940453 37.267750804 -35.71904221
+## d_debt.l4            -0.932532836         6.1711152  0.078800026   6.88322524
+## log_price.l4         -0.332400353        -3.8531707 -0.326347892   2.74819559
+## log_leiga.l4         -1.266482846        -3.2059727  0.499772731  12.64276712
+## log_laun.l4           0.460592013        11.9437923 -1.699222894 -33.40497267
+## trend.l4              0.005885303        -0.0168382  0.008771818   0.07972103
+##                   log_leiga.l4  log_laun.l4     trend.l4
+## max_hlutfall.l4    1.000000000  1.000000000   1.00000000
+## laegstu_vextir.l4  1.128971536  6.264797191 123.77952060
+## d_debt.l4          0.550926367  0.036237525   1.73367334
+## log_price.l4      -1.420641131  0.401929461   2.26959502
+## log_leiga.l4      -0.019121321  0.821835341   0.59278633
+## log_laun.l4        1.291411677 -0.390075733 -15.37157412
+## trend.l4           0.002673878 -0.005621441   0.07424814
+## 
+## Weights W:
+## (This is the loading matrix)
+## 
+##                  max_hlutfall.l4 laegstu_vextir.l4    d_debt.l4  log_price.l4
+## max_hlutfall.d       0.052795344     -0.0025621105 -0.105921681  2.077749e-03
+## laegstu_vextir.d     0.000897447      0.0001811501 -0.001769832  9.376492e-06
+## d_debt.d             0.101455162     -0.0111806837  0.004132708 -4.964108e-03
+## log_price.d          0.076805687      0.0025440531  0.022459828 -3.750552e-04
+## log_leiga.d          0.011065500      0.0057050169  0.005295546 -1.231261e-03
+## log_laun.d           0.020996904     -0.0002765933  0.026878483  7.483287e-04
+##                   log_leiga.l4   log_laun.l4      trend.l4
+## max_hlutfall.d   -0.0107721150 -0.0034641310  1.762434e-14
+## laegstu_vextir.d  0.0003874485  0.0004000589 -1.919383e-15
+## d_debt.d         -0.0078707625  0.0058528370 -8.116383e-14
+## log_price.d       0.0084786741 -0.0055360766 -1.292493e-13
+## log_leiga.d      -0.0136383678  0.0001182505 -4.146503e-14
+## log_laun.d       -0.0023764672  0.0014068265 -5.586734e-15</code></pre>
 </details>
 </div>
 <div id="vec-líkan" class="section level1">
 <h1>VEC líkan</h1>
-<p><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/vec-1.png" width="768" /><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/vec-2.png" width="768" /><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/vec-3.png" width="768" /><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/vec-4.png" width="768" /><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/vec-5.png" width="768" /><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/vec-6.png" width="768" /></p>
+<p>Fyrir ykkur sem slepptuð ítarefninu þá var niðurstaðan sú að vegna langtímasambands á milli launa og fasteignaverðs og leigu og fasteignaverðs þá væri best að styðjast við VEC líkan.</p>
+<p>Gröfin að neðan sýna viðbragð fasteignaverðs á höfuðborgarsvæðinu vegna skells (e. shock) í fimm breytum. Bláa svæðið í kringum viðbragðsfallið er 80% öryggisbil. Ég hallast að</p>
+<p><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/vec_irf_plot-1.png" width="768" /></p>
 <div id="vec-spá" class="section level2">
 <h2>VEC spá</h2>
 <p><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/unnamed-chunk-5-1.png" width="768" /></p>
@@ -302,8 +386,5 @@ summary(ca.jo(as.matrix(gogn_2[,-1]),
 <p>Það má einnig íhuga VAR líkan.</p>
 <div id="var-spá" class="section level2">
 <h2>VAR spá</h2>
-<pre><code>## AIC(n)  HQ(n)  SC(n) FPE(n) 
-##     24      4      1     24</code></pre>
-<p><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/unnamed-chunk-7-1.png" width="768" /></p>
 </div>
 </div>
