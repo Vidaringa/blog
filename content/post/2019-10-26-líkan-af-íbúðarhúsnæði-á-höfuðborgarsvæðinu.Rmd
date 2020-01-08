@@ -30,33 +30,42 @@ library(seasonal)
 library(tseries)
 library(tsDyn)
 library(caret)
-# library(xts)
-
+library(doParallel)
+library(ranger)
+library(vip)
+library(tidymodels)
 
 # options(kableExtra.html.bsTable = TRUE)
 
 ```
 
-Fyrir stuttu síðan tók ég saman gögn um hámarkshlutfall sem íslenskar fjármálastofnanir lána til fasteignakaupa. Það eru eflaust fáir hagfræðingarnir sem telja hærra lánshlutfall ekki leiða til hækkun fasteignaverðs. Hér mun ég skoða hvaða áhrif hærra lánshlutfall hefur á fasteignaverð. Því er mögulega hægt að svara með hefðbundnum tölfræðilíkönum á borð við VAR eða VEC líkön. Sökum þess hve sjaldan hámarkshlutfall breytist á tímabilinu 1994 - 2019 er ekki ólíklegt að hefðbundin línuleg líkön eigi erfitt með að pikka upp áhrifin.
-Í stað þess að láta þar við sitja verður einnig stuðst við algorithma vélarnsáms (e. machine learning algorithm). Tree-based líkön á borð við random forest gætu til dæmis komið að gagni.
+Fyrir stuttu síðan tók ég saman gögn um hámarkshlutfall sem íslenskar fjármálastofnanir lána til fasteignakaupa. Hærra lánshlutfall þýðir að fasteignakaupendur þurfa að leggja til minna eigið fé við fasteignakaup en ella. Það gæti aukið eftirspurn eftir fasteignum og þanni þrýst upp verði. Hér að neðan verða gögnin skoðuð og stuðst við tölfræðilíkön til að varpa ljósi á áhrif hærra lánshlutfalls á fasteignaverð.  
 
 
 ## Gögn
-Gögnin sem ég nota eru fengin úr ólíkum áttum. Allt eru þetta mánaðarleg gögn. Fyrir verð á íbúðarhúsnæði nota ég vísitölu íbúðaverðs á höfuðborgarsvæðinu sem Þjóðskrá gefur út. Þá er ég með upplýsingar um skuldir heimilana sem ég fékk hjá Seðlabanka Íslands. Þetta eru allar skuldir heimila en ekki aðeins húsnæðisskuldir. Ég geng út frá því í greiningunni að þessi tímaröð og sú sem ætti aðeins við um lán til fasteignakaupa séu nátengdar (svo þarf ekki að vera). Þá er ég með upplýsingar um hámarks lánshlutfall sem bankarnir þrír ásamt Íbúðalánasjóði lána til fasteignakaupa, sjá [hér](https://drive.google.com/open?id=1rqTnfF3TyLHb_mClsCPYEfMnhj6oGmCc). Þessum gögnum safnaði ég af [Vefsafn.is](www.vefsafn.is). Ekki voru til samfelldar upplýsingar af vefsvæðum gömlu bankanna og því gat verið að ég hafði upplýsingar um hámarksútlán í október en síðan ekkert fyrr en í febrúar árið eftir. Ef breytingar áttu sér stað á tímabilinu þurfti ég að geta mér til um hvenær þær breytingar hafi átt sér stað. Athugasemdir um söfnun þessara gagna er að vinna í Excel skjalinu sem ég hlekkjaði á hér að ofan. Þá er ég með lægstu vexti sem eru í boði til fasteignakaupa, útborguð heildarlaun og vísitölu húsaleigu fyrir landið allt. Þetta eru ekki fullkomin gögn, t.d. væri best að hafa vísitölu leiguhúsnæðis aðeins fyrir höfuðborgarsvæðið og alveg aftur til t.d. 1990. 
+Gögnin sem ég nota eru fengin úr ólíkum áttum. Allt eru þetta mánaðarleg gögn. Fyrir verð á íbúðarhúsnæði nota ég vísitölu íbúðaverðs á höfuðborgarsvæðinu sem Þjóðskrá gefur út. Þá er ég með upplýsingar um skuldir heimilana sem ég fékk hjá Seðlabanka Íslands. Þetta eru allar skuldir heimila en ekki aðeins húsnæðisskuldir. Ég geng út frá því í greiningunni að þessi tímaröð og sú sem ætti aðeins við um lán til fasteignakaupa séu nátengdar (svo þarf ekki að vera). Þá er ég með upplýsingar um hámarks lánshlutfall sem bankarnir þrír ásamt Íbúðalánasjóði lána til fasteignakaupa, sjá [hér](https://drive.google.com/open?id=1rqTnfF3TyLHb_mClsCPYEfMnhj6oGmCc). Þessum gögnum safnaði ég af [Vefsafn.is](www.vefsafn.is). Ekki voru til samfelldar upplýsingar af vefsvæðum gömlu bankanna og því gat verið að ég hafði upplýsingar um lánshlutfall í október en síðan ekkert fyrr en í febrúar árið eftir. Ef breytingar áttu sér stað á tímabilinu þurfti ég að geta mér til um hvenær þær breytingar áttu sér stað. Athugasemdir um söfnun þessara gagna er að vinna í Excel skjalinu sem ég hlekkjaði á hér að ofan. Þá er ég með lægstu vexti sem eru í boði til fasteignakaupa, útborguð heildarlaun og vísitölu húsaleigu fyrir landið allt. Þetta eru ekki fullkomin gögn, t.d. væri best að hafa vísitölu leiguhúsnæðis aðeins fyrir höfuðborgarsvæðið og alveg aftur til 1994. 
 
 
 ## Grafísk greining
-Fyrsta myndin sýnir þróun þeirra sex breyta sem ég mun styðjast við. Gífurleg hækkun fasteignaverðs átti sér stað frá lok árs 2004 þegar bæði hámars hlutfall hækkaði úr 65% í 100% á 2-3 mánuðum og vextir fasteignalána lækkuðu umtalsvert. 
+Fyrsta myndin sýnir þróun þeirra sex breyta sem ég mun styðjast við. Gífurleg hækkun fasteignaverðs átti sér stað frá lok árs 2004 þegar bæði hámarks hlutfall hækkaði úr 65% í 100% á 2-3 mánuðum og vextir fasteignalána lækkuðu umtalsvert. 
 
 ```{r, fig.height=6}
-gogn <- readxl::read_excel("C:/Users/vidar/Documents/Rwd/blog/content/post/data/likan_af_ibudarverdi_data.xlsx")
+
+# gogn <- readxl::read_excel("./data/likan_af_ibudarverdi_data.xlsx")
+gogn <- readxl::read_excel("C:/Users/vidar/Documents/Rwd_private/blog/content/post/data/likan_af_ibudarverdi_data.xlsx")
 gogn$date <- as.Date(gogn$date)
 
-# Árstíðarleiðrétti útborguð laun og nota trend
+# Árstíðarleiðrétti útborguð laun. Nota trend
 
 ts_utb <- ts(gogn$utborgad, frequency = 12, start = c(1994, 1))
 seas_utb <- seas(ts_utb)
 gogn$utborgad <- as.numeric(seas_utb$data[,4])
+
+# dummy fyrir hrunið
+
+gogn <- gogn %>% 
+  mutate(hrun_dummy = case_when(date >= "2008-06-01" & date <= "2009-01-01" ~ 1,
+                                TRUE ~ 0))
 
 
 gogn_graph <- gogn %>% 
@@ -92,11 +101,11 @@ gogn_graph %>%
 ```
 
 
-Næst sýni ég dreifingu eftir hámarks lánshlutfalli. Hér mætti einnig skoða meðallánshlutfall sem lánastofnanir buðu. Ég ákvað þó að fara þá leið í þessari greiningu að nota hæsta hlutfallið sem var í boði á hverjum tíma. Munurinn á hámarkshlutfalli og meðalhlutfalli (banka, lífeyrissjóða og íLS) er lítill.  
+Næst sýni ég dreifingu eftir hámarks lánshlutfalli. Hér mætti einnig skoða meðallánshlutfall sem lánastofnanir buðu. Ég ákvað þó að fara þá leið í þessari greiningu að nota hæsta hlutfallið sem var í boði á hverjum tíma. Munurinn á hámarkshlutfalli og meðalhlutfalli (banka, lífeyrissjóða og ÍLS) er lítill.  
 Ég er almennt ekki hlynntur því að birta gröf sem sýnir samband tveggja breyta þegar vitað er að aðrar breytur kunna að hafa áhrif. Ástæðan er sú að það er auðvelt að sýna jákvætt samband milli tveggja breyta en sambandið hverfur eða jafnvel breytir um formerki við það eitt að taka tillit til þriðju breytunnar. Hér geri ég þó undantekningu með því að sýna hversu mikið fasteignaverð hefur hækkað á mismunandi tímum eftir því hvert hámarkslánshlutfall var.  
 
 Neðangreint graf kallst box-plot. Box plot samanstendur af *hinges* og *whiskers*. Hinges eru efri og neðri mörk kassans. Efri mörkin eru efri fjórðungsmörk og neðri mörkin eru neðri fjórðungsmörk. Neðri fjórðungsmörk eru skilgreind á þann hátt að 25% gildanna (tólf mánað breyting fasteignaverð í þessu dæmi) eru undir neðri fjórðungsmörkum. Á sama hátt eru 25% gildanna yfir efri fjórðungsmörkunum.   
-Whiskers eru lóðréttu strikin sem koma upp úr og niður úr boxinu. Efra stirkið nær frá efir mörkum boxins upp í hæsta gildið þó aldrei hærra en 1.5 x IQR, sama á við um neðra strikið. Gildi sem fara út fyrir *whiskers* kallst útlagar.  
+Whiskers eru lóðréttu strikin sem koma upp úr og niður úr boxinu. Efra strikið nær frá efir mörkum boxins upp í hæsta gildið þó aldrei hærra en 1.5 x IQR, sama á við um neðra strikið. Gildi sem fara út fyrir *whiskers* kallst útlagar.  
 (IQR: inter quartile range eða bil milli efri og neðri marka boxins).
 
 
@@ -123,7 +132,7 @@ ggplot(gogn_graph,
 
 ```
 
-Út frá myndunum að ofan er hægt að draga þá ályktun að þegar lánshlutfall er hærra, þá er tólf mánaða hækkun fasteignaverðs hærri. Í það minnsta hefur fasteignaverð á höfuðborgarsvæðinu aldrei hækkað meira en 25% nema þegar hámarkslánshlutfallið var 100%.  
+Út frá myndunum að ofan er hægt að draga þá ályktun að þegar lánshlutfall er hærra, þá er tólf mánaða hækkun fasteignaverðs hærri. Í það minnsta hefur fasteignaverð á höfuðborgarsvæðinu aldrei hækkað meira en 25% yfir tólf mánaða tímabil nema þegar hámarkslánshlutfallið var 100%.  
 
 Gröf ein og sér svara því þó ekki fyllilega hver áhrif hærra lánshlutfalls er á fasteignaverðs. Til að fá betra svar sný ég mér að tölfræðilíkönum.
 
@@ -215,23 +224,25 @@ M.v. 5% marktæknistig (5pct) þá er test statistic hærra fyrir r = 0 (test = 
 
 ```{r, echo=TRUE}
 
+tafin = 9
+
 # No intercept and no trend variable in cointegration
 summary(ca.jo(as.matrix(gogn_2[,-1]),
       type = "trace",
       ecdet = "none",
-      K = 4))
+      K = tafin))
 
 # Constant term in cointegration
 summary(ca.jo(as.matrix(gogn_2[,-1]),
       type = "trace",
       ecdet = "const",
-      K = 4))
+      K = tafin))
 
 # Trend term in cointegration
 summary(ca.jo(as.matrix(gogn_2[,-1]),
       type = "trace",
       ecdet = "trend",
-      K = 4))
+      K = tafin))
 
 ```
 
@@ -241,7 +252,7 @@ summary(ca.jo(as.matrix(gogn_2[,-1]),
 
 # VEC líkan
 
-Fyrir ykkur sem slepptuð ítarefninu þá var niðurstaðan sú að vegna langtímasambands á milli launa og fasteignaverðs og leigu og fasteignaverðs þá væri best að styðjast við VEC líkan.  
+Fyrir ykkur sem slepptuð ítarefninu þá var niðurstaðan sú að vegna langtímasambands á milli launa og fasteignaverðs annars vegar og leigu og fasteignaverðs hinsvegar, þá væri best að styðjast við VEC líkan.  
 
 ```{r, vec}
 
@@ -251,7 +262,7 @@ Fyrir ykkur sem slepptuð ítarefninu þá var niðurstaðan sú að vegna langt
 coint_test <- ca.jo(as.matrix(gogn_2[,-1]),
       type = "trace",
       ecdet = "trend",
-      K = 4)
+      K = tafin)
 
 # vec_likan <- cajools(coint_test)
 # 
@@ -260,9 +271,9 @@ coint_test <- ca.jo(as.matrix(gogn_2[,-1]),
 #                   r = 2,
 #                   include = "trend")
 
-var_from_vec <- vec2var(coint_test, r = 2)
+var_from_vec <- vec2var(coint_test, r = 4)
 
-n_ahead <- 24
+n_ahead <- 60
 
 vec_irf <- tsDyn::irf(var_from_vec, n.ahead = n_ahead, ci = 0.8)
 # plot(vec_irf)
@@ -270,7 +281,9 @@ vec_irf <- tsDyn::irf(var_from_vec, n.ahead = n_ahead, ci = 0.8)
 
 ```
 
-Gröfin að neðan sýna viðbragð fasteignaverðs á höfuðborgarsvæðinu vegna skells (e. shock) í fimm breytum. Bláa svæðið í kringum viðbragðsfallið er 80% öryggisbil. Ég hallast að 
+Gröfin að neðan sýna viðbragð fasteignaverðs á höfuðborgarsvæðinu vegna skells (e. shock) í fimm breytum. Bláa svæðið í kringum viðbragðsfallið er 80% öryggisbil. Ég hallast að bayesískri tölfræði og þar með er ég frekar gagnrýninn á öryggisbil. Auk þess sé ég ekki ástæðu til að nota 95% frekar en 80%.  
+
+Það sem lesa má út úr viðbragðsföllunum er að hækkun hámarkshlutfalls leiðir til hærra fasteignaverðs og hærri vextir leiða til lægra fasteignaverðs. Það sem einna helst vekur upp furðu er mat líkansins á áhrifum aukinnar skuldsetningar. Tímaröðin fyrir skuldir heimila er með einhverjum brotum í þannig að hún tekur stökk bæði upp og niður á tímum sem fasteignaverð er að hækka um 5-10%. Það gæti orsakað þessi áhrif. Þá er viðbragð fasteignaverðs vegna skells í leigu einnig með formerkjum sem erfitt er að færa rök fyrir. Þetta kann að skýrast af því að 
 
 ```{r vec_irf_plot}
 
@@ -302,7 +315,7 @@ irf_plot <- function(df) {
   ggplot(df,
              aes(x = period, y = m, ymin = low, ymax = up)) + 
   geom_ribbon(fill = "dodgerblue", alpha = 0.5) +
-  geom_line(col = "midnightblue", lwd = 1) + 
+  geom_line(col = "darkgoldenrod2", lwd = 1) + 
   geom_hline(yintercept = 0, linetype = "dashed") +
   labs(y = NULL, x = NULL)
 }
@@ -321,125 +334,247 @@ gridExtra::grid.arrange(p1, p2, p3, p4, p5, ncol = 2, top = "Viðbragðsföll fy
 
 
 
-## VEC spá
 
-```{r}
+
+# Vélarnám
+Önnur leið til að kanna áhrif tiltekinna breyta á fasteignaverð er að styðjast við vélarnám (e. machine learning). Það getur verið gagnlegt til að ná utan um ólínuleg sambönd ef þau eru til staðar. Ein slík aðferð er random forest. Fyrir þá sem vilja lesa sig til random forest (eða aðra algorithma) þá er bókin *An Introduction to Statistical Learning* mjög góð byrjun. Bókin er aðgengileg [hér](http://faculty.marshall.usc.edu/gareth-james/ISL/index.html).
+
+## Variable importance með random forest
+Tree-based algorithmar líkt og random forest ráða illa við breytur sem trend-a. Því mun ég umbreyta vísitölunum í gagnasettinu þannig að þær lýsi tólf mánaða  breytingu.
+
+```{r ml_data}
+
+gogn_ml <- gogn %>% 
+  transmute(d_house = ibudarhus/lag(ibudarhus, 12) - 1,
+         d_utlan = utlan_heimila/lag(utlan_heimila, 12) - 1,
+         d_leiga = greidd_husaleiga/lag(greidd_husaleiga, 12) - 1,
+         d_laun = utborgad/lag(utborgad, 12) - 1)
+
+
+gogn_ml$date <- gogn$date
+gogn_ml$max_hlutfall <- gogn$max_hlutfall
+gogn_ml$vextir <- gogn$laegstu_vextir
+
+gogn_ml <- gogn_ml %>% dplyr::select(date, everything()) %>% na.omit()
+
+gogn_ml$max_hlutfall <- factor(gogn_ml$max_hlutfall)
+
+# train og test
+# 200 er sirka 80% af gögnunum
+gogn_ml_train <- gogn_ml[1:200, -1]
+gogn_ml_test <- gogn_ml[201:nrow(gogn_ml), -1]
+
+#Uppskrift
+rec <- recipe(d_house ~ ., data = gogn_ml_train) %>%
+  step_dummy("max_hlutfall", one_hot = TRUE)
+
+trained_rec <- prep(rec, training = gogn_ml_train)
+train_data <- bake(trained_rec, new_data = gogn_ml_train)
+test_data <- bake(trained_rec, new_data = gogn_ml_test)
+
+# train_data <- gogn_ml_train
+# test_data <- gogn_ml_test
+
+```
+
+
+```{r rf}
+
+
+cub_grid <- expand.grid(committees = c(1, seq(10, 100, 10)),
+                        neighbors = seq(0, 9, 1))
+
+no_cores <- detectCores() - 1
+cl <- makeCluster(no_cores)
+registerDoParallel(cl)
+
+
+ctrl_time <- trainControl(method = "timeslice",
+                          initialWindow = 100,
+                          fixedWindow = FALSE,
+                          horizon = 12)
+
+rf_train <- train(d_house ~ .,
+                  data = train_data,
+                  method = "ranger",
+                  trControl = ctrl_time,
+                  tuneLength = 10,
+                  importance = "permutation")
+
+cubist_train <- train(d_house ~ .,
+                      data = train_data,
+                      method = "cubist",
+                      trControl = ctrl_time,
+                      tuneGrid = cub_grid)
+
+stopCluster(cl)
+
+
+```
+
+
+Grafið að neðan sýnir tvö líkön. Random forest og Cubist. Bæði líkönin virðast overfit-a þó það sé mun meira hjá Cubist. Gráa svæðið er sá hluti gagnana sem ekki var notaður við að tune-a líkönin.
+
+```{r training_error}
+
+total_data <- bind_rows(train_data, test_data)
+
+pred_cubist <- predict(cubist_train, newdata = total_data)
+pred_rf <- predict(rf_train, newdata = total_data)
+
+df_pred <- tibble(date = gogn_ml$date,
+                  rf = pred_rf,
+                  cubist = pred_cubist,
+                  raun = total_data$d_house) %>% 
+  pivot_longer(cols = 2:4,
+               values_to = "value",
+               names_to = "key")
+
+x_min <- "2015-08-01"
+x_max <- max(gogn_ml$date)
+
+ggplot(df_pred,
+       aes(x = date,
+           y = value,
+           col = key)) + 
+  geom_line(lwd = 1) + 
+  # geom_vline(xintercept = as.numeric(as.Date(xintercept)), lwd = .5, linetype = "dashed") + 
+  theme_classic() + 
+  theme(legend.position = "bottom",
+        legend.title = element_blank()) + 
+  annotate("rect", xmin = as.Date(x_min), xmax = as.Date(x_max), ymin = -0.15, ymax = 0.4, alpha = 0.3) +
+    scale_y_continuous(labels = scales::percent, expand = c(0,0)) +
+  labs(x = NULL, y = NULL, title = "Cubist og random forest", subtitle = "Gráa svæðið er test set")
+
+
+```
+
+
+Næsta graf sýnir hversu mikilvægar viðkomandi breytur voru til að spá fyrir um tólf mánaða breytingu fasteignaverðs. Breytan **max_hlutfall** tekur aðeisns fjögur gildi: 65%, 80%, 85% og 100% og þar sem ég er að nota tree-based algorithma ákvað ég að búa til dummy breytu fyrir öll gildin (one hot encoding). Athugið að mikilvægi breytanna segir ekker til um hvort áhrifin voru jákvæð eða neikvæð. Nokkur munur er á hvaða breytur eru mikilvægar til að spá fyrir fasteignaverð. Tólf mánaða breyting launa, vextir og breyting útlána voru þrjár mikilvægustu  breyturnar yfrir Cubist. **max_hlutfall**, og þá sérstaklega 100% og 80% hlutföllin sem dummy breytur auk vaxta voru þrjár mikilvægustu breyturnar fyrir random forest.  
+
+
+```{r vip}
+
+vip_cubist <- vip(cubist_train) + labs(x = NULL, y = NULL, title = "Cubist")
+vip_rf <- vip(rf_train) + labs(x = NULL, y = NULL, title = "Random forest")
+
+gridExtra::grid.arrange(vip_cubist, vip_rf, ncol = 2)
+
+```
+
+
+# Spá um þróun fasteignaverðs
+Að ofan hef ég rýnt hvaða áhrif breyturnar hafa á fasteignaverð með VEC líkani. Einnig kannaði ég hvaða breytur voru mikilvægar til að útskýra fasteignaverð miðað við tvo öfluga algorithma. Að neðan mun ég nota VAR og VEC líkan til að framkvæma spá til næstu 12 mánaða.  
+
+
+## VEC spá
+Hér er notað sama líka og notað var til að búa til viðbragðsföllin að ofan. Grafið sýnir spá 24 mánuði fram í tímann. 
+```{r vec_spa}
+
 horizon <- 24
-lookback <- 120
+lookback <- 240
 vec_pred <- predict(var_from_vec, n.ahead = horizon)
 
 new_date <- seq.Date(from = as.Date("2019-08-01"),
                      length.out = horizon,
                      by = "month")
 
+spa <- exp(vec_pred$fcst$log_price[,1])
+spa_low <- exp(vec_pred$fcst$log_price[,2])
+spa_high <- exp(vec_pred$fcst$log_price[,3])
+
 df_pred <- tibble(date = c(tail(gogn_2$date, lookback), new_date),
-                  price = c(exp(tail(gogn_2$log_price, lookback)), exp(vec_pred$fcst$log_price[,1])),
-                  what = c(rep("raun", lookback), rep("spa", horizon)))
+                  price = c(exp(tail(gogn_2$log_price, lookback)), spa),
+                  price_low = c(exp(tail(gogn_2$log_price, lookback)), spa_low),
+                  price_high = c(exp(tail(gogn_2$log_price, lookback)), spa_high),
+                  what = c(rep("raun", lookback), rep("spa", horizon))) %>% 
+  mutate(spa = price/lag(price, 12) - 1,
+         ymin = price_low/lag(price_low, 12) - 1,
+         ymax = price_high/lag(price_high, 12) - 1) %>% 
+  na.omit()
 
 
 ggplot(df_pred,
        aes(x = date,
-           y = price,
+           y = spa,
+           ymin = ymin,
+           ymax = ymax,
            col = what)) + 
-  geom_path() + 
-  labs(x = NULL, y = NULL, title = "Spá 24 mánuði")
+  geom_ribbon(fill = "dodgerblue", alpha = 0.5, col = NA) + 
+  geom_line(lwd = 1) + 
+  labs(x = NULL, y = NULL, title = "Spá með VEC líkani til 24 mánaða") + 
+  scale_color_tableau() + 
+  theme(legend.title = element_blank())
 
 ```
 
 
-# VAR
-Það má einnig íhuga VAR líkan.
+## Spá með VAR líkani
+Hér styðst ég við VAR líkan til að framkvæma spá til næstu 24 mánaða. Ég nota tólf mánaða breytingu á þeim gögnum sem trend-a.
 
-```{r}
-
-# var_gogn <- gogn %>%
-#   mutate(d_house = ibudarhus/lag(ibudarhus, 12) - 1,
-#          d_utlan = utlan_heimila/lag(utlan_heimila, 12) - 1) %>%
-#   dplyr::select(date, d_house, d_utlan, max_hlutfall, laegstu_vextir) %>%
-#   na.omit()
-
-# var_gogn <- gogn_2
-# 
-# ts_house <- ts(var_gogn$log_price, frequency = 12, start = c(1998, 12))
-# ts_utlan <- ts(var_gogn$d_debt, frequency = 12, start = c(1998, 12))
-# ts_hlutfall <- ts(var_gogn$max_hlutfall, frequency = 12, start = c(1998, 12))
-# ts_vextir <- ts(var_gogn$laegstu_vextir, frequency = 12, start = c(1998, 12))
-# ts_leiga <- ts(var_gogn$log_leiga, frequency = 12, start = c(1998, 12))
-# ts_laun <- ts(var_gogn$log_laun, frequency = 12, start = c(1998,12))
-# 
-# ts_data <- ts.union(ts_house,
-#                     ts_utlan,
-#                     ts_hlutfall,
-#                     ts_vextir)
-
-# VARselect(ts_data, lag.max = 48, type = c("const"))$select
-# 
-# var1 <- VAR(ts_data, p = 47, type = "const")
-# irf1 <- irf(var1, n.ahead = 36)
+```{r var_gogn}
+# Tólfti mismunur
+var_gogn <- gogn %>%
+  mutate(d_house = ibudarhus/lag(ibudarhus, 12) - 1,
+         d_utlan = utlan_heimila/lag(utlan_heimila, 12) - 1,
+         d_laun = utborgad/lag(utborgad, 12) - 1,
+         d_leiga = greidd_husaleiga/lag(greidd_husaleiga, 12) - 1) %>%
+  dplyr::select(date, d_house, d_utlan, d_laun, d_leiga, max_hlutfall, laegstu_vextir) %>%
+  na.omit()
 
 ```
 
 
-## VAR spá
+```{r var_spa_12}
 
-```{r}
+ts_house <- ts(var_gogn$d_house, frequency = 12, start = c(1998, 12))
+ts_utlan <- ts(var_gogn$d_utlan, frequency = 12, start = c(1998, 12))
+ts_hlutfall <- ts(var_gogn$max_hlutfall, frequency = 12, start = c(1998, 12))
+ts_vextir <- ts(var_gogn$laegstu_vextir, frequency = 12, start = c(1998, 12))
+ts_leiga <- ts(var_gogn$d_leiga, frequency = 12, start = c(1998, 12))
+ts_laun <- ts(var_gogn$d_laun, frequency = 12, start = c(1998,12))
 
-# train_data <- window(ts_data, end = c(2014, 6))
-# 
-# VARselect(train_data, lag.max = 48, type = c("const"))$select
-# var1 <- VAR(train_data, p = 12, type = "const")
-# 
-# 
-# horizon <- 12
-# lookback <- 120
-# var_pred <- predict(var1, n.ahead = horizon)
-# var_pred_house <- var_pred$fcst$ts_house[,1]
-# 
-# 
-# fra_date <- as.Date(time(tail(train_data, 1))) + months(1)
-# 
-# new_date <- seq.Date(from = as.Date(fra_date),
-#                      length.out = horizon,
-#                      by = "month")
-# 
-# raun_price <- head(window(ts_data, start = c(2014, 7)), horizon)[, 1]
-# 
-# df_pred_var <- tibble(date = c(as.Date(time(tail(train_data, lookback))), new_date),
-#                   spa = c(tail(train_data[,1], lookback), var_pred_house),
-#                   raun = c(tail(train_data[,1], lookback), raun_price),
-#                   what = c(rep("raun", lookback), rep("spa", horizon))) %>% 
-#   pivot_longer(cols = c(spa, raun),
-#                names_to = "key",
-#                values_to = "value")
-# 
-# 
-# ggplot(df_pred_var,
-#                 aes(x = date,
-#                     y = value,
-#                     col = key)) + 
-#   geom_line()
-# 
+ts_data <- ts.union(ts_house,
+                    ts_utlan,
+                    ts_hlutfall,
+                    ts_vextir)
+
+# Bý til líkanið
+lag_var1 <- as.numeric(VARselect(ts_data, lag.max = 12, type = c("const"))$select[4])
+var1 <- VAR(ts_data, p = lag_var1, type = "const")
+
+
+var_pred <- predict(var1, n.ahead = horizon, ci = 0.8)
+
+var_pred_house <- var_pred$fcst$ts_house[,1]
+var_pred_low <- var_pred$fcst$ts_house[,2]
+var_pred_high <- var_pred$fcst$ts_house[,3]
+
+fra_date <- as.Date(time(tail(ts_data, 1))) + months(1)
+
+new_date <- seq.Date(from = as.Date(fra_date),
+                     length.out = horizon,
+                     by = "month")
+
+df_pred_var <- tibble(date = c(as.Date(time(tail(ts_data, lookback))), new_date),
+                  spa = c(tail(ts_data[,1], lookback), var_pred_house),
+                  spa_low = c(tail(ts_data[,1], lookback), var_pred_low),
+                  spa_high = c(tail(ts_data[,1], lookback), var_pred_high),
+                  what = c(rep("raun", lookback), rep("spa", horizon)))
+
+ggplot(df_pred_var,
+                aes(x = date,
+                    y = spa,
+                    ymin = spa_low,
+                    ymax = spa_high,
+                    col = what)) +
+  geom_ribbon(fill = "dodgerblue", alpha = 0.5, col = NA) + 
+  geom_line(lwd = 1) + 
+  scale_color_tableau() +
+  theme(legend.title = element_blank()) + 
+  labs(x = NULL, y = NULL, title = "Spá með VAR líkani til 24 mánaða")
+
 
 ```
 
-
-
-```{r}
-
-
-# EÐA!!
-# var_gogn <- gogn_2
-
-# ts_house <- ts(var_gogn$log_price, frequency = 12, start = c(1998, 12))
-# ts_laun <- ts(var_gogn$log_laun, frequency = 12, start = c(1998, 12))
-# ts_leiga <- ts(var_gogn$log_leiga, frequency = 12, start = c(1998, 12))
-# ts_debt <- ts(var_gogn$d_debt, frequency = 12, start = c(1998, 12))
-# ts_vextir <- ts(var_gogn$laegstu_vextir, frequency = 12, start = c(1998, 12))
-# ts_hlutfall <- ts(var_gogn$max_hlutfall, frequency = 12, start = c(1998, 12))
-
-# ts_data <- ts.union(ts_hlutfall,
-#                     ts_vextir,
-#                     ts_debt,
-#                     ts_house)
-```
 
