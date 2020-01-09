@@ -18,7 +18,7 @@ topics: []
 <script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
 
 
-<p>Fyrir stuttu síðan tók ég saman gögn um hámarkshlutfall sem íslenskar fjármálastofnanir lána til fasteignakaupa. Hærra lánshlutfall þýðir að fasteignakaupendur þurfa að leggja til minna eigið fé við fasteignakaup en ella. Það gæti aukið eftirspurn eftir fasteignum og þanni þrýst upp verði. Hér að neðan verða gögnin skoðuð og stuðst við tölfræðilíkön til að varpa ljósi á áhrif hærra lánshlutfalls á fasteignaverð.</p>
+<p>Fyrir stuttu síðan tók ég saman gögn um hámarkshlutfall sem íslenskar fjármálastofnanir lána til fasteignakaupa. Hærra lánshlutfall þýðir að fasteignakaupendur þurfa að leggja til minna eigið fé við fasteignakaup en ella. Það gæti aukið eftirspurn eftir fasteignum og þanni þrýst upp verði. Hér að neðan verða gögnin skoðuð og stuðst við tölfræðilíkön til að varpa ljósi á áhrif hærra lánshlutfalls á fasteignaverð. Þá mun ég einnig nota VAR og VEC líkökn til að framkvæmar spár næstu 24 mánuðina.</p>
 <div id="gögn" class="section level2">
 <h2>Gögn</h2>
 <p>Gögnin sem ég nota eru fengin úr ólíkum áttum. Allt eru þetta mánaðarleg gögn. Fyrir verð á íbúðarhúsnæði nota ég vísitölu íbúðaverðs á höfuðborgarsvæðinu sem Þjóðskrá gefur út. Þá er ég með upplýsingar um skuldir heimilana sem ég fékk hjá Seðlabanka Íslands. Þetta eru allar skuldir heimila en ekki aðeins húsnæðisskuldir. Ég geng út frá því í greiningunni að þessi tímaröð og sú sem ætti aðeins við um lán til fasteignakaupa séu nátengdar (svo þarf ekki að vera). Þá er ég með upplýsingar um hámarks lánshlutfall sem bankarnir þrír ásamt Íbúðalánasjóði lána til fasteignakaupa, sjá <a href="https://drive.google.com/open?id=1rqTnfF3TyLHb_mClsCPYEfMnhj6oGmCc">hér</a>. Þessum gögnum safnaði ég af <a href="www.vefsafn.is">Vefsafn.is</a>. Ekki voru til samfelldar upplýsingar af vefsvæðum gömlu bankanna og því gat verið að ég hafði upplýsingar um lánshlutfall í október en síðan ekkert fyrr en í febrúar árið eftir. Ef breytingar áttu sér stað á tímabilinu þurfti ég að geta mér til um hvenær þær breytingar áttu sér stað. Athugasemdir um söfnun þessara gagna er að vinna í Excel skjalinu sem ég hlekkjaði á hér að ofan. Þá er ég með lægstu vexti sem eru í boði til fasteignakaupa, útborguð heildarlaun og vísitölu húsaleigu fyrir landið allt. Þetta eru ekki fullkomin gögn, t.d. væri best að hafa vísitölu leiguhúsnæðis aðeins fyrir höfuðborgarsvæðið og alveg aftur til 1994.</p>
@@ -115,16 +115,16 @@ both
 AIC(n)
 </td>
 <td style="text-align:right;width: 2cm; ">
-11
+4
 </td>
 <td style="text-align:right;width: 2cm; ">
-12
+4
 </td>
 <td style="text-align:right;width: 2cm; ">
-12
+4
 </td>
 <td style="text-align:right;">
-11
+4
 </td>
 </tr>
 <tr>
@@ -132,10 +132,10 @@ AIC(n)
 HQ(n)
 </td>
 <td style="text-align:right;width: 2cm; ">
-1
+3
 </td>
 <td style="text-align:right;width: 2cm; ">
-1
+3
 </td>
 <td style="text-align:right;width: 2cm; ">
 1
@@ -166,23 +166,23 @@ SC(n)
 FPE(n)
 </td>
 <td style="text-align:right;width: 2cm; ">
-9
+4
 </td>
 <td style="text-align:right;width: 2cm; ">
-9
+4
 </td>
 <td style="text-align:right;width: 2cm; ">
-9
+4
 </td>
 <td style="text-align:right;">
-9
+4
 </td>
 </tr>
 </tbody>
 </table>
-<p>Eftir að hafa valið fjölda tafinna gilda þá get ég framkvæmt Johansen próf til að kanna hvort samþættingarsamband sé til staðar. Óháð því hvort ég nota <em>intercept</em>, <em>trend</em> eða hvorugt þá er alltaf sama niðursatða, þ.e. tvö samþættingarsambönd. Til að svar því hversu mörg samþættingarsambönd eru þá er lesið úr efstu töflunum sem birtast í þessum þremur output-um að neðan. Í fyrsta output-inu má sjá r = 0, r &lt;= 1, … r &lt;= 6. Þarna er verið að kanna hversu mörg samþættingarsambönd eru til staðar. Ég er almennt ekki mikill aðdáandi þess að velja 5% marktæknistig (e. significance level) bara af því að það er “hefð” í hagfræðinni. Í fyrsta output-inu að neðan er ekki hægt að hafna tilgátunni um tvö samþættingarsambönd við 5% marktæknistig en það er hægt m.v. 10%.</p>
+<p>Eftir að hafa valið níu tafinna gilda þá get ég framkvæmt Johansen próf til að kanna hvort samþættingarsamband sé til staðar. Óháð því hvort ég nota <em>intercept</em>, <em>trend</em> eða hvorugt þá er alltaf sama niðursatða, þ.e. tvö samþættingarsambönd. Til að svar því hversu mörg samþættingarsambönd eru þá er lesið úr efstu töflunum sem birtast í þessum þremur output-um að neðan. Í fyrsta output-inu má sjá r = 0, r &lt;= 1, … r &lt;= 6. Þarna er verið að kanna hversu mörg samþættingarsambönd eru til staðar. Ég er almennt ekki mikill aðdáandi þess að velja 5% marktæknistig (e. significance level) bara af því að það er “hefð” í hagfræðinni. Í fyrsta output-inu að neðan er ekki hægt að hafna tilgátunni um tvö samþættingarsambönd við 5% marktæknistig en það er hægt m.v. 10%.</p>
 <p>M.v. 5% marktæknistig (5pct) þá er test statistic hærra fyrir r = 0 (test = 167.03 vs. 5pct = 124.25). Svona höldum við áfram upp töfluna þangað til við getum ekki hafnað H0. Þegar r &lt;= 1 þá getum við ekki hafnað tilgátunni um eitt eða færri samþættingarsambönd, næ því hins vegar m.v. 10% marktæknistig. Ef við lesum eins út úr hinum tveimur töflunum þá fæst sú niðurstaða að tvö samþættingarsambönd séu til staðar.</p>
-<pre class="r"><code>tafin = 9
+<pre class="r"><code>tafin = 4
 
 # No intercept and no trend variable in cointegration
 summary(ca.jo(as.matrix(gogn_2[,-1]),
@@ -197,58 +197,53 @@ summary(ca.jo(as.matrix(gogn_2[,-1]),
 ## Test type: trace statistic , with linear trend 
 ## 
 ## Eigenvalues (lambda):
-## [1] 0.21921813 0.16653777 0.16002689 0.09224552 0.05021733 0.03048528 0.01482341
+## [1] 0.22928294 0.13345740 0.06276566 0.03680630 0.02455120 0.01615179
 ## 
 ## Values of teststatistic and critical values of test:
 ## 
-##            test  10pct   5pct   1pct
-## r &lt;= 6 |   3.57   6.50   8.18  11.65
-## r &lt;= 5 |  10.97  15.66  17.95  23.52
-## r &lt;= 4 |  23.28  28.71  31.52  37.22
-## r &lt;= 3 |  46.41  45.23  48.28  55.43
-## r &lt;= 2 |  88.09  66.49  70.60  78.87
-## r &lt;= 1 | 131.63  85.18  90.39 104.20
-## r = 0  | 190.77 118.99 124.25 136.06
+##            test 10pct  5pct   1pct
+## r &lt;= 5 |   3.97  6.50  8.18  11.65
+## r &lt;= 4 |  10.04 15.66 17.95  23.52
+## r &lt;= 3 |  19.19 28.71 31.52  37.22
+## r &lt;= 2 |  35.01 45.23 48.28  55.43
+## r &lt;= 1 |  69.96 66.49 70.60  78.87
+## r = 0  | 133.50 85.18 90.39 104.20
 ## 
 ## Eigenvectors, normalised to first column:
 ## (These are the cointegration relations)
 ## 
-##                   max_hlutfall.l9 laegstu_vextir.l9 hrun_dummy.l9 d_debt.l9
-## max_hlutfall.l9         1.0000000         1.0000000    1.00000000   1.00000
-## laegstu_vextir.l9     -18.8874590       -93.0920266    3.16598943 941.45268
-## hrun_dummy.l9          -1.2473847        -1.9000870    0.06392702 -16.56507
-## d_debt.l9              -3.4381104         2.2356694   -0.30561836  33.83861
-## log_price.l9            0.6083597         0.1771610   -0.97744582  -3.15427
-## log_leiga.l9           -1.9341739        -0.9151853   -1.60814101  35.49385
-## log_laun.l9             0.8357342        -0.1174740    2.89898035 -24.81483
-##                   log_price.l9 log_leiga.l9 log_laun.l9
-## max_hlutfall.l9     1.00000000    1.0000000   1.0000000
-## laegstu_vextir.l9  43.03596673   20.0159672   0.4786806
-## hrun_dummy.l9      -0.18561866    0.1082643   0.2638061
-## d_debt.l9          -0.96784734    0.5866185  -0.4539988
-## log_price.l9        0.43746646   -0.2951879  -1.2069108
-## log_leiga.l9        0.05051106    1.5256261   0.1844036
-## log_laun.l9        -0.70655972   -1.2404325   0.8319455
+##                   max_hlutfall.l4 laegstu_vextir.l4  d_debt.l4 log_price.l4
+## max_hlutfall.l4         1.0000000         1.0000000  1.0000000    1.0000000
+## laegstu_vextir.l4     -40.7486194        21.4646788 40.8880498   -9.4370350
+## d_debt.l4              -1.9715003         2.5225915 -0.7533049    0.6749934
+## log_price.l4           -0.4613162        -1.6559472 -0.5902386   -2.0583970
+## log_leiga.l4           -3.2133754        -0.7651733 -0.7182214   -0.6585836
+## log_laun.l4             3.5221218         3.1593097  1.6564036    3.3662389
+##                   log_leiga.l4 log_laun.l4
+## max_hlutfall.l4      1.0000000   1.0000000
+## laegstu_vextir.l4   11.9280022   9.5199934
+## d_debt.l4            0.1177952  -0.1016228
+## log_price.l4        -0.2123059  -1.8302553
+## log_leiga.l4         0.8273011   0.8167055
+## log_laun.l4         -0.7877029   0.6750639
 ## 
 ## Weights W:
 ## (This is the loading matrix)
 ## 
-##                  max_hlutfall.l9 laegstu_vextir.l9 hrun_dummy.l9     d_debt.l9
-## max_hlutfall.d      1.977454e-02      1.191756e-02  -0.054493375 -1.075574e-03
-## laegstu_vextir.d   -8.819969e-05      3.697925e-04   0.002485793 -9.008944e-06
-## hrun_dummy.d        4.331293e-02      4.600682e-03   0.051535909  1.271126e-02
-## d_debt.d            4.466057e-02     -1.216209e-02   0.006904756 -2.751351e-03
-## log_price.d         1.542448e-02      8.121167e-05   0.054285705 -1.945899e-05
-## log_leiga.d        -1.145482e-02      3.840388e-03   0.023793108 -3.313166e-04
-## log_laun.d          4.717986e-03      2.630275e-03  -0.004954076  6.490301e-06
-##                   log_price.l9  log_leiga.l9   log_laun.l9
-## max_hlutfall.d   -0.0084003403 -0.0098910548 -0.0041941205
-## laegstu_vextir.d -0.0002449204  0.0005145692 -0.0001227553
-## hrun_dummy.d      0.0268262590 -0.0074524273 -0.0138141512
-## d_debt.d          0.0146735470  0.0059342278 -0.0066458471
-## log_price.d      -0.0032093677 -0.0098846126  0.0052904344
-## log_leiga.d       0.0156346234 -0.0063972793 -0.0028368242
-## log_laun.d        0.0044294379  0.0020013117  0.0037831427</code></pre>
+##                  max_hlutfall.l4 laegstu_vextir.l4     d_debt.l4  log_price.l4
+## max_hlutfall.d      0.0313980020     -9.594581e-03 -0.0347815253 -0.0061970693
+## laegstu_vextir.d    0.0006028059      4.085343e-04 -0.0004270674  0.0002532025
+## d_debt.d            0.0462855320     -2.960611e-02  0.0453171599 -0.0027346468
+## log_price.d         0.0332854971      6.717975e-03  0.0076232325  0.0052170962
+## log_leiga.d         0.0068044183      1.449670e-02  0.0108470559 -0.0078142205
+## log_laun.d          0.0067671637     -7.205856e-06  0.0006925713 -0.0027003419
+##                  log_leiga.l4   log_laun.l4
+## max_hlutfall.d   -0.012254390 -0.0010122587
+## laegstu_vextir.d  0.000610510 -0.0001796327
+## d_debt.d          0.001178710 -0.0044454037
+## log_price.d      -0.005131347  0.0034169612
+## log_leiga.d      -0.005326228 -0.0015710243
+## log_laun.d        0.006901375  0.0011266054</code></pre>
 <pre class="r"><code># Constant term in cointegration
 summary(ca.jo(as.matrix(gogn_2[,-1]),
       type = &quot;trace&quot;,
@@ -262,61 +257,56 @@ summary(ca.jo(as.matrix(gogn_2[,-1]),
 ## Test type: trace statistic , without linear trend and constant in cointegration 
 ## 
 ## Eigenvalues (lambda):
-## [1]  2.336021e-01  1.871165e-01  1.643801e-01  1.191238e-01  7.342521e-02
-## [6]  3.263209e-02  3.048422e-02 -9.009934e-16
+## [1]  2.592404e-01  1.756639e-01  8.769650e-02  6.014290e-02  2.879074e-02
+## [6]  2.126087e-02 -7.479663e-19
 ## 
 ## Values of teststatistic and critical values of test:
 ## 
-##            test  10pct   5pct   1pct
-## r &lt;= 6 |   7.40   7.52   9.24  12.97
-## r &lt;= 5 |  15.33  17.85  19.96  24.60
-## r &lt;= 4 |  33.55  32.00  34.91  41.07
-## r &lt;= 3 |  63.87  49.65  53.12  60.16
-## r &lt;= 2 | 106.79  71.86  76.07  84.45
-## r &lt;= 1 | 156.30  97.18 102.14 111.01
-## r = 0  | 219.89 126.58 131.70 143.09
+##            test 10pct   5pct   1pct
+## r &lt;= 5 |   5.24  7.52   9.24  12.97
+## r &lt;= 4 |  12.37 17.85  19.96  24.60
+## r &lt;= 3 |  27.51 32.00  34.91  41.07
+## r &lt;= 2 |  49.90 49.65  53.12  60.16
+## r &lt;= 1 |  97.04 71.86  76.07  84.45
+## r = 0  | 170.26 97.18 102.14 111.01
 ## 
 ## Eigenvectors, normalised to first column:
 ## (These are the cointegration relations)
 ## 
-##                   max_hlutfall.l9 laegstu_vextir.l9 hrun_dummy.l9  d_debt.l9
-## max_hlutfall.l9          1.000000         1.0000000     1.0000000   1.000000
-## laegstu_vextir.l9      -35.252958       -14.4941921    28.4653303  52.711915
-## hrun_dummy.l9           -5.625324        -0.2776672     0.6253507  -1.178202
-## d_debt.l9              -12.785106        -0.8932785    -1.2431314   3.585145
-## log_price.l9             4.912255        -0.4914964    -1.2286516  -1.732298
-## log_leiga.l9            -2.645674        -1.7026966    -1.8652368   0.564983
-## log_laun.l9             -4.417072         2.1566007     3.6843173   2.286320
-## constant                42.278000       -14.0462981   -29.8732554 -25.182920
-##                   log_price.l9 log_leiga.l9 log_laun.l9   constant
-## max_hlutfall.l9      1.0000000    1.0000000   1.0000000  1.0000000
-## laegstu_vextir.l9  196.2911255   29.7836612  19.9182106 -1.0297497
-## hrun_dummy.l9       -2.6599928    0.2035888   0.1073762  0.3421094
-## d_debt.l9            2.8931223   -2.1482676   0.6068596 -0.7395192
-## log_price.l9         0.6456751    1.7586313  -0.3143326 -0.8117743
-## log_leiga.l9         6.5255969   -2.5161478   1.5572511 -0.5329242
-## log_laun.l9         -6.7333497    0.4895194  -1.2512805  1.1569922
-## constant            32.5804955   -3.8014133   6.5793714 -7.3169614
+##                   max_hlutfall.l4 laegstu_vextir.l4   d_debt.l4 log_price.l4
+## max_hlutfall.l4          1.000000          1.000000    1.000000    1.0000000
+## laegstu_vextir.l4      -26.629402        522.884989 -121.503455   33.8789823
+## d_debt.l4               -1.300794         29.244403    6.650566   -0.5171324
+## log_price.l4            -0.567721         -6.868547   -4.981583   -0.8190897
+## log_leiga.l4            -2.623227         19.668897   -5.964219   -0.9702827
+## log_laun.l4              3.138485         -7.565966   13.012059    2.2390632
+## constant               -19.884513         -4.492534  -94.389821  -19.7660769
+##                   log_leiga.l4  log_laun.l4   constant
+## max_hlutfall.l4      1.0000000  1.000000000  1.0000000
+## laegstu_vextir.l4    3.1507670 20.925485993 18.5189653
+## d_debt.l4            0.3206755  0.002514692 -0.2063983
+## log_price.l4        -0.9511349  0.984703484 -0.4721658
+## log_leiga.l4         0.5974680  0.827987455  0.3257354
+## log_laun.l4          0.3835970 -2.061001853 -0.1461079
+## constant            -3.6486674 13.310326874  0.9769153
 ## 
 ## Weights W:
 ## (This is the loading matrix)
 ## 
-##                  max_hlutfall.l9 laegstu_vextir.l9 hrun_dummy.l9     d_debt.l9
-## max_hlutfall.d      4.614939e-03       0.010803114 -0.0419643616 -0.0037001080
-## laegstu_vextir.d   -8.194321e-05       0.002224004 -0.0000924281  0.0005139043
-## hrun_dummy.d        1.392783e-02      -0.019893252 -0.0030479880  0.0893217848
-## d_debt.d            8.072316e-03       0.027546828  0.0323911283 -0.0261867261
-## log_price.d         1.053405e-03       0.054370175  0.0172919363  0.0018768878
-## log_leiga.d        -3.991579e-03       0.028302751 -0.0005381462 -0.0025171163
-## log_laun.d         -9.662977e-05       0.019444995 -0.0060495356 -0.0046603165
-##                   log_price.l9  log_leiga.l9   log_laun.l9      constant
-## max_hlutfall.d   -0.0068364647  6.141267e-04 -0.0098936107  9.240137e-13
-## laegstu_vextir.d -0.0002038018  3.618935e-05  0.0005093453  2.151709e-14
-## hrun_dummy.d      0.0376690140  7.570973e-03 -0.0078278985 -4.738904e-12
-## d_debt.d         -0.0035887680  6.831443e-03  0.0055475962  1.308083e-12
-## log_price.d       0.0002161927 -3.185600e-03 -0.0096546072  6.715448e-13
-## log_leiga.d       0.0029344409  4.652090e-03 -0.0065945567  1.209454e-13
-## log_laun.d        0.0029256718 -1.010024e-03  0.0020604075  2.989061e-14</code></pre>
+##                  max_hlutfall.l4 laegstu_vextir.l4     d_debt.l4  log_price.l4
+## max_hlutfall.d      0.0203842371     -2.028164e-03  0.0010470120 -3.536544e-02
+## laegstu_vextir.d    0.0004314709     -9.361138e-06  0.0001664080 -4.784602e-05
+## d_debt.d            0.0255294206     -3.910307e-03 -0.0043529878  4.215628e-02
+## log_price.d         0.0392187171     -1.321589e-04  0.0009607655  1.052264e-02
+## log_leiga.d         0.0209161434      1.510532e-03  0.0001779647  7.927096e-03
+## log_laun.d          0.0136315293      3.154228e-04 -0.0014699330 -4.175855e-03
+##                   log_leiga.l4   log_laun.l4      constant
+## max_hlutfall.d   -0.0151155274 -0.0013639351 -2.800698e-14
+## laegstu_vextir.d  0.0003981031  0.0003295778  9.282366e-16
+## d_debt.d         -0.0094512699  0.0060241014  1.086443e-14
+## log_price.d       0.0065454105 -0.0059859581  3.926186e-14
+## log_leiga.d      -0.0150156061  0.0019205738  1.313230e-14
+## log_laun.d        0.0034793900  0.0009996139 -4.029870e-15</code></pre>
 <pre class="r"><code># Trend term in cointegration
 summary(ca.jo(as.matrix(gogn_2[,-1]),
       type = &quot;trace&quot;,
@@ -330,68 +320,63 @@ summary(ca.jo(as.matrix(gogn_2[,-1]),
 ## Test type: trace statistic , with linear trend in cointegration 
 ## 
 ## Eigenvalues (lambda):
-## [1] 2.193284e-01 1.674115e-01 1.614234e-01 1.075833e-01 8.518941e-02
-## [6] 4.675244e-02 2.768709e-02 5.551115e-17
+## [1]  2.459052e-01  1.341565e-01  1.001551e-01  5.382448e-02  3.620266e-02
+## [6]  2.176422e-02 -2.320071e-17
 ## 
 ## Values of teststatistic and critical values of test:
 ## 
 ##            test  10pct   5pct   1pct
-## r &lt;= 6 |   6.71  10.49  12.25  16.26
-## r &lt;= 5 |  18.15  22.76  25.32  30.45
-## r &lt;= 4 |  39.43  39.06  42.44  48.45
-## r &lt;= 3 |  66.64  59.14  62.99  70.05
-## r &lt;= 2 | 108.71  83.20  87.31  96.58
-## r &lt;= 1 | 152.50 110.42 114.90 124.75
-## r = 0  | 211.68 141.01 146.76 158.49
+## r &lt;= 5 |   5.37  10.49  12.25  16.26
+## r &lt;= 4 |  14.37  22.76  25.32  30.45
+## r &lt;= 3 |  27.87  39.06  42.44  48.45
+## r &lt;= 2 |  53.62  59.14  62.99  70.05
+## r &lt;= 1 |  88.76  83.20  87.31  96.58
+## r = 0  | 157.63 110.42 114.90 124.75
 ## 
 ## Eigenvectors, normalised to first column:
 ## (These are the cointegration relations)
 ## 
-##                   max_hlutfall.l9 laegstu_vextir.l9 hrun_dummy.l9    d_debt.l9
-## max_hlutfall.l9       1.000000000        1.00000000   1.000000000  1.000000000
-## laegstu_vextir.l9   -12.644733171     -550.39764065  -0.599446331  9.614416606
-## hrun_dummy.l9        -1.023451184       -9.99763436   0.070567481  0.344011565
-## d_debt.l9            -2.994788382       12.13195747  -0.349436072 -0.771550917
-## log_price.l9          0.483758662       -1.25889120  -1.419379717 -0.297544657
-## log_leiga.l9         -1.653967704       -9.36816417  -2.402412672 -0.643284951
-## log_laun.l9           0.425524760       23.69684438   5.459753961 -0.924313748
-## trend.l9              0.001746151       -0.08283354  -0.005824522  0.009635513
-##                   log_price.l9 log_leiga.l9 log_laun.l9     trend.l9
-## max_hlutfall.l9    1.000000000   1.00000000  1.00000000  1.000000000
-## laegstu_vextir.l9 41.534536102 -88.74737323 16.88937989 32.618432573
-## hrun_dummy.l9     -0.221603275   1.78190816  0.16139423  0.111066951
-## d_debt.l9          0.341636933   2.43037350  0.13893429 -0.006624237
-## log_price.l9      -0.373269211  -4.95546318 -0.49009313  0.138592353
-## log_leiga.l9       0.578232043  -1.99314232  0.71206600  0.011928150
-## log_laun.l9       -1.757500098  -3.95884193 -1.05365147 -2.887670889
-## trend.l9           0.009241004   0.06529598  0.00442438  0.015613809
+##                   max_hlutfall.l4 laegstu_vextir.l4    d_debt.l4 log_price.l4
+## max_hlutfall.l4       1.000000000         1.0000000  1.000000000   1.00000000
+## laegstu_vextir.l4    -1.509287381        -9.3940453 37.267750804 -35.71904221
+## d_debt.l4            -0.932532836         6.1711152  0.078800026   6.88322524
+## log_price.l4         -0.332400353        -3.8531707 -0.326347892   2.74819559
+## log_leiga.l4         -1.266482846        -3.2059727  0.499772731  12.64276712
+## log_laun.l4           0.460592013        11.9437923 -1.699222894 -33.40497267
+## trend.l4              0.005885303        -0.0168382  0.008771818   0.07972103
+##                   log_leiga.l4  log_laun.l4     trend.l4
+## max_hlutfall.l4    1.000000000  1.000000000   1.00000000
+## laegstu_vextir.l4  1.128971536  6.264797191 123.77952060
+## d_debt.l4          0.550926367  0.036237525   1.73367334
+## log_price.l4      -1.420641131  0.401929461   2.26959502
+## log_leiga.l4      -0.019121321  0.821835341   0.59278633
+## log_laun.l4        1.291411677 -0.390075733 -15.37157412
+## trend.l4           0.002673878 -0.005621441   0.07424814
 ## 
 ## Weights W:
 ## (This is the loading matrix)
 ## 
-##                  max_hlutfall.l9 laegstu_vextir.l9 hrun_dummy.l9    d_debt.l9
-## max_hlutfall.d      0.0231643292      0.0022635488  -0.039248565  0.009773694
-## laegstu_vextir.d   -0.0001382191      0.0001048105   0.001389027 -0.001769227
-## hrun_dummy.d        0.0492478968      0.0019770425   0.039080685 -0.472305836
-## d_debt.d            0.0525213970     -0.0025373880   0.012508924  0.050176343
-## log_price.d         0.0184868473      0.0002128448   0.029371701  0.070899424
-## log_leiga.d        -0.0134318217      0.0009192728   0.010505759  0.045751864
-## log_laun.d          0.0058041467      0.0004436138  -0.006233929  0.033712249
-##                  log_price.l9  log_leiga.l9   log_laun.l9      trend.l9
-## max_hlutfall.d   -0.042140207  1.418122e-03 -0.0211207076  1.830516e-12
-## laegstu_vextir.d -0.001457983 -3.123053e-06  0.0007279506 -8.634598e-14
-## hrun_dummy.d      0.334820021 -4.663856e-03 -0.0310655454 -1.021662e-12
-## d_debt.d         -0.090848229 -3.632994e-03 -0.0012187585  2.676123e-13
-## log_price.d       0.029889251  1.701754e-03 -0.0090330933 -8.728618e-13
-## log_leiga.d       0.009349948 -2.462278e-03 -0.0161795949 -4.964489e-13
-## log_laun.d        0.016602036 -4.213295e-04  0.0077312453  3.515501e-13</code></pre>
+##                  max_hlutfall.l4 laegstu_vextir.l4    d_debt.l4  log_price.l4
+## max_hlutfall.d       0.052795344     -0.0025621105 -0.105921681  2.077749e-03
+## laegstu_vextir.d     0.000897447      0.0001811501 -0.001769832  9.376492e-06
+## d_debt.d             0.101455162     -0.0111806837  0.004132708 -4.964108e-03
+## log_price.d          0.076805687      0.0025440531  0.022459828 -3.750552e-04
+## log_leiga.d          0.011065500      0.0057050169  0.005295546 -1.231261e-03
+## log_laun.d           0.020996904     -0.0002765933  0.026878483  7.483287e-04
+##                   log_leiga.l4   log_laun.l4      trend.l4
+## max_hlutfall.d   -0.0107721150 -0.0034641310  1.762434e-14
+## laegstu_vextir.d  0.0003874485  0.0004000589 -1.919383e-15
+## d_debt.d         -0.0078707625  0.0058528370 -8.116383e-14
+## log_price.d       0.0084786741 -0.0055360766 -1.292493e-13
+## log_leiga.d      -0.0136383678  0.0001182505 -4.146503e-14
+## log_laun.d       -0.0023764672  0.0014068265 -5.586734e-15</code></pre>
 </details>
 </div>
 <div id="vec-líkan" class="section level1">
 <h1>VEC líkan</h1>
 <p>Fyrir ykkur sem slepptuð ítarefninu þá var niðurstaðan sú að vegna langtímasambands á milli launa og fasteignaverðs annars vegar og leigu og fasteignaverðs hinsvegar, þá væri best að styðjast við VEC líkan.</p>
 <p>Gröfin að neðan sýna viðbragð fasteignaverðs á höfuðborgarsvæðinu vegna skells (e. shock) í fimm breytum. Bláa svæðið í kringum viðbragðsfallið er 80% öryggisbil. Ég hallast að bayesískri tölfræði og þar með er ég frekar gagnrýninn á öryggisbil. Auk þess sé ég ekki ástæðu til að nota 95% frekar en 80%.</p>
-<p>Það sem lesa má út úr viðbragðsföllunum er að hækkun hámarkshlutfalls leiðir til hærra fasteignaverðs og hærri vextir leiða til lægra fasteignaverðs. Það sem einna helst vekur upp furðu er mat líkansins á áhrifum aukinnar skuldsetningar. Tímaröðin fyrir skuldir heimila er með einhverjum brotum í þannig að hún tekur stökk bæði upp og niður á tímum sem fasteignaverð er að hækka um 5-10%. Það gæti orsakað þessi áhrif. Þá er viðbragð fasteignaverðs vegna skells í leigu einnig með formerkjum sem erfitt er að færa rök fyrir. Þetta kann að skýrast af því að</p>
+<p>Það sem lesa má út úr viðbragðsföllunum er að hækkun hámarkshlutfalls leiðir til hærra fasteignaverðs og hærri vextir leiða til lægra fasteignaverðs þó með nokkurri töf (áhrifin virðast ekki marktæk fyrr en eftir um 1.5 ár). Það sem vekur athygli er mat líkansins á áhrifum aukinnar skuldsetningar. Áhrifin eru fyrst neikvæð, þ.e. hærri skuldsetningar leiðir til lægri fasteignaverðs en síðan snýst þetat við eftir um 20 mánuði. Tímaröðin fyrir skuldir heimila er með einhverjum brotum í þannig að hún tekur stökk bæði upp og niður á tímum sem fasteignaverð er að hækka um 5-10%. Það gæti orsakað þessi áhrif. Þá leiðir hærra leiguverð til hærra fasteignaverðs.</p>
 <p><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/vec_irf_plot-1.png" width="768" /></p>
 </div>
 <div id="vélarnám" class="section level1">
@@ -403,7 +388,7 @@ summary(ca.jo(as.matrix(gogn_2[,-1]),
 <pre><code>## note: only 7 unique complexity parameters in default grid. Truncating the grid to 7 .</code></pre>
 <p>Grafið að neðan sýnir tvö líkön. Random forest og Cubist. Bæði líkönin virðast overfit-a þó það sé mun meira hjá Cubist. Gráa svæðið er sá hluti gagnana sem ekki var notaður við að tune-a líkönin.</p>
 <p><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/training_error-1.png" width="768" /></p>
-<p>Næsta graf sýnir hversu mikilvægar viðkomandi breytur voru til að spá fyrir um tólf mánaða breytingu fasteignaverðs. Breytan <strong>max_hlutfall</strong> tekur aðeisns fjögur gildi: 65%, 80%, 85% og 100% og þar sem ég er að nota tree-based algorithma ákvað ég að búa til dummy breytu fyrir öll gildin (one hot encoding). Athugið að mikilvægi breytanna segir ekker til um hvort áhrifin voru jákvæð eða neikvæð. Nokkur munur er á hvaða breytur eru mikilvægar til að spá fyrir fasteignaverð. Tólf mánaða breyting launa, vextir og breyting útlána voru þrjár mikilvægustu breyturnar yfrir Cubist. <strong>max_hlutfall</strong>, og þá sérstaklega 100% og 80% hlutföllin sem dummy breytur auk vaxta voru þrjár mikilvægustu breyturnar fyrir random forest.</p>
+<p>Næsta graf sýnir hversu mikilvægar viðkomandi breytur voru til að spá fyrir um tólf mánaða breytingu fasteignaverðs. Breytan <strong>max_hlutfall</strong> tekur aðeins fjögur gildi: 65%, 80%, 85% og 100% og þar sem ég er að nota tree-based algorithma ákvað ég að búa til dummy breytu fyrir öll gildin (one hot encoding). Athugið að mikilvægi breytanna segir ekker til um hvort áhrifin voru jákvæð eða neikvæð. Nokkur munur er á hvaða breytur eru mikilvægar til að spá fyrir fasteignaverð. Tólf mánaða breyting launa, vextir og breyting útlána voru þrjár mikilvægustu breyturnar yfrir Cubist. <strong>max_hlutfall</strong>, og þá sérstaklega 100% og 80% hlutföllin sem dummy breytur auk vaxta voru þrjár mikilvægustu breyturnar fyrir random forest.</p>
 <p><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/vip-1.png" width="768" /></p>
 </div>
 </div>
@@ -420,4 +405,8 @@ summary(ca.jo(as.matrix(gogn_2[,-1]),
 <p>Hér styðst ég við VAR líkan til að framkvæma spá til næstu 24 mánaða. Ég nota tólf mánaða breytingu á þeim gögnum sem trend-a.</p>
 <p><img src="/post/2019-10-26-líkan-af-íbúðarhúsnæði-á-höfuðborgarsvæðinu_files/figure-html/var_spa_12-1.png" width="768" /></p>
 </div>
+</div>
+<div id="lokaorð" class="section level1">
+<h1>Lokaorð</h1>
+<p>Að ofan hef ég varið í gegnum hvaða áhrif mismunandi breytur hafa á fasteignaverð. Áhrifin eru meira og minna það sem búast mátti við. Spárnar eru áþekkar og benda til hægagangs eitthvað inn á 2020 en nokkurri hækkun eftir um 12 mánuði. Ég hef ekki enn lagt mat á gæ</p>
 </div>

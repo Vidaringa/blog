@@ -39,7 +39,7 @@ library(tidymodels)
 
 ```
 
-Fyrir stuttu síðan tók ég saman gögn um hámarkshlutfall sem íslenskar fjármálastofnanir lána til fasteignakaupa. Hærra lánshlutfall þýðir að fasteignakaupendur þurfa að leggja til minna eigið fé við fasteignakaup en ella. Það gæti aukið eftirspurn eftir fasteignum og þanni þrýst upp verði. Hér að neðan verða gögnin skoðuð og stuðst við tölfræðilíkön til að varpa ljósi á áhrif hærra lánshlutfalls á fasteignaverð.  
+Fyrir stuttu síðan tók ég saman gögn um hámarkshlutfall sem íslenskar fjármálastofnanir lána til fasteignakaupa. Hærra lánshlutfall þýðir að fasteignakaupendur þurfa að leggja til minna eigið fé við fasteignakaup en ella. Það gæti aukið eftirspurn eftir fasteignum og þanni þrýst upp verði. Hér að neðan verða gögnin skoðuð og stuðst við tölfræðilíkön til að varpa ljósi á áhrif hærra lánshlutfalls á fasteignaverð. Þá mun ég einnig nota VAR og VEC líkökn til að framkvæmar spár næstu 24 mánuðina.
 
 
 ## Gögn
@@ -51,8 +51,10 @@ Fyrsta myndin sýnir þróun þeirra sex breyta sem ég mun styðjast við. Gíf
 
 ```{r, fig.height=6}
 
-# gogn <- readxl::read_excel("./data/likan_af_ibudarverdi_data.xlsx")
-gogn <- readxl::read_excel("C:/Users/vidar/Documents/Rwd_private/blog/content/post/data/likan_af_ibudarverdi_data.xlsx")
+# Working directory er: C:/Users/vidar/Documents/Rwd/blog/content/post þegar ég render-a 
+gogn <- readxl::read_excel("./data/likan_af_ibudarverdi_data.xlsx")
+# gogn <- readxl::read_excel("C:/Users/vidar/Documents/Rwd/blog/content/post/data/likan_af_ibudarverdi_data.xlsx")
+# gogn <- readxl::read_excel("C:/Users/vidar/Documents/Rwd_private/blog/content/post/data/likan_af_ibudarverdi_data.xlsx")
 gogn$date <- as.Date(gogn$date)
 
 # Árstíðarleiðrétti útborguð laun. Nota trend
@@ -61,11 +63,16 @@ ts_utb <- ts(gogn$utborgad, frequency = 12, start = c(1994, 1))
 seas_utb <- seas(ts_utb)
 gogn$utborgad <- as.numeric(seas_utb$data[,4])
 
-# dummy fyrir hrunið
+# dummy breytur
 
-gogn <- gogn %>% 
-  mutate(hrun_dummy = case_when(date >= "2008-06-01" & date <= "2009-01-01" ~ 1,
-                                TRUE ~ 0))
+# banka_dummy <- c("2008-10-01", "2011-12-01", "2013-12-01", "2014-12-01", "2015-01-01", "2015-02-01")
+# hrun_dummy <- c("2008-11-01", "2008-12-01", "2009-01-01", "2009-02-01", "2009-03-01")
+# 
+# gogn <- gogn %>%
+#   mutate(debt_dummy = case_when(date %in% as.Date(banka_dummy) ~ 1,
+#                                 TRUE ~ 0),
+#          hrun_dummy = case_when(date %in% as.Date(hrun_dummy) ~ 1,
+#                                  TRUE ~ 0))
 
 
 gogn_graph <- gogn %>% 
@@ -198,7 +205,6 @@ gogn_2 <- gogn %>%
 
 ```{r, echo=TRUE}
 
-
 lag_max <- 12
 
 var_none <- VARselect(gogn_2[,-1], lag.max = lag_max, type = c("none"))$selection %>% as.data.frame()
@@ -217,14 +223,14 @@ lag_result %>%
 ```
 
 
-Eftir að hafa valið fjölda tafinna gilda þá get ég framkvæmt Johansen próf til að kanna hvort samþættingarsamband sé til staðar. Óháð því hvort ég nota *intercept*, *trend* eða hvorugt þá er alltaf sama niðursatða, þ.e. tvö samþættingarsambönd. Til að svar því hversu mörg samþættingarsambönd eru þá er lesið úr efstu töflunum sem birtast í þessum þremur output-um að neðan. Í fyrsta output-inu má sjá r = 0, r <= 1, ... r <= 6. Þarna er verið að kanna hversu mörg samþættingarsambönd eru til staðar. Ég er almennt ekki mikill aðdáandi þess að velja 5% marktæknistig (e. significance level) bara af því að það er "hefð" í hagfræðinni. Í fyrsta output-inu að neðan er ekki hægt að hafna tilgátunni um tvö samþættingarsambönd við 5% marktæknistig en það er hægt m.v. 10%. 
+Eftir að hafa valið níu tafinna gilda þá get ég framkvæmt Johansen próf til að kanna hvort samþættingarsamband sé til staðar. Óháð því hvort ég nota *intercept*, *trend* eða hvorugt þá er alltaf sama niðursatða, þ.e. tvö samþættingarsambönd. Til að svar því hversu mörg samþættingarsambönd eru þá er lesið úr efstu töflunum sem birtast í þessum þremur output-um að neðan. Í fyrsta output-inu má sjá r = 0, r <= 1, ... r <= 6. Þarna er verið að kanna hversu mörg samþættingarsambönd eru til staðar. Ég er almennt ekki mikill aðdáandi þess að velja 5% marktæknistig (e. significance level) bara af því að það er "hefð" í hagfræðinni. Í fyrsta output-inu að neðan er ekki hægt að hafna tilgátunni um tvö samþættingarsambönd við 5% marktæknistig en það er hægt m.v. 10%. 
 
 M.v. 5% marktæknistig (5pct) þá er test statistic hærra fyrir r = 0 (test = 167.03 vs. 5pct = 124.25). Svona höldum við áfram upp töfluna þangað til við getum ekki hafnað H0. Þegar r <= 1 þá getum við ekki hafnað tilgátunni um eitt eða færri samþættingarsambönd, næ því hins vegar m.v. 10% marktæknistig. Ef við lesum eins út úr hinum tveimur töflunum þá fæst sú niðurstaða að tvö samþættingarsambönd séu til staðar.  
 
 
 ```{r, echo=TRUE}
 
-tafin = 9
+tafin = 4
 
 # No intercept and no trend variable in cointegration
 summary(ca.jo(as.matrix(gogn_2[,-1]),
@@ -261,17 +267,17 @@ Fyrir ykkur sem slepptuð ítarefninu þá var niðurstaðan sú að vegna langt
 
 coint_test <- ca.jo(as.matrix(gogn_2[,-1]),
       type = "trace",
-      ecdet = "trend",
+      ecdet = "const",
       K = tafin)
 
 # vec_likan <- cajools(coint_test)
 # 
 # vec_likan <- VECM(data = gogn_2[,-1],
-#                   lag = 4,
-#                   r = 2,
+#                   lag = tafin,
+#                   r = 4,
 #                   include = "trend")
 
-var_from_vec <- vec2var(coint_test, r = 4)
+var_from_vec <- vec2var(coint_test, r = 2)
 
 n_ahead <- 60
 
@@ -283,7 +289,7 @@ vec_irf <- tsDyn::irf(var_from_vec, n.ahead = n_ahead, ci = 0.8)
 
 Gröfin að neðan sýna viðbragð fasteignaverðs á höfuðborgarsvæðinu vegna skells (e. shock) í fimm breytum. Bláa svæðið í kringum viðbragðsfallið er 80% öryggisbil. Ég hallast að bayesískri tölfræði og þar með er ég frekar gagnrýninn á öryggisbil. Auk þess sé ég ekki ástæðu til að nota 95% frekar en 80%.  
 
-Það sem lesa má út úr viðbragðsföllunum er að hækkun hámarkshlutfalls leiðir til hærra fasteignaverðs og hærri vextir leiða til lægra fasteignaverðs. Það sem einna helst vekur upp furðu er mat líkansins á áhrifum aukinnar skuldsetningar. Tímaröðin fyrir skuldir heimila er með einhverjum brotum í þannig að hún tekur stökk bæði upp og niður á tímum sem fasteignaverð er að hækka um 5-10%. Það gæti orsakað þessi áhrif. Þá er viðbragð fasteignaverðs vegna skells í leigu einnig með formerkjum sem erfitt er að færa rök fyrir. Þetta kann að skýrast af því að 
+Það sem lesa má út úr viðbragðsföllunum er að hækkun hámarkshlutfalls leiðir til hærra fasteignaverðs og hærri vextir leiða til lægra fasteignaverðs þó með nokkurri töf (áhrifin virðast ekki marktæk fyrr en eftir um 1.5 ár). Það sem vekur athygli er mat líkansins á áhrifum aukinnar skuldsetningar. Áhrifin eru fyrst neikvæð, þ.e. hærri skuldsetningar leiðir til lægri fasteignaverðs en síðan snýst þetat við eftir um 20 mánuði. Tímaröðin fyrir skuldir heimila er með einhverjum brotum í þannig að hún tekur stökk bæði upp og niður á tímum sem fasteignaverð er að hækka um 5-10%. Það gæti orsakað þessi áhrif. Þá leiðir hærra leiguverð til hærra fasteignaverðs.  
 
 ```{r vec_irf_plot}
 
@@ -334,8 +340,6 @@ gridExtra::grid.arrange(p1, p2, p3, p4, p5, ncol = 2, top = "Viðbragðsföll fy
 
 
 
-
-
 # Vélarnám
 Önnur leið til að kanna áhrif tiltekinna breyta á fasteignaverð er að styðjast við vélarnám (e. machine learning). Það getur verið gagnlegt til að ná utan um ólínuleg sambönd ef þau eru til staðar. Ein slík aðferð er random forest. Fyrir þá sem vilja lesa sig til random forest (eða aðra algorithma) þá er bókin *An Introduction to Statistical Learning* mjög góð byrjun. Bókin er aðgengileg [hér](http://faculty.marshall.usc.edu/gareth-james/ISL/index.html).
 
@@ -354,6 +358,7 @@ gogn_ml <- gogn %>%
 gogn_ml$date <- gogn$date
 gogn_ml$max_hlutfall <- gogn$max_hlutfall
 gogn_ml$vextir <- gogn$laegstu_vextir
+# gogn_ml$hrun_dummy <- gogn$hrun_dummy
 
 gogn_ml <- gogn_ml %>% dplyr::select(date, everything()) %>% na.omit()
 
@@ -450,7 +455,7 @@ ggplot(df_pred,
 ```
 
 
-Næsta graf sýnir hversu mikilvægar viðkomandi breytur voru til að spá fyrir um tólf mánaða breytingu fasteignaverðs. Breytan **max_hlutfall** tekur aðeisns fjögur gildi: 65%, 80%, 85% og 100% og þar sem ég er að nota tree-based algorithma ákvað ég að búa til dummy breytu fyrir öll gildin (one hot encoding). Athugið að mikilvægi breytanna segir ekker til um hvort áhrifin voru jákvæð eða neikvæð. Nokkur munur er á hvaða breytur eru mikilvægar til að spá fyrir fasteignaverð. Tólf mánaða breyting launa, vextir og breyting útlána voru þrjár mikilvægustu  breyturnar yfrir Cubist. **max_hlutfall**, og þá sérstaklega 100% og 80% hlutföllin sem dummy breytur auk vaxta voru þrjár mikilvægustu breyturnar fyrir random forest.  
+Næsta graf sýnir hversu mikilvægar viðkomandi breytur voru til að spá fyrir um tólf mánaða breytingu fasteignaverðs. Breytan **max_hlutfall** tekur aðeins fjögur gildi: 65%, 80%, 85% og 100% og þar sem ég er að nota tree-based algorithma ákvað ég að búa til dummy breytu fyrir öll gildin (one hot encoding). Athugið að mikilvægi breytanna segir ekker til um hvort áhrifin voru jákvæð eða neikvæð. Nokkur munur er á hvaða breytur eru mikilvægar til að spá fyrir fasteignaverð. Tólf mánaða breyting launa, vextir og breyting útlána voru þrjár mikilvægustu  breyturnar yfrir Cubist. **max_hlutfall**, og þá sérstaklega 100% og 80% hlutföllin sem dummy breytur auk vaxta voru þrjár mikilvægustu breyturnar fyrir random forest.  
 
 
 ```{r vip}
@@ -472,8 +477,9 @@ Hér er notað sama líka og notað var til að búa til viðbragðsföllin að 
 ```{r vec_spa}
 
 horizon <- 24
-lookback <- 240
+lookback <- 140
 vec_pred <- predict(var_from_vec, n.ahead = horizon)
+# vec_pred <- predict(vec_likan, n.ahead = horizon)
 
 new_date <- seq.Date(from = as.Date("2019-08-01"),
                      length.out = horizon,
@@ -527,17 +533,21 @@ var_gogn <- gogn %>%
 
 ```{r var_spa_12}
 
+
 ts_house <- ts(var_gogn$d_house, frequency = 12, start = c(1998, 12))
 ts_utlan <- ts(var_gogn$d_utlan, frequency = 12, start = c(1998, 12))
 ts_hlutfall <- ts(var_gogn$max_hlutfall, frequency = 12, start = c(1998, 12))
 ts_vextir <- ts(var_gogn$laegstu_vextir, frequency = 12, start = c(1998, 12))
 ts_leiga <- ts(var_gogn$d_leiga, frequency = 12, start = c(1998, 12))
 ts_laun <- ts(var_gogn$d_laun, frequency = 12, start = c(1998,12))
+# ts_hrun <- ts(var_gogn$hrun_dummy, frequency = 12, start = c(1998, 12))
 
 ts_data <- ts.union(ts_house,
                     ts_utlan,
                     ts_hlutfall,
-                    ts_vextir)
+                    ts_vextir,
+                    ts_leiga,
+                    ts_laun)
 
 # Bý til líkanið
 lag_var1 <- as.numeric(VARselect(ts_data, lag.max = 12, type = c("const"))$select[4])
@@ -555,6 +565,7 @@ fra_date <- as.Date(time(tail(ts_data, 1))) + months(1)
 new_date <- seq.Date(from = as.Date(fra_date),
                      length.out = horizon,
                      by = "month")
+
 
 df_pred_var <- tibble(date = c(as.Date(time(tail(ts_data, lookback))), new_date),
                   spa = c(tail(ts_data[,1], lookback), var_pred_house),
@@ -578,3 +589,6 @@ ggplot(df_pred_var,
 ```
 
 
+
+# Lokaorð
+Að ofan hef ég varið í gegnum hvaða áhrif mismunandi breytur hafa á fasteignaverð. Áhrifin eru meira og minna það sem búast mátti við. Spárnar eru áþekkar og benda til hægagangs eitthvað inn á 2020 en nokkurri hækkun eftir um 12 mánuði. Ég hef ekki enn lagt mat á gæ
