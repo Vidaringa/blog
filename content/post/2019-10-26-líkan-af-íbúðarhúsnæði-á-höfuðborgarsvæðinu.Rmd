@@ -65,13 +65,17 @@ gogn$utborgad <- as.numeric(seas_utb$data[,4])
 
 # dummy breytur
 
-# banka_dummy <- c("2008-10-01", "2011-12-01", "2013-12-01", "2014-12-01", "2015-01-01", "2015-02-01")
+# debt_dummy <- c("2008-10-01", "2011-12-01", "2013-12-01", "2014-12-01", "2015-01-01", "2015-02-01")
+
+# gogn <- gogn %>%
+#   mutate(debt_dummy = case_when(date %in% as.Date(debt_dummy) ~ 1,
+#                                 TRUE ~ 0))
+
+# capture-a hrunið
 # hrun_dummy <- c("2008-11-01", "2008-12-01", "2009-01-01", "2009-02-01", "2009-03-01")
 # 
 # gogn <- gogn %>%
-#   mutate(debt_dummy = case_when(date %in% as.Date(banka_dummy) ~ 1,
-#                                 TRUE ~ 0),
-#          hrun_dummy = case_when(date %in% as.Date(hrun_dummy) ~ 1,
+#   mutate(hrun_dummy = case_when(date %in% as.Date(hrun_dummy) ~ 1,
 #                                  TRUE ~ 0))
 
 
@@ -192,10 +196,12 @@ Til að nota `VARSelect` fallið í **vars** pakkanum þarf að velja hæsta fj�
 ```{r gogn_2, echo=TRUE}
 
 gogn_2 <- gogn %>% 
-  mutate(d_debt = utlan_heimila/lag(utlan_heimila, 12) - 1,
-         log_price = log(ibudarhus),
-         log_leiga = log(greidd_husaleiga),
-         log_laun = log(utborgad)) %>% 
+  mutate(
+    # d_debt = utlan_heimila/lag(utlan_heimila, 12) - 1,
+    log_debt = log(utlan_heimila),
+    log_price = log(ibudarhus),
+    log_leiga = log(greidd_husaleiga),
+    log_laun = log(utborgad)) %>% 
   dplyr::select(-c(ibudarhus, greidd_husaleiga, utborgad, utlan_heimila, avg_hlutfall)) %>% 
   na.omit()
 
@@ -205,7 +211,7 @@ gogn_2 <- gogn %>%
 
 ```{r, echo=TRUE}
 
-lag_max <- 12
+lag_max <- 24
 
 var_none <- VARselect(gogn_2[,-1], lag.max = lag_max, type = c("none"))$selection %>% as.data.frame()
 var_const <- VARselect(gogn_2[,-1], lag.max = lag_max, type = c("const"))$selection %>% as.data.frame()
@@ -223,14 +229,14 @@ lag_result %>%
 ```
 
 
-Eftir að hafa valið níu tafinna gilda þá get ég framkvæmt Johansen próf til að kanna hvort samþættingarsamband sé til staðar. Óháð því hvort ég nota *intercept*, *trend* eða hvorugt þá er alltaf sama niðursatða, þ.e. tvö samþættingarsambönd. Til að svar því hversu mörg samþættingarsambönd eru þá er lesið úr efstu töflunum sem birtast í þessum þremur output-um að neðan. Í fyrsta output-inu má sjá r = 0, r <= 1, ... r <= 6. Þarna er verið að kanna hversu mörg samþættingarsambönd eru til staðar. Ég er almennt ekki mikill aðdáandi þess að velja 5% marktæknistig (e. significance level) bara af því að það er "hefð" í hagfræðinni. Í fyrsta output-inu að neðan er ekki hægt að hafna tilgátunni um tvö samþættingarsambönd við 5% marktæknistig en það er hægt m.v. 10%. 
+Eftir að hafa valið þrjú tafin gilda þá get ég framkvæmt Johansen próf til að kanna hvort samþættingarsamband sé til staðar. Óháð því hvort ég nota *intercept*, *trend* eða hvorugt þá er alltaf sama niðursatða, þ.e. tvö samþættingarsambönd. Til að svar því hversu mörg samþættingarsambönd eru þá er lesið úr efstu töflunum sem birtast í þessum þremur output-um að neðan. Í fyrsta output-inu má sjá r = 0, r <= 1, ... r <= 6. Þarna er verið að kanna hversu mörg samþættingarsambönd eru til staðar. Ég er almennt ekki mikill aðdáandi þess að velja 5% marktæknistig (e. significance level) bara af því að það er "hefð" í hagfræðinni. Í fyrsta output-inu að neðan er ekki hægt að hafna tilgátunni um tvö samþættingarsambönd við 5% marktæknistig en það er hægt m.v. 10%. 
 
 M.v. 5% marktæknistig (5pct) þá er test statistic hærra fyrir r = 0 (test = 167.03 vs. 5pct = 124.25). Svona höldum við áfram upp töfluna þangað til við getum ekki hafnað H0. Þegar r <= 1 þá getum við ekki hafnað tilgátunni um eitt eða færri samþættingarsambönd, næ því hins vegar m.v. 10% marktæknistig. Ef við lesum eins út úr hinum tveimur töflunum þá fæst sú niðurstaða að tvö samþættingarsambönd séu til staðar.  
 
 
 ```{r, echo=TRUE}
 
-tafin = 4
+tafin = 3
 
 # No intercept and no trend variable in cointegration
 summary(ca.jo(as.matrix(gogn_2[,-1]),
@@ -267,7 +273,7 @@ Fyrir ykkur sem slepptuð ítarefninu þá var niðurstaðan sú að vegna langt
 
 coint_test <- ca.jo(as.matrix(gogn_2[,-1]),
       type = "trace",
-      ecdet = "const",
+      ecdet = "trend",
       K = tafin)
 
 # vec_likan <- cajools(coint_test)
@@ -287,9 +293,11 @@ vec_irf <- tsDyn::irf(var_from_vec, n.ahead = n_ahead, ci = 0.8)
 
 ```
 
-Gröfin að neðan sýna viðbragð fasteignaverðs á höfuðborgarsvæðinu vegna skells (e. shock) í fimm breytum. Bláa svæðið í kringum viðbragðsfallið er 80% öryggisbil. Ég hallast að bayesískri tölfræði og þar með er ég frekar gagnrýninn á öryggisbil. Auk þess sé ég ekki ástæðu til að nota 95% frekar en 80%.  
 
-Það sem lesa má út úr viðbragðsföllunum er að hækkun hámarkshlutfalls leiðir til hærra fasteignaverðs og hærri vextir leiða til lægra fasteignaverðs þó með nokkurri töf (áhrifin virðast ekki marktæk fyrr en eftir um 1.5 ár). Það sem vekur athygli er mat líkansins á áhrifum aukinnar skuldsetningar. Áhrifin eru fyrst neikvæð, þ.e. hærri skuldsetningar leiðir til lægri fasteignaverðs en síðan snýst þetat við eftir um 20 mánuði. Tímaröðin fyrir skuldir heimila er með einhverjum brotum í þannig að hún tekur stökk bæði upp og niður á tímum sem fasteignaverð er að hækka um 5-10%. Það gæti orsakað þessi áhrif. Þá leiðir hærra leiguverð til hærra fasteignaverðs.  
+*Athugið. Gröfin að neðan sýna viðbragð fasteignaverðs á höfuðborgarsvæðinu vegna skells (e. shock) í fimm breytum. Bláa svæðið í kringum viðbragðsfallið er 80% öryggisbil. Ég hallast að bayesískri tölfræði og þar með er ég frekar gagnrýninn á öryggisbil. Auk þess sé ég ekki ástæðu til að nota 95% frekar en 80%. Þegar ég tala um að áhrif séu marktæk þá er ég vissulega að lesa í öryggisbilin.*  
+
+Það sem lesa má út úr viðbragðsföllunum er að hækkun hámarkshlutfalls leiðir til hærra fasteignaverðs og hærri vextir leiða til lægra fasteignaverðs. Það sem vekur athygli er mat líkansins á áhrifum aukinnar skuldsetningar. Áhrifin eru jákvæð en aðeins marktæk fyrsta mánuðinn. Ástæðan fyrir þessu kann að vera sú að hámarkslánshlutfall hækkar mikið fyrir hun sem leiðir til aukinnar skuldsetningar. Áhrifin af aukinni skuldsetningu koma því hugsanlega fram að einhverju leyti í gegnum áhrif hámarkshlutfalls. Hitt sem kemur að óvart er áhrif leigu á fasteignaverð. Hér virðist líkanið pikka upp mikla hækkun leigu á sama tíma og verð fasteigna lækkaði töluvert eftir hrun. Hér mætti bæta við dummy-breytum sem ná hrun-tímabilið. Ástæðan fyrir því að ég geri það ekki hér er að það er kannski ekki auðvelt að skilgreina hvaða tímabil hrunið nær yfir. Þá virðast laun hafa áhrif til hækkunar. Ég skrifað um það áður (á öðrum vettvangi) að launahækkanir geti varla haft áhrif til hækkunar fasteignaverðs, í það minnsta ekki nema með mikilli töf. Ef laun hækka mikið á mánuði t = 1 þá tekur tíma fyrir heimili að leggja til hliðar og safna fyrir íbúð. Launahækkun á tíma t = 0 leiðir þannig ekki til aukinnar eftirspurnar eftir fasteignum á tíma t = 1 (tími í mánuðum).  
+
 
 ```{r vec_irf_plot}
 
@@ -343,8 +351,8 @@ gridExtra::grid.arrange(p1, p2, p3, p4, p5, ncol = 2, top = "Viðbragðsföll fy
 # Vélarnám
 Önnur leið til að kanna áhrif tiltekinna breyta á fasteignaverð er að styðjast við vélarnám (e. machine learning). Það getur verið gagnlegt til að ná utan um ólínuleg sambönd ef þau eru til staðar. Ein slík aðferð er random forest. Fyrir þá sem vilja lesa sig til random forest (eða aðra algorithma) þá er bókin *An Introduction to Statistical Learning* mjög góð byrjun. Bókin er aðgengileg [hér](http://faculty.marshall.usc.edu/gareth-james/ISL/index.html).
 
-## Variable importance með random forest
-Tree-based algorithmar líkt og random forest ráða illa við breytur sem trend-a. Því mun ég umbreyta vísitölunum í gagnasettinu þannig að þær lýsi tólf mánaða  breytingu.
+## Variable importance með random forest og elastic net
+Tree-based algorithmar líkt og random forest ráða illa við breytur sem trend-a. Því mun ég umbreyta vísitölunum í gagnasettinu þannig að þær lýsi tólf mánaða  breytingu. Elastic net er línulegt líkan sem notar regularization. Með regularization á ég við að algorithminn getu bæði skalað niður stuðlamatið (beturnar) eða hent þeim alveg út (skalað stuðlana alveg niður núll).  
 
 ```{r ml_data}
 
@@ -383,11 +391,11 @@ test_data <- bake(trained_rec, new_data = gogn_ml_test)
 ```
 
 
-```{r rf}
+```{r ml}
 
 
-cub_grid <- expand.grid(committees = c(1, seq(10, 100, 10)),
-                        neighbors = seq(0, 9, 1))
+# cub_grid <- expand.grid(committees = c(1, seq(10, 100, 10)),
+#                         neighbors = seq(0, 9, 1))
 
 no_cores <- detectCores() - 1
 cl <- makeCluster(no_cores)
@@ -406,11 +414,17 @@ rf_train <- train(d_house ~ .,
                   tuneLength = 10,
                   importance = "permutation")
 
-cubist_train <- train(d_house ~ .,
-                      data = train_data,
-                      method = "cubist",
-                      trControl = ctrl_time,
-                      tuneGrid = cub_grid)
+# cubist_train <- train(d_house ~ .,
+#                       data = train_data,
+#                       method = "cubist",
+#                       trControl = ctrl_time,
+#                       tuneGrid = cub_grid)
+
+enet_train <- train(d_house ~ .,
+                  data = train_data,
+                  method = "glmnet",
+                  trControl = ctrl_time,
+                  tuneLength = 10)
 
 stopCluster(cl)
 
@@ -418,18 +432,21 @@ stopCluster(cl)
 ```
 
 
-Grafið að neðan sýnir tvö líkön. Random forest og Cubist. Bæði líkönin virðast overfit-a þó það sé mun meira hjá Cubist. Gráa svæðið er sá hluti gagnana sem ekki var notaður við að tune-a líkönin.
+Grafið að neðan sýnir tvö líkön. Random forest og Elastic net. Random forest virðast ná betur utan um fasteignaverð. Hvorugu líkaninu tekst þó að útskýra hækkunina sem á sér stað frá miðju ári 2016 fram í ársbyrjun 2018. Þarna er eflaust hækkun sem ekki er skýrð af þeim breytum sem notaðar eru í líkönunum. Gráa svæðið er sá hluti gagnanna sem ekki var notaður við að tune-a líkönin.
+
 
 ```{r training_error}
 
 total_data <- bind_rows(train_data, test_data)
 
-pred_cubist <- predict(cubist_train, newdata = total_data)
+# pred_cubist <- predict(cubist_train, newdata = total_data)
 pred_rf <- predict(rf_train, newdata = total_data)
+pred_enet <- predict(enet_train, newdata = total_data)
 
 df_pred <- tibble(date = gogn_ml$date,
-                  rf = pred_rf,
-                  cubist = pred_cubist,
+                  "Random forest" = pred_rf,
+                  # cubist = pred_cubist,
+                  "Elastic net" = pred_enet,
                   raun = total_data$d_house) %>% 
   pivot_longer(cols = 2:4,
                values_to = "value",
@@ -449,7 +466,7 @@ ggplot(df_pred,
         legend.title = element_blank()) + 
   annotate("rect", xmin = as.Date(x_min), xmax = as.Date(x_max), ymin = -0.15, ymax = 0.4, alpha = 0.3) +
     scale_y_continuous(labels = scales::percent, expand = c(0,0)) +
-  labs(x = NULL, y = NULL, title = "Cubist og random forest", subtitle = "Gráa svæðið er test set")
+  labs(x = NULL, y = NULL, title = "Elastic net og random forest", subtitle = "Gráa svæðið er test set")
 
 
 ```
@@ -460,10 +477,10 @@ Næsta graf sýnir hversu mikilvægar viðkomandi breytur voru til að spá fyri
 
 ```{r vip}
 
-vip_cubist <- vip(cubist_train) + labs(x = NULL, y = NULL, title = "Cubist")
+vip_enet <- vip(enet_train) + labs(x = NULL, y = NULL, title = "Elastic net")
 vip_rf <- vip(rf_train) + labs(x = NULL, y = NULL, title = "Random forest")
 
-gridExtra::grid.arrange(vip_cubist, vip_rf, ncol = 2)
+gridExtra::grid.arrange(vip_enet, vip_rf, ncol = 2)
 
 ```
 
@@ -591,4 +608,4 @@ ggplot(df_pred_var,
 
 
 # Lokaorð
-Að ofan hef ég varið í gegnum hvaða áhrif mismunandi breytur hafa á fasteignaverð. Áhrifin eru meira og minna það sem búast mátti við. Spárnar eru áþekkar og benda til hægagangs eitthvað inn á 2020 en nokkurri hækkun eftir um 12 mánuði. Ég hef ekki enn lagt mat á gæ
+Að ofan hef ég varið í gegnum hvaða áhrif mismunandi breytur hafa á fasteignaverð. Áhrifin eru meira og minna það sem búast mátti við. Spárnar eru áþekkar og benda til hægagangs eitthvað inn á 2020 en nokkurri hækkun eftir um 12 mánuði. Ég hef ekki enn lagt mat á gætði spánna. Slíkt væri hægt að gera með time series cross-validation. Það er töluvert stærra verkefni. Ég ákvað einnig að sýna 
