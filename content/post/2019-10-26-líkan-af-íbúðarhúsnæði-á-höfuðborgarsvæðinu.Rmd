@@ -39,11 +39,11 @@ library(tidymodels)
 
 ```
 
-Fyrir stuttu síðan tók ég saman gögn um hámarkshlutfall sem íslenskar fjármálastofnanir lána til fasteignakaupa. Hærra lánshlutfall þýðir að fasteignakaupendur þurfa að leggja til minna eigið fé við fasteignakaup en ella. Það gæti aukið eftirspurn eftir fasteignum og þanni þrýst upp verði. Hér að neðan verða gögnin skoðuð og stuðst við tölfræðilíkön til að varpa ljósi á áhrif hærra lánshlutfalls á fasteignaverð. Þá mun ég einnig nota VAR og VEC líkökn til að framkvæmar spár næstu 24 mánuðina.
+Fyrir stuttu síðan tók ég saman gögn um hámarkshlutfall sem íslenskar fjármálastofnanir lána til fasteignakaupa. Hærra lánshlutfall þýðir að fasteignakaupendur þurfa að leggja til minna eigið fé við fasteignakaup en ella. Það gæti aukið eftirspurn eftir fasteignum og þanni þrýst upp verði. Hér að neðan verða gögnin skoðuð og stuðst við tölfræðilíkön, VAR eða VEC (hvort sem hentar betur), til að varpa ljósi á áhrif hærra lánshlutfalls á fasteignaverð. Þá mun ég einnig nota líköknin til að framkvæmar spár næstu 24 mánuðina.
 
 
 ## Gögn
-Gögnin sem ég nota eru fengin úr ólíkum áttum. Allt eru þetta mánaðarleg gögn. Fyrir verð á íbúðarhúsnæði nota ég vísitölu íbúðaverðs á höfuðborgarsvæðinu sem Þjóðskrá gefur út. Þá er ég með upplýsingar um skuldir heimilana sem ég fékk hjá Seðlabanka Íslands. Þetta eru allar skuldir heimila en ekki aðeins húsnæðisskuldir. Ég geng út frá því í greiningunni að þessi tímaröð og sú sem ætti aðeins við um lán til fasteignakaupa séu nátengdar (svo þarf ekki að vera). Þá er ég með upplýsingar um hámarks lánshlutfall sem bankarnir þrír ásamt Íbúðalánasjóði lána til fasteignakaupa, sjá [hér](https://drive.google.com/open?id=1rqTnfF3TyLHb_mClsCPYEfMnhj6oGmCc). Þessum gögnum safnaði ég af [Vefsafn.is](www.vefsafn.is). Ekki voru til samfelldar upplýsingar af vefsvæðum gömlu bankanna og því gat verið að ég hafði upplýsingar um lánshlutfall í október en síðan ekkert fyrr en í febrúar árið eftir. Ef breytingar áttu sér stað á tímabilinu þurfti ég að geta mér til um hvenær þær breytingar áttu sér stað. Athugasemdir um söfnun þessara gagna er að vinna í Excel skjalinu sem ég hlekkjaði á hér að ofan. Þá er ég með lægstu vexti sem eru í boði til fasteignakaupa, útborguð heildarlaun og vísitölu húsaleigu fyrir landið allt. Þetta eru ekki fullkomin gögn, t.d. væri best að hafa vísitölu leiguhúsnæðis aðeins fyrir höfuðborgarsvæðið og alveg aftur til 1994. 
+Gögnin sem ég nota eru fengin úr ólíkum áttum. Allt eru þetta mánaðarleg gögn. Fyrir verð á íbúðarhúsnæði nota ég vísitölu íbúðaverðs á höfuðborgarsvæðinu sem Þjóðskrá gefur út. Þá er ég með upplýsingar um skuldir heimilana sem ég fékk hjá Seðlabanka Íslands. Þetta eru allar skuldir heimila en ekki aðeins húsnæðisskuldir. Ég geng út frá því í greiningunni að þessi tímaröð og sú sem ætti aðeins við um lán til fasteignakaupa séu nátengdar (svo þarf ekki að vera). Þá er ég með upplýsingar um hámarks lánshlutfall sem bankarnir þrír ásamt Íbúðalánasjóði lána til fasteignakaupa, sjá [hér](https://drive.google.com/open?id=1rqTnfF3TyLHb_mClsCPYEfMnhj6oGmCc). Þessum gögnum safnaði ég af [Vefsafn.is](www.vefsafn.is). Ekki voru til samfelldar upplýsingar af vefsvæðum gömlu bankanna og því gat verið að ég hafði upplýsingar um lánshlutfall í október en síðan ekkert fyrr en í febrúar árið eftir. Ef breytingar áttu sér stað á tímabilinu þurfti ég að geta mér til um hvenær þær breytingar áttu sér stað. Athugasemdir um söfnun þessara gagna er að vinna í Excel skjalinu sem ég hlekkjaði á hér að ofan. Þá er ég með lægstu vexti sem eru í boði til fasteignakaupa, útborguð heildarlaun og vísitölu húsaleigu fyrir landið allt. Þetta eru ekki fullkomin gögn, t.d. væri betra að hafa vísitölu leiguhúsnæðis aðeins fyrir höfuðborgarsvæðið og alveg aftur til 1994. 
 
 
 ## Grafísk greining
@@ -115,9 +115,8 @@ gogn_graph %>%
 Næst sýni ég dreifingu eftir hámarks lánshlutfalli. Hér mætti einnig skoða meðallánshlutfall sem lánastofnanir buðu. Ég ákvað þó að fara þá leið í þessari greiningu að nota hæsta hlutfallið sem var í boði á hverjum tíma. Munurinn á hámarkshlutfalli og meðalhlutfalli (banka, lífeyrissjóða og ÍLS) er lítill.  
 Ég er almennt ekki hlynntur því að birta gröf sem sýnir samband tveggja breyta þegar vitað er að aðrar breytur kunna að hafa áhrif. Ástæðan er sú að það er auðvelt að sýna jákvætt samband milli tveggja breyta en sambandið hverfur eða jafnvel breytir um formerki við það eitt að taka tillit til þriðju breytunnar. Hér geri ég þó undantekningu með því að sýna hversu mikið fasteignaverð hefur hækkað á mismunandi tímum eftir því hvert hámarkslánshlutfall var.  
 
-Neðangreint graf kallst box-plot. Box plot samanstendur af *hinges* og *whiskers*. Hinges eru efri og neðri mörk kassans. Efri mörkin eru efri fjórðungsmörk og neðri mörkin eru neðri fjórðungsmörk. Neðri fjórðungsmörk eru skilgreind á þann hátt að 25% gildanna (tólf mánað breyting fasteignaverð í þessu dæmi) eru undir neðri fjórðungsmörkum. Á sama hátt eru 25% gildanna yfir efri fjórðungsmörkunum.   
-Whiskers eru lóðréttu strikin sem koma upp úr og niður úr boxinu. Efra strikið nær frá efir mörkum boxins upp í hæsta gildið þó aldrei hærra en 1.5 x IQR, sama á við um neðra strikið. Gildi sem fara út fyrir *whiskers* kallst útlagar.  
-(IQR: inter quartile range eða bil milli efri og neðri marka boxins).
+Neðangreint graf kallst box-plot. Box plot samanstendur af *hinges* og *whiskers*. Hinges eru efri og neðri mörk kassans. Efri mörkin eru efri fjórðungsmörk og neðri mörkin eru neðri fjórðungsmörk dreifingarinnar. Neðri fjórðungsmörk eru skilgreind á þann hátt að 25% gildanna (tólf mánað breyting fasteignaverð í þessu dæmi) eru undir neðri fjórðungsmörkum. Á sama hátt eru 25% gildanna yfir efri fjórðungsmörkunum.   
+Whiskers eru lóðréttu strikin sem koma upp úr og niður úr boxinu. Efra strikið nær frá efri mörkum boxins upp í hæsta gildið þó aldrei hærra en 1.5 x IQR (inter quartile range eða bil milli efri og neðri marka boxins), sama á við um neðra strikið. Gildi sem fara út fyrir *whiskers* kallst útlagar.
 
 
 ```{r}
@@ -143,15 +142,15 @@ ggplot(gogn_graph,
 
 ```
 
-Út frá myndunum að ofan er hægt að draga þá ályktun að þegar lánshlutfall er hærra, þá er tólf mánaða hækkun fasteignaverðs hærri. Í það minnsta hefur fasteignaverð á höfuðborgarsvæðinu aldrei hækkað meira en 25% yfir tólf mánaða tímabil nema þegar hámarkslánshlutfallið var 100%.  
+Út frá myndunum að ofan er hægt að draga þá ályktun að þegar lánshlutfall er hærra, þá er tólf mánaða hækkun fasteignaverðs almennt hærri. Í það minnsta hefur fasteignaverð á höfuðborgarsvæðinu aldrei hækkað meira en 25% yfir tólf mánaða tímabil nema þegar hámarkslánshlutfallið var 100%.  
 
-Gröf ein og sér svara því þó ekki fyllilega hver áhrif hærra lánshlutfalls er á fasteignaverðs. Til að fá betra svar sný ég mér að tölfræðilíkönum.
+Gröf ein og sér svara því þó ekki fyllilega hver áhrif hærra lánshlutfalls er á fasteignaverð. Til að fá betra svar sný ég mér að tölfræðilíkönum.
 
 
 ## VAR og VEC líkön
-VAR (vector autoregression) og VEC (vector error correction) eru tvær aðferðir sem hægt er að nota til að varpa ljósi á áhrif hærra lánshlutfalls á fasteignaverðs. Þá á ég sérstaklega við viðbragðsföll (e. impulse response function). Bæði líkönin má einnig nota til að framkvæma spár. VAR er eflaust betra fyrir skammtímaspár en VEC fyrir langtímaspár þar sem VEC nær utan um langtímasamband breyta sem VAR nær ekki utan um.   
+VAR (vector autoregression) og VEC (vector error correction) eru tvær aðferðir sem hægt er að nota til að varpa ljósi á áhrif hærra lánshlutfalls á fasteignaverðs. Þá á ég sérstaklega við viðbragðsföll (e. impulse response function). Bæði líkönin má einnig nota til að framkvæma spár. VAR er eflaust betra fyrir skammtímaspár en VEC fyrir langtímaspár þar sem VEC nær utan um langtímasamband breyta sem VAR nær ekki utan um.     
 
-Hér að neðan er hægt að sprengja út þríhyrninginn þar sem farið er ítarlega í gegnum VAR og VEC líkön með kóða í R. Sá hluti er aðeins hugsaður sem viðauki fyrir þá sem hafa áhuga. Hinir geta flett yfir og farið beint í greininguna að neðan.  
+Hér að neðan er hægt að sprengja út þríhyrninginn þar sem farið er ítarlega í gegnum VAR og VEC líkön með kóða í R. Sá hluti er aðeins hugsaður sem viðauki fyrir þá sem hafa áhuga. Hinir geta flett yfir og farið beint í kaflan **VEC líkan** að neðan.   
 
 
 <details>
@@ -161,7 +160,7 @@ VAR og VEC líkön eru ein af vinsælustu tölfræðilíkönunum sem hagfræðin
 VEC líkön taka tillit til þess þegar langtímasambanda/samþættingarsamband er á milli breyta. Það verður að teljast líklegt að slíkt samband sé á milli fasteignaverðs og launa og/eða fasteignaverðs og leigu.
 
 Ef tvær ósístæðar tímaraðir (e. non-stationary) verða sístæðar við að taka mismun d sinnum (t.d. einusinni) og til er línulegt samband á milli þessara breyta sem er þáttað (e. integrated) af gráðu d-1, þá eru breyturnar sagðar samþættar. Tökum dæmi.  
-Grafið að neðan sýnir vísitölu íbúðaverðs á höfuðborgarsvæðinu og vísitölu útborgaðra heildarlauna. Á grafinu að dæma virðist vera langtíma samband á milli breytanna þó það komi tímabil þar sem ójafnvægi myndast. Ef það er samþættingarsamband á milli breytann þá mun fyrr eða síðar gapið þarna á milli lokast.  
+Grafið að neðan sýnir vísitölu íbúðaverðs á höfuðborgarsvæðinu og vísitölu útborgaðra heildarlauna. Af grafinu að dæma virðist vera langtíma samband á milli breytanna þó það komi tímabil þar sem ójafnvægi myndast. Ef það er samþættingarsamband á milli breytann þá mun fyrr eða síðar gapið þarna á milli lokast.  
 
 ```{r coint_graph, echo=TRUE}
 
@@ -189,9 +188,9 @@ ggplot(price_rent,
 ```
 
 
-Hér verður kannað hvort samþættingarsamband sé á milli fasteignaverðs, leigu og launa. Ef svo er þá er hentugar að styðjast við VEC líkan en VAR, í það minnsta fyrir greiningu sem nær til langs tíma. Fyrst þarf að velja fjölda tafinna gilda. Það geri ég með `VARselect`. AIC, HQ, SC og FPE gefa öll misjafna niðurstöðu. Sagt er að AIC eigi það til að velja of mörg tafin gildi. HQ og BIC/SC virðast velja mjög fá tafin gildi, 1. Til að kanna hvort það sé samþættingarsamband þá þarf ég að nota í það minnsta tvö tafin gildi. Styðst því við AIC/FPE hér sem segir að fjögur tafin gildi séu heppilegasta lag length. Taflan að neðan sýnir fjölda tafinna gilda m.v. mismunandi criteríur og hvort ég noti constant, trend eða bæði. Þar sem ég er með þrjár breytur sem hækka yfir tíma þá tel ég heppilegast að hafa trend auk þess sem ég tel eðlilegast að hafa einnig constnat. Þannig að **both** dálkurinn er sá sem ég mun líta til.  
+Hér verður kannað hvort samþættingarsamband sé á milli fasteignaverðs, leigu og launa. Ef svo er þá er hentugara að styðjast við VEC líkan en VAR, í það minnsta fyrir greiningu sem nær til langs tíma. Fyrst þarf að velja fjölda tafinna gilda. Það geri ég með `VARselect`. AIC, HQ, SC og FPE gefa öll misjafna niðurstöðu. Sagt er að AIC eigi það til að velja of mörg tafin gildi. HQ og BIC/SC virðast velja mjög fá tafin gildi, 1. Til að kanna hvort það sé samþættingarsamband þá þarf ég að nota í það minnsta tvö tafin gildi. Styðst því við FPE hér sem segir að þrjú tafin gildi séu heppilegasta lag length. Taflan að neðan sýnir fjölda tafinna gilda m.v. mismunandi criteríur og hvort ég noti constant, trend eða bæði. Þar sem ég er með þrjár breytur sem hækka yfir tíma þá tel ég heppilegast að hafa trend auk þess sem ég tel eðlilegast að hafa einnig constnat. Þannig að **both** dálkurinn er sá sem ég mun líta til.  
 
-Til að nota `VARSelect` fallið í **vars** pakkanum þarf að velja hæsta fjölda tafinna gilda sem verða prófuð. Ef ég nota lax.max = 12, þ.e. prófa VAR(1), VAR(2), ..., VAR(12) þá er besta líkanið (m.v. AIC og FPE) það sem hefur fjögur tafin gildi. Ef ég hins vegar set lax.max = 24 þá prófa ég alveg upp í VAR(24) en þá velja AIC, HQ og FPE 24 tafin gildi. Þetta er vandamál sem eflaust má rekja til þess að gagnasettið er ekki sérlega stórt. Sjá umfjöllund [hér](https://stats.stackexchange.com/questions/399772/aic-bic-values-keep-changing-with-lag-max-in-var-model). Ég nota lag.max = 12 hér að neðan.   
+Til að nota `VARSelect` fallið í **vars** pakkanum þarf að velja hæsta fjölda tafinna gilda sem verða prófuð. Ef ég nota lax.max = 12, þ.e. prófa VAR(1), VAR(2), ..., VAR(12) þá er besta líkanið m.v. AIC það sem hefur tólf tafin gildi. Ef ég hins vegar set lax.max = 24 þá prófa ég alveg upp í VAR(24) en þá velur AIC 24 tafin gildi. Í einhverjum tilfellum gætu FPE, HQ og SC gildin einnig breytist. Það er algengt þegar unnið er með lítil gagnasett, líkt og í hagfræði, að lag.max gildið hafi nokkur áhrif á því hvað VARselect fallið velur sem heppilegastan fjölda tafinna gilda. Lesa má smá umfjöllun um þetta [hér](https://stats.stackexchange.com/questions/399772/aic-bic-values-keep-changing-with-lag-max-in-var-model). Ég nota lag.max = 12 hér að neðan.   
 
 ```{r gogn_2, echo=TRUE}
 
@@ -211,7 +210,7 @@ gogn_2 <- gogn %>%
 
 ```{r, echo=TRUE}
 
-lag_max <- 24
+lag_max <- 12
 
 var_none <- VARselect(gogn_2[,-1], lag.max = lag_max, type = c("none"))$selection %>% as.data.frame()
 var_const <- VARselect(gogn_2[,-1], lag.max = lag_max, type = c("const"))$selection %>% as.data.frame()
@@ -229,33 +228,26 @@ lag_result %>%
 ```
 
 
-Eftir að hafa valið þrjú tafin gilda þá get ég framkvæmt Johansen próf til að kanna hvort samþættingarsamband sé til staðar. Óháð því hvort ég nota *intercept*, *trend* eða hvorugt þá er alltaf sama niðursatða, þ.e. tvö samþættingarsambönd. Til að svar því hversu mörg samþættingarsambönd eru þá er lesið úr efstu töflunum sem birtast í þessum þremur output-um að neðan. Í fyrsta output-inu má sjá r = 0, r <= 1, ... r <= 6. Þarna er verið að kanna hversu mörg samþættingarsambönd eru til staðar. Ég er almennt ekki mikill aðdáandi þess að velja 5% marktæknistig (e. significance level) bara af því að það er "hefð" í hagfræðinni. Í fyrsta output-inu að neðan er ekki hægt að hafna tilgátunni um tvö samþættingarsambönd við 5% marktæknistig en það er hægt m.v. 10%. 
-
-M.v. 5% marktæknistig (5pct) þá er test statistic hærra fyrir r = 0 (test = 167.03 vs. 5pct = 124.25). Svona höldum við áfram upp töfluna þangað til við getum ekki hafnað H0. Þegar r <= 1 þá getum við ekki hafnað tilgátunni um eitt eða færri samþættingarsambönd, næ því hins vegar m.v. 10% marktæknistig. Ef við lesum eins út úr hinum tveimur töflunum þá fæst sú niðurstaða að tvö samþættingarsambönd séu til staðar.  
+Eftir að hafa valið þrjú tafin gilda þá get ég framkvæmt Johansen próf til að kanna hvort samþættingarsamband sé til staðar. Til að svar því hversu mörg samþættingarsambönd eru þá er lesið úr töflunni að neðan sem er partur af output-inu úr prófinu. Þar má sjá r = 0, r <= 1, ... r <= 5. Þarna er verið að kanna hversu mörg samþættingarsambönd eru til staðar. Ég er almennt ekki mikill aðdáandi þess að velja 5% marktæknistig (e. significance level) bara af því að það er "hefð" í hagfræðinni. En ef ég gef mig í þetta sinn og lít til 5% marktæknistigs (5pct dálkurinn í töflunni) þá er test statistic hærra fyrir r = 0 (test = 162.84 vs. 5pct = 114.9) og því hafna ég núll tilgátunni um ekkert samþættingarsamband. Svona höldum við áfram upp töfluna þangað til við getum ekki hafnað H0. Þegar r <= 2 þá getum við ekki hafnað tilgátunni um tvö eða færri samþættingarsambönd.  
 
 
 ```{r, echo=TRUE}
 
 tafin = 3
 
-# No intercept and no trend variable in cointegration
-summary(ca.jo(as.matrix(gogn_2[,-1]),
-      type = "trace",
-      ecdet = "none",
-      K = tafin))
+coint_summary <- summary(ca.jo(as.matrix(gogn_2[,-1]),
+                        type = "trace",
+                        ecdet = "trend",
+                        K = tafin,
+                        spec = "longrun"))
 
-# Constant term in cointegration
-summary(ca.jo(as.matrix(gogn_2[,-1]),
-      type = "trace",
-      ecdet = "const",
-      K = tafin))
+coint_tafla <- cbind(coint_summary@teststat, coint_summary@cval)
 
-# Trend term in cointegration
-summary(ca.jo(as.matrix(gogn_2[,-1]),
-      type = "trace",
-      ecdet = "trend",
-      K = tafin))
-
+coint_tafla %>%
+  kable() %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>% 
+  column_spec(c(1:4), width = "2cm")
+  
 ```
 
 
@@ -267,14 +259,14 @@ summary(ca.jo(as.matrix(gogn_2[,-1]),
 Fyrir ykkur sem slepptuð ítarefninu þá var niðurstaðan sú að vegna langtímasambands á milli launa og fasteignaverðs annars vegar og leigu og fasteignaverðs hinsvegar, þá væri best að styðjast við VEC líkan.  
 
 ```{r, vec}
-
-# gogn_2 <- gogn_2 %>% 
-#   select()
+# Vel spec = "transitory" þar sem það er víst algengara í dag, sjá hér:
+# https://stats.stackexchange.com/questions/363188/interpreting-the-names-used-in-the-output-of-johansen-test-in-package-urca-in-r
 
 coint_test <- ca.jo(as.matrix(gogn_2[,-1]),
       type = "trace",
       ecdet = "trend",
-      K = tafin)
+      K = tafin,
+      spec = "transitory")
 
 # vec_likan <- cajools(coint_test)
 # 
@@ -296,7 +288,7 @@ vec_irf <- tsDyn::irf(var_from_vec, n.ahead = n_ahead, ci = 0.8)
 
 *Athugið. Gröfin að neðan sýna viðbragð fasteignaverðs á höfuðborgarsvæðinu vegna skells (e. shock) í fimm breytum. Bláa svæðið í kringum viðbragðsfallið er 80% öryggisbil. Ég hallast að bayesískri tölfræði og þar með er ég frekar gagnrýninn á öryggisbil. Auk þess sé ég ekki ástæðu til að nota 95% frekar en 80%. Þegar ég tala um að áhrif séu marktæk þá er ég vissulega að lesa í öryggisbilin.*  
 
-Það sem lesa má út úr viðbragðsföllunum er að hækkun hámarkshlutfalls leiðir til hærra fasteignaverðs og hærri vextir leiða til lægra fasteignaverðs. Það sem vekur athygli er mat líkansins á áhrifum aukinnar skuldsetningar. Áhrifin eru jákvæð en aðeins marktæk fyrsta mánuðinn. Ástæðan fyrir þessu kann að vera sú að hámarkslánshlutfall hækkar mikið fyrir hun sem leiðir til aukinnar skuldsetningar. Áhrifin af aukinni skuldsetningu koma því hugsanlega fram að einhverju leyti í gegnum áhrif hámarkshlutfalls. Hitt sem kemur að óvart er áhrif leigu á fasteignaverð. Hér virðist líkanið pikka upp mikla hækkun leigu á sama tíma og verð fasteigna lækkaði töluvert eftir hrun. Hér mætti bæta við dummy-breytum sem ná hrun-tímabilið. Ástæðan fyrir því að ég geri það ekki hér er að það er kannski ekki auðvelt að skilgreina hvaða tímabil hrunið nær yfir. Þá virðast laun hafa áhrif til hækkunar. Ég skrifað um það áður (á öðrum vettvangi) að launahækkanir geti varla haft áhrif til hækkunar fasteignaverðs, í það minnsta ekki nema með mikilli töf. Ef laun hækka mikið á mánuði t = 1 þá tekur tíma fyrir heimili að leggja til hliðar og safna fyrir íbúð. Launahækkun á tíma t = 0 leiðir þannig ekki til aukinnar eftirspurnar eftir fasteignum á tíma t = 1 (tími í mánuðum).  
+Það sem lesa má út úr viðbragðsföllunum er að hækkun hámarkshlutfalls leiðir til hærra fasteignaverðs og hærri vextir leiða til lægra fasteignaverðs. Það sem vekur athygli er mat líkansins á áhrifum aukinnar skuldsetningar. Áhrifin eru jákvæð fyrsta mánðinn en lítil sem engin eftir það. Ástæðan fyrir þessu kann að vera sú að hámarkslánshlutfall hækkar mikið fyrir hrun sem leiðir til aukinnar skuldsetningar. Áhrifin af aukinni skuldsetningu koma því hugsanlega fram að einhverju leyti í gegnum áhrif hámarkshlutfalls. Hitt sem kemur að óvart er áhrif leigu á fasteignaverð. Hér virðist líkanið pikka upp mikla hækkun leigu á sama tíma og verð fasteigna lækkaði töluvert eftir hrun. Hér mætti bæta við dummy-breytum sem ná hrun-tímabilið. Ástæðan fyrir því að ég geri það ekki hér er að það er kannski ekki auðvelt að skilgreina hvaða tímabil hrunið nær yfir. Þá virðast laun hafa áhrif til hækkunar. Ég skrifað um það áður (á öðrum vettvangi) að launahækkanir geti varla haft áhrif til hækkunar fasteignaverðs, í það minnsta ekki nema með mikilli töf. Ef laun hækka mikið á tíma t = 0 þá tekur tíma fyrir heimili að leggja til hliðar og safna fyrir íbúð. Launahækkun á tíma t = 0 leiðir þannig ekki til aukinnar eftirspurnar eftir fasteignum á tíma t = 0 (tími í mánuðum).  
 
 
 ```{r vec_irf_plot}
@@ -351,8 +343,11 @@ gridExtra::grid.arrange(p1, p2, p3, p4, p5, ncol = 2, top = "Viðbragðsföll fy
 # Vélarnám
 Önnur leið til að kanna áhrif tiltekinna breyta á fasteignaverð er að styðjast við vélarnám (e. machine learning). Það getur verið gagnlegt til að ná utan um ólínuleg sambönd ef þau eru til staðar. Ein slík aðferð er random forest. Fyrir þá sem vilja lesa sig til random forest (eða aðra algorithma) þá er bókin *An Introduction to Statistical Learning* mjög góð byrjun. Bókin er aðgengileg [hér](http://faculty.marshall.usc.edu/gareth-james/ISL/index.html).
 
-## Variable importance með random forest og elastic net
-Tree-based algorithmar líkt og random forest ráða illa við breytur sem trend-a. Því mun ég umbreyta vísitölunum í gagnasettinu þannig að þær lýsi tólf mánaða  breytingu. Elastic net er línulegt líkan sem notar regularization. Með regularization á ég við að algorithminn getu bæði skalað niður stuðlamatið (beturnar) eða hent þeim alveg út (skalað stuðlana alveg niður núll).  
+## Variable importance með random forest, elastic net og Cubist
+Tree-based algorithmar líkt og random forest ráða illa við breytur sem trend-a. Því mun ég umbreyta vísitölunum í gagnasettinu þannig að þær lýsi tólf mánaða  breytingu.
+Random forest er samansafn af þúsundum ákvarðanatrjáa. Trén geta verið nokkuð ólík hvert öðru þó sum geta verið eins. Trén eru ólík á þann hátt að ekki eru sömu breytur notaðar til að búa til ákvarðanatréð. Þaðan kemur 'random' þátturinn.  
+Elastic net er línulegt líkan sem notar regularization. Með regularization á ég við að algorithminn getu bæði skalað niður stuðlamatið (beturnar) eða hent breytum alveg út (skalað stuðlana alveg niður núll).  
+Cubist er í mjög stuttur, og eflaust ónákvæmu máli, samblanda af ákvarðanatré og línulegu líkani. Nokkuð ítarlega er farið í gegnum Cubist í bókinni *Applied predictive modeling*. [Hér](https://static1.squarespace.com/static/51156277e4b0b8b2ffe11c00/t/56e3056a3c44d8779a61988a/1457718645593/cubist_BRUG.pdf) er kynning á Cubist eftir annan höfund bókarinnar.  
 
 ```{r ml_data}
 
@@ -394,8 +389,8 @@ test_data <- bake(trained_rec, new_data = gogn_ml_test)
 ```{r ml}
 
 
-# cub_grid <- expand.grid(committees = c(1, seq(10, 100, 10)),
-#                         neighbors = seq(0, 9, 1))
+cub_grid <- expand.grid(committees = c(1, seq(10, 100, 10)),
+                        neighbors = seq(0, 9, 1))
 
 no_cores <- detectCores() - 1
 cl <- makeCluster(no_cores)
@@ -411,14 +406,14 @@ rf_train <- train(d_house ~ .,
                   data = train_data,
                   method = "ranger",
                   trControl = ctrl_time,
-                  tuneLength = 10,
+                  tuneLength = 7,
                   importance = "permutation")
 
-# cubist_train <- train(d_house ~ .,
-#                       data = train_data,
-#                       method = "cubist",
-#                       trControl = ctrl_time,
-#                       tuneGrid = cub_grid)
+cubist_train <- train(d_house ~ .,
+                      data = train_data,
+                      method = "cubist",
+                      trControl = ctrl_time,
+                      tuneGrid = cub_grid)
 
 enet_train <- train(d_house ~ .,
                   data = train_data,
@@ -432,23 +427,23 @@ stopCluster(cl)
 ```
 
 
-Grafið að neðan sýnir tvö líkön. Random forest og Elastic net. Random forest virðast ná betur utan um fasteignaverð. Hvorugu líkaninu tekst þó að útskýra hækkunina sem á sér stað frá miðju ári 2016 fram í ársbyrjun 2018. Þarna er eflaust hækkun sem ekki er skýrð af þeim breytum sem notaðar eru í líkönunum. Gráa svæðið er sá hluti gagnanna sem ekki var notaður við að tune-a líkönin.
+Grafið að neðan sýnir þrjú líkön. Random forest, Cubist og Elastic net. Cubist virðist overfit-a á training settið (erfitt að greina á milli Cubist og raun á grafinu). Líkönunum þremur tekst þó ekki að útskýra hækkunina sem á sér stað frá miðju ári 2016 fram í ársbyrjun 2018. Þarna er eflaust hækkun sem ekki er skýrð af þeim breytum sem notaðar eru í líkönunum. Gráa svæðið er sá hluti gagnanna sem ekki var notaður við að tune-a líkönin. Eftir miklu hækkunina virðist cubist ná best utan um breytingu fasteignaverðs.  
 
 
 ```{r training_error}
 
 total_data <- bind_rows(train_data, test_data)
 
-# pred_cubist <- predict(cubist_train, newdata = total_data)
+pred_cubist <- predict(cubist_train, newdata = total_data)
 pred_rf <- predict(rf_train, newdata = total_data)
 pred_enet <- predict(enet_train, newdata = total_data)
 
 df_pred <- tibble(date = gogn_ml$date,
                   "Random forest" = pred_rf,
-                  # cubist = pred_cubist,
+                  cubist = pred_cubist,
                   "Elastic net" = pred_enet,
                   raun = total_data$d_house) %>% 
-  pivot_longer(cols = 2:4,
+  pivot_longer(cols = 2:5,
                values_to = "value",
                names_to = "key")
 
@@ -472,15 +467,19 @@ ggplot(df_pred,
 ```
 
 
-Næsta graf sýnir hversu mikilvægar viðkomandi breytur voru til að spá fyrir um tólf mánaða breytingu fasteignaverðs. Breytan **max_hlutfall** tekur aðeins fjögur gildi: 65%, 80%, 85% og 100% og þar sem ég er að nota tree-based algorithma ákvað ég að búa til dummy breytu fyrir öll gildin (one hot encoding). Athugið að mikilvægi breytanna segir ekker til um hvort áhrifin voru jákvæð eða neikvæð. Nokkur munur er á hvaða breytur eru mikilvægar til að spá fyrir fasteignaverð. Tólf mánaða breyting launa, vextir og breyting útlána voru þrjár mikilvægustu  breyturnar yfrir Cubist. **max_hlutfall**, og þá sérstaklega 100% og 80% hlutföllin sem dummy breytur auk vaxta voru þrjár mikilvægustu breyturnar fyrir random forest.  
+Næsta graf sýnir hversu mikilvægar viðkomandi breytur voru til að spá fyrir um tólf mánaða breytingu fasteignaverðs. Breytan **max_hlutfall** tekur aðeins fjögur gildi: 65%, 80%, 85% og 100% og bý ég til dummy breytu fyrir öll gildin (one hot encoding). Athugið að mikilvægi breytanna segir ekkert til um hvort áhrifin voru jákvæð eða neikvæð. Nokkur munur er á hvaða breytur eru mikilvægar til að spá fyrir fasteignaverð.
 
+Vextir eru lang mikilvægasta breytan fyrir Elastic net til að spá fyrir um hækkun fasteignaverðs. **max_hlutfall**, og þá sérstaklega 100% og 80% hlutföllin sem dummy breytur auk vaxta voru þrjár mikilvægustu breyturnar fyrir random forest. Tólf mánaða breyting launa, vextir og breyting útlána voru þrjár mikilvægustu  breyturnar yfrir Cubist.  
+
+Þó niðurstöðurnar eru nokkuð ólíkar milli líkana þá má greina einhvern samhljóm. Til að mynda eru vextir alltaf meðal þriggja mikilvægustu breytanna. Random forest er eina líkanið sem styðst eingöngu við ákvarðanatré og á því eflaust auðveldast með að ná upplýsingum úr max_hlutfall breytunni sem breytir aðeins um gildi þrisvar sinnum.  
 
 ```{r vip}
 
 vip_enet <- vip(enet_train) + labs(x = NULL, y = NULL, title = "Elastic net")
 vip_rf <- vip(rf_train) + labs(x = NULL, y = NULL, title = "Random forest")
+vip_cub <- vip(cubist_train) + labs(x = NULL, y = NULL, title = "Cubist")
 
-gridExtra::grid.arrange(vip_enet, vip_rf, ncol = 2)
+gridExtra::grid.arrange(vip_enet, vip_rf, vip_cub, ncol = 3)
 
 ```
 
@@ -489,7 +488,7 @@ gridExtra::grid.arrange(vip_enet, vip_rf, ncol = 2)
 Að ofan hef ég rýnt hvaða áhrif breyturnar hafa á fasteignaverð með VEC líkani. Einnig kannaði ég hvaða breytur voru mikilvægar til að útskýra fasteignaverð miðað við tvo öfluga algorithma. Að neðan mun ég nota VAR og VEC líkan til að framkvæma spá til næstu 12 mánaða.  
 
 
-## VEC spá
+## Spá með VEC líkani
 Hér er notað sama líka og notað var til að búa til viðbragðsföllin að ofan. Grafið sýnir spá 24 mánuði fram í tímann. 
 ```{r vec_spa}
 
@@ -550,7 +549,6 @@ var_gogn <- gogn %>%
 
 ```{r var_spa_12}
 
-
 ts_house <- ts(var_gogn$d_house, frequency = 12, start = c(1998, 12))
 ts_utlan <- ts(var_gogn$d_utlan, frequency = 12, start = c(1998, 12))
 ts_hlutfall <- ts(var_gogn$max_hlutfall, frequency = 12, start = c(1998, 12))
@@ -606,6 +604,8 @@ ggplot(df_pred_var,
 ```
 
 
+Spárnar benda hvorugar til lækkunar fasteignaverðs á tímabilinu ágúst 2019 - júlí 2021. Spárnar eru nokkuð ólíkar. VEC líkanið spáir hægagangi út árið en nokkurri hækkun á árinu 2020 og inná 2021. VAR líkanið spáir minni og minni hækkun fasteignaverðs fram á mitt ár 2020. Eftir það tekur hækkunartakturinn við sér.  
+
 
 # Lokaorð
-Að ofan hef ég varið í gegnum hvaða áhrif mismunandi breytur hafa á fasteignaverð. Áhrifin eru meira og minna það sem búast mátti við. Spárnar eru áþekkar og benda til hægagangs eitthvað inn á 2020 en nokkurri hækkun eftir um 12 mánuði. Ég hef ekki enn lagt mat á gætði spánna. Slíkt væri hægt að gera með time series cross-validation. Það er töluvert stærra verkefni. Ég ákvað einnig að sýna 
+Að ofan hef ég varið í gegnum hvaða áhrif mismunandi breytur hafa á fasteignaverð. Áhrifin eru meira og minna það sem búast mátti við. Spárnar eru nokkuð ólíkar þó báðar bendi til áframhaldandi hækkunar næstu tvö árin.  Ég hef ekki enn lagt mat á gætði spánna. Slíkt væri hægt að gera með time series cross-validation. Það er töluvert stærra verkefni.
