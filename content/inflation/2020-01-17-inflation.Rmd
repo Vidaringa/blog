@@ -1,0 +1,52 @@
+---
+title: Inflation
+author: Vidar
+date: '2020-01-17'
+slug: inflation
+categories: []
+tags: []
+description: ''
+topics: []
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(forecast)
+library(tidyverse)
+
+```
+
+
+
+```{r data}
+vnv <- read_csv2("https://px.hagstofa.is:443/pxis/sq/56bced43-7a7a-4406-bc91-fceeaa46ed55",
+                 locale = locale(encoding = "latin1"))
+
+colnames(vnv)[3] <- "visitala"
+vnv$visitala <- as.numeric(vnv$visitala)
+
+dags <- seq.Date(from = as.Date("1988-05-01"),
+                 to = as.Date("2019-12-01"),
+                 by = "month")
+
+vnv <- vnv %>% 
+  select(visitala) %>% 
+  na.omit()
+
+vnv$date <- dags
+
+ts_vnv <- ts(vnv$visitala, start = c(1988, 5), frequency = 12)
+```
+
+
+```{r forecast}
+
+fit <- auto.arima(ts_vnv)
+
+fit %>% forecast(h = 12) %>% 
+  autoplot(include = 60)
+
+```
+
