@@ -38,7 +38,7 @@ library(tidymodels)
 
 ```
 
-Fyrir stuttu síðan tók ég saman gögn um hámarkshlutfall sem íslenskar fjármálastofnanir lána til fasteignakaupa. Hærra lánshlutfall þýðir að fasteignakaupendur þurfa að leggja til minna eigið fé við fasteignakaup en ella. Það gæti aukið eftirspurn eftir fasteignum og þannig þrýst upp verði. Hér að neðan verða gögnin skoðuð og stuðst við tölfræðilíkön, VAR eða VEC (hvort sem hentar betur), til að varpa ljósi á áhrif hærra lánshlutfalls á fasteignaverð. Þá mun ég einnig nota líkönin til að framkvæmar spár næstu 24 mánuðina.
+Fyrir stuttu síðan tók ég saman gögn um hámarkshlutfall sem íslenskar fjármálastofnanir lána til fasteignakaupa. Hærra lánshlutfall þýðir að fasteignakaupendur þurfa að leggja til minna eigið fé við fasteignakaup en ella. Það gæti aukið eftirspurn eftir fasteignum og þannig þrýst upp verði. Hér að neðan verða gögnin skoðuð og stuðst við tölfræðilíkön, VAR eða VEC (hvort sem hentar betur), til að varpa ljósi á áhrif hærra lánshlutfalls á fasteignaverð. Þá mun ég einnig nota líkönin til að framkvæma spár næstu 24 mánuðina.
 
 
 ## Gögnin
@@ -114,7 +114,7 @@ gogn_graph %>%
 Næst sýni ég dreifingu eftir hámarks lánshlutfalli. Hér mætti einnig skoða meðallánshlutfall sem lánastofnanir buðu. Ég ákvað þó að fara þá leið í þessari greiningu að nota hæsta hlutfallið sem var í boði á hverjum tíma. Munurinn á hámarkshlutfalli og meðalhlutfalli (banka, lífeyrissjóða og ÍLS) er lítill.  
 Ég er almennt ekki hlynntur því að birta gröf sem sýnir samband tveggja breyta þegar vitað er að aðrar breytur kunna að hafa áhrif. Ástæðan er sú að það er auðvelt að sýna jákvætt samband milli tveggja breyta en sambandið hverfur eða jafnvel breytir um formerki við það eitt að taka tillit til þriðju breytunnar. Hér geri ég þó undantekningu með því að sýna hversu mikið fasteignaverð hefur hækkað á mismunandi tímum eftir því hvert hámarkslánshlutfall var.  
 
-*Neðangreint graf kallst box-plot. Box plot samanstendur af hinges og whiskers. Hinges eru efri og neðri mörk kassans. Efri mörkin eru efri fjórðungsmörk og neðri mörkin eru neðri fjórðungsmörk dreifingarinnar. Neðri fjórðungsmörk eru skilgreind á þann hátt að 25% gildanna (tólf mánað breyting fasteignaverð í þessu dæmi) eru undir neðri fjórðungsmörkum. Á sama hátt eru 25% gildanna yfir efri fjórðungsmörkunum. Whiskers eru lóðréttu strikin sem koma upp úr og niður úr boxinu. Efra strikið nær frá efri mörkum boxins upp í hæsta gildið þó aldrei hærra en 1.5 x IQR (inter quartile range eða bil milli efri og neðri marka boxins), sama á við um neðra strikið. Gildi sem fara út fyrir whiskers kallst útlagar.*
+*Neðangreint graf kallast box-plot. Box plot samanstendur af hinges og whiskers. Hinges eru efri og neðri mörk kassans. Efri mörkin eru efri fjórðungsmörk og neðri mörkin eru neðri fjórðungsmörk dreifingarinnar. Neðri fjórðungsmörk eru skilgreind á þann hátt að 25% gildanna (tólf mánaða breyting fasteignaverð í þessu dæmi) eru undir neðri fjórðungsmörkum. Á sama hátt eru 25% gildanna yfir efri fjórðungsmörkunum. Whiskers eru lóðréttu strikin sem koma upp úr og niður úr boxinu. Efra strikið nær frá efri mörkum boxins upp í hæsta gildið þó aldrei hærra en 1.5 x IQR (inter quartile range eða bil milli efri og neðri marka boxins), sama á við um neðra strikið. Gildi sem fara út fyrir whiskers kallast útlagar.*
 
 
 ```{r}
@@ -148,7 +148,7 @@ Gröf ein og sér svara því þó ekki fyllilega hver áhrif hærra lánshlutfa
 ## VAR og VEC líkön
 VAR (vector autoregression) og VEC (vector error correction) eru tvær aðferðir sem hægt er að nota til að varpa ljósi á áhrif hærra lánshlutfalls á fasteignaverðs. Þá á ég sérstaklega við viðbragðsföll (e. impulse response function). Bæði líkönin má einnig nota til að framkvæma spár. VAR er eflaust betra fyrir skammtímaspár en VEC fyrir langtímaspár þar sem VEC nær utan um langtímasamband breyta sem VAR nær ekki utan um.     
 
-Hér að neðan er hægt að sprengja út þríhyrninginn þar sem farið er ítarlega í gegnum VAR og VEC líkön með kóða í R. Sá hluti er aðeins hugsaður sem viðauki fyrir þá sem hafa áhuga. Hinir geta flett yfir og farið beint í kaflan **VEC líkan** að neðan.   
+Hér að neðan er hægt að sprengja út þríhyrninginn þar sem farið er ítarlega í gegnum VAR og VEC líkön með kóða í R. Sá hluti er aðeins hugsaður sem viðauki fyrir þá sem hafa áhuga. Hinir geta flett yfir og farið beint í kaflann **VEC líkan** að neðan.   
 
 
 <details>
@@ -158,7 +158,7 @@ VAR og VEC líkön eru ein af vinsælustu tölfræðilíkönunum sem hagfræðin
 VEC líkön taka tillit til þess þegar langtímasambanda/samþættingarsamband er á milli breyta. Það verður að teljast líklegt að slíkt samband sé á milli fasteignaverðs og launa og/eða fasteignaverðs og leigu.
 
 Ef tvær ósístæðar tímaraðir (e. non-stationary) verða sístæðar við að taka mismun d sinnum (t.d. einusinni) og til er línulegt samband á milli þessara breyta sem er þáttað (e. integrated) af gráðu d-1, þá eru breyturnar sagðar samþættar. Tökum dæmi.  
-Grafið að neðan sýnir vísitölu íbúðaverðs á höfuðborgarsvæðinu og vísitölu útborgaðra heildarlauna. Af grafinu að dæma virðist vera langtíma samband á milli breytanna þó það komi tímabil þar sem ójafnvægi myndast. Ef það er samþættingarsamband á milli breytann þá mun fyrr eða síðar gapið þarna á milli lokast.  
+Grafið að neðan sýnir vísitölu íbúðaverðs á höfuðborgarsvæðinu og vísitölu útborgaðra heildarlauna. Af grafinu að dæma virðist vera langtíma samband á milli breytanna þó það komi tímabil þar sem ójafnvægi myndast. Ef það er samþættingarsamband á milli breytanna þá mun fyrr eða síðar gapið þarna á milli lokast.  
 
 ```{r coint_graph, echo=TRUE}
 
@@ -286,7 +286,7 @@ vec_irf <- tsDyn::irf(var_from_vec, n.ahead = n_ahead, ci = 0.8)
 
 *Athugið. Gröfin að neðan sýna viðbragð fasteignaverðs á höfuðborgarsvæðinu vegna skells (e. shock) í fimm breytum. Bláa svæðið í kringum viðbragðsfallið er 80% öryggisbil. Ég hallast að bayesískri tölfræði og þar með er ég frekar gagnrýninn á öryggisbil. Auk þess sé ég ekki ástæðu til að nota 95% frekar en 80%. Þegar ég tala um að áhrif séu marktæk þá er ég vissulega að lesa í öryggisbilin.*  
 
-Það sem lesa má út úr viðbragðsföllunum er að hækkun hámarkshlutfalls leiðir til hærra fasteignaverðs og hærri vextir leiða til lægra fasteignaverðs. Það sem vekur athygli er mat líkansins á áhrifum aukinnar skuldsetningar. Áhrifin eru jákvæð fyrsta mánðinn en lítil sem engin eftir það. Ástæðan fyrir þessu kann að vera sú að hámarkslánshlutfall hækkar mikið fyrir hrun sem leiðir til aukinnar skuldsetningar. Áhrifin af aukinni skuldsetningu koma því hugsanlega fram að einhverju leyti í gegnum áhrif hámarkshlutfalls. Hitt sem kemur að óvart er áhrif leigu á fasteignaverð. Hér virðist líkanið pikka upp mikla hækkun leigu á sama tíma og verð fasteigna lækkaði töluvert eftir hrun. Hér mætti bæta við dummy-breytum sem ná hrun-tímabilið. Ástæðan fyrir því að ég geri það ekki hér er að það er kannski ekki auðvelt að skilgreina hvaða tímabil hrunið nær yfir. Þá virðast laun hafa áhrif til hækkunar. Ég skrifað um það áður (á öðrum vettvangi) að launahækkanir geti varla haft áhrif til hækkunar fasteignaverðs, nema þá með mikilli töf. Ef laun hækka mikið á tíma t = 0 þá tekur tíma fyrir heimili að leggja til hliðar og safna fyrir íbúð. Launahækkun á tíma t = 0 leiðir þannig ekki til aukinnar eftirspurnar eftir fasteignum á tíma t = 1,...X, þar sem X er lág tala (mælt í mánuðum).   
+Það sem lesa má út úr viðbragðsföllunum er að hækkun hámarkshlutfalls leiðir til hærra fasteignaverðs og hærri vextir leiða til lægra fasteignaverðs. Það sem vekur athygli er mat líkansins á áhrifum aukinnar skuldsetningar. Áhrifin eru jákvæð fyrsta mánuðinn en lítil sem engin eftir það. Ástæðan fyrir þessu kann að vera sú að hámarkslánshlutfall hækkar mikið fyrir hrun sem leiðir til aukinnar skuldsetningar. Áhrifin af aukinni skuldsetningu koma því hugsanlega fram að einhverju leyti í gegnum áhrif hámarkshlutfalls. Hitt sem kemur að óvart er áhrif leigu á fasteignaverð. Hér virðist líkanið pikka upp mikla hækkun leigu á sama tíma og verð fasteigna lækkaði töluvert eftir hrun. Hér mætti bæta við dummy-breytum sem ná hrun-tímabilið. Ástæðan fyrir því að ég geri það ekki hér er að það er kannski ekki auðvelt að skilgreina hvaða tímabil hrunið nær yfir. Þá virðast laun hafa áhrif til hækkunar. Ég skrifað um það áður (á öðrum vettvangi) að launahækkanir geti varla haft áhrif til hækkunar fasteignaverðs, nema þá með mikilli töf. Ef laun hækka mikið á tíma t = 0 þá tekur tíma fyrir heimili að leggja til hliðar og safna fyrir íbúð. Launahækkun á tíma t = 0 leiðir þannig ekki til aukinnar eftirspurnar eftir fasteignum á tíma t = 1,...X, þar sem X er lág tala (mælt í mánuðum).   
 
 
 ```{r vec_irf_plot}
