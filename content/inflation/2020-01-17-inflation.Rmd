@@ -1,5 +1,5 @@
 ---
-title: Inflation
+title: Verðbólguspá
 author: Vidar
 date: '2020-01-17'
 slug: inflation
@@ -15,9 +15,10 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 
 library(forecast)
 library(tidyverse)
+library(lubridate)
+library(dygraphs)
 
 ```
-
 
 
 ```{r data}
@@ -26,9 +27,25 @@ vnv <- read_csv2("https://px.hagstofa.is:443/pxis/sq/56bced43-7a7a-4406-bc91-fce
 
 colnames(vnv)[3] <- "visitala"
 vnv$visitala <- as.numeric(vnv$visitala)
+vnv <- vnv %>% na.omit()
 
-dags <- seq.Date(from = as.Date("1988-05-01"),
-                 to = as.Date("2019-12-01"),
+# Dagsetningar
+manudir <- data.frame(nafn = unique(vnv$Mánuður),
+                      numer = c(5:12, 1:4))
+
+vnv <- vnv %>% left_join(manudir, by = c("Mánuður" = "nafn"))
+
+first_year <- min(vnv$Ár)
+last_year <- max(vnv$Ár)
+
+first_month <- vnv$numer[1]
+last_month <- vnv$numer[nrow(vnv)]
+
+first_date <- make_date(year = first_year, month = first_month, 1)
+last_date <- make_date(year = last_year, month = last_month, 1)
+
+dags <- seq.Date(from = first_date,
+                 to = last_date,
                  by = "month")
 
 vnv <- vnv %>% 
@@ -37,16 +54,61 @@ vnv <- vnv %>%
 
 vnv$date <- dags
 
-ts_vnv <- ts(vnv$visitala, start = c(1988, 5), frequency = 12)
+
+vnv <- vnv %>% 
+  mutate(infl = visitala/lag(visitala, 12) - 1) %>% 
+  na.omit()
+
+ts_vnv <- ts(vnv$infl, start = c(year(vnv$date[1]), month(vnv$date[1])), frequency = 12)
+
 ```
 
 
 ```{r forecast}
 
-fit <- auto.arima(ts_vnv)
+forecast_date <- seq.Date(from = (last_date + months(1)),
+                          by = "month",
+                          length.out = 12)
 
-fit %>% forecast(h = 12) %>% 
-  autoplot(include = 60)
+fit <- auto.arima(ts_vnv, approximation = FALSE, stepwise = FALSE)
+
+fc <- fit %>% forecast(h = 12, level = c(50, 80)) 
+  # autoplot(include = 60) + 
+  # labs(y = NULL, x = NULL, title = paste("Verðbólguspá", forecast_date[1], "til", forecast_date[length(forecast_date)])) +
+  # scale_y_continuous(labels = scales::percent)
+
+```
+
+
+
+```{r dygr}
+
+fc_dy <- function(fc) {
+  actual = fc$x * 100
+  lower = fc$lower[,2] * 100
+  upper = fc$upper[,2] * 100
+  point_forecast = fc$mean * 100
+  
+  cbind(actual, lower, upper, point_forecast)
+}
+
+fc_data <- fc_dy(fc)
+# markmid <- vector(rep(2.5, nrow(fc_data)))
+# fc_data <- cbind(fc_data, rep(2.5, nrow(fc_data)))
+
+max_date_range <- as.character(max(forecast_date))
+
+dygraph(fc_data, main = "Verðbólguspá") %>% 
+  dyRangeSelector() %>% 
+  dyRangeSelector(height = 40,
+                  dateWindow = c("2011-01-01", max_date_range)) %>%
+  dySeries(name = "actual", label = "Verðbólga") %>% 
+  dySeries(c("lower", "point_forecast", "upper"), label = "Spá") %>% 
+  dyLegend(show = "always", hideOnMouseOut = FALSE) %>% 
+  dyHighlight(highlightCircleSize = 5,
+              highlightSeriesOpts = list(strokeWidth = 2)) %>% 
+  dyOptions(axisLineColor = "navy", gridLineColor = "grey")
+
 
 ```
 
