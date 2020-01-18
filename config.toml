@@ -24,7 +24,6 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
     name = "Verðbólguspá"
     pre = "<i class='fa fa-home fa-fw'></i>"
     weight = 3
-    identifier = "inflation"
     url = "/inflation/"
 [[menu.main]]
     name = "Um síðuna"
