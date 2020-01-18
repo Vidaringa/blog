@@ -81,7 +81,7 @@ fc <- fit %>% forecast(h = 12, level = c(50, 80))
 
 
 
-```{r dygr}
+```{r dygr, fig.width=7}
 
 fc_dy <- function(fc) {
   actual = fc$x * 100
@@ -98,7 +98,7 @@ fc_data <- fc_dy(fc)
 
 max_date_range <- as.character(max(forecast_date))
 
-dygraph(fc_data, main = "Verðbólguspá") %>% 
+dygraph(fc_data) %>% 
   dyRangeSelector() %>% 
   dyRangeSelector(height = 40,
                   dateWindow = c("2011-01-01", max_date_range)) %>%
