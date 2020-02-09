@@ -22,6 +22,7 @@ library(dygraphs)
 
 
 ```{r data}
+a <- 2
 vnv <- read_csv2("https://px.hagstofa.is:443/pxis/sq/56bced43-7a7a-4406-bc91-fceeaa46ed55",
                  locale = locale(encoding = "latin1"))
 
