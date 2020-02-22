@@ -1,0 +1,211 @@
+---
+title: Ferðamenn á Íslandi
+author: ''
+date: '2020-02-09'
+slug: ferðamenn-á-íslandi
+categories: []
+tags: []
+description: ''
+topics: []
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(tidyverse)
+library(lubridate)
+library(knitr)
+library(WDI)
+library(ggthemes)
+library(DT)
+# library(rvest)
+
+options(kableExtra.html.bsTable = TRUE)
+
+```
+
+
+```{r UN_listi}
+# listi af löndum skv. UN
+# lond <- "https://www.worldometers.info/united-nations/" %>% 
+#   read_html() %>% 
+#   html_nodes("td.text") %>%
+#   html_text() %>% 
+#   parse_character()
+# 
+# lond <- str_replace_all(string = lond, pattern = " \\[*(\\d)*\\]", replacement = "")
+# 
+# lond <- tibble(country = as.character(lond),
+#                lond = as.character(lond))
+
+# iso_code <- readxl::read_excel("C:/Users/vidar/Documents/Rwd/blog/content/post/data/iso.xlsx") %>% select(iso2, country)
+iso_code <- readxl::read_excel("./data/iso.xlsx") %>% select(iso2, country)
+
+# WDI gögn
+# df <- read_csv("C:/Users/vidar/Documents/Rwd/blog/content/post/data/wdi_tourism.csv")
+df <- read_csv("./data/wdi_tourism.csv")
+
+df <- df %>% 
+  left_join(iso_code, by = c("iso2c" = "iso2")) %>% 
+  filter(!(is.na(country.y))) %>% 
+  select(-c(country.y, iso2c)) %>% 
+  na.omit()
+
+names(df) <- c("country", "ferdamenn", "year")
+
+island_auka <- tibble(country = c("Iceland", "Iceland"),
+                      ferdamenn = c(2344000, 2015172),
+                      year = c(2018, 2019))
+
+df <- df %>% 
+  bind_rows(island_auka)
+
+```
+
+
+
+```{r data}
+
+
+df_calc <- df %>% 
+  group_by(country) %>% 
+  # filter(year <= 2017) %>% 
+  mutate(fjolgun_5ar = ferdamenn/lag(ferdamenn, 5) - 1,
+         fjolgun_200 = ifelse(any(fjolgun_5ar >= 2), ">= 200%", "< 200%"),
+         help_vector = ifelse(fjolgun_5ar >= 2,  year, 5000)) %>% 
+  filter(year >= min(help_vector, na.rm = TRUE)) %>% 
+  mutate(index_ar = year - min(year),
+         delta_1ar = ferdamenn/lag(ferdamenn),
+         island = ifelse(country == "Icleand", "Ísland", "Önnur lönd"))
+  
+
+df_calc$delta_1ar[is.na(df_calc$delta_1ar)] <- 1
+
+df_calc <- df_calc %>% 
+  group_by(country) %>% 
+  mutate(running_prod = cumprod(delta_1ar))
+
+
+# Eftir að hafa náð 200% á 5 árum, er eitthvað land þar sem ferðamönnum fækkaði 
+df_calc <- df_calc %>% 
+  group_by(country) %>% 
+  mutate(rel_to_t0 = ferdamenn/ferdamenn[1] - 1) %>% 
+  ungroup()
+
+```
+
+
+
+Þann 17. janúar birtist grein í Vísbendingu eftir Gylfa Zöega og síðar á Kjarnanum. Greinina má lesa [hér](https://kjarninn.is/skodun/2020-02-08-efnahagslif-i-halaunalandi/). Þar fjallar Gylfi meðal annars um fjölda ferðmanna á Íslandi og mögulega ástæðu fyrir fækkun þeirra. Gylfi skrifar: 
+
+*Ein möguleg undirliggjandi ástæða þess að ferða mönnum hefur fækkað er sú að ferðamannastaðir fari í gegnum mismunandi „æviskeið“: Í upphafi koma ferðamenn sem uppgötva landið, þeir segja síðan öðrum frá og fleiri ferðamenn fylgja í fótspor hinna fyrstu, heimamenn fjárfesta í nýjum gististöðum og veitingastöðum og aukið framboð kallar á enn fleiri ferðamenn, markaðssetning eykst og vinsældir vaxa.* 
+
+*En svo kemur að því að fráhrindikraftar myndast, það verður þröngt á þingi á helstu ferðamannastöðum og upplifun ekki sú sama og gistirými skortir og það verður dýrt. Þá spyrst út að gisting sé dýr og fjöldi ferðamanna mikill og kannski heimamenn búnir að fá nóg af atganginum, orðspor landsins versnar og ferðamönnum tekur að fækka. Gististaðir verða ódýrari og fjárfestar geta orðið fyrir tjóni.*  
+
+Ég benti á það á Twitter að engin gögn myndu styðja þessa kenningu.  
+```{r}
+blogdown::shortcode('tweet', '1226241510146035712')
+```
+  
+
+Í þessum pósti mun ég uppfæra grein sem ég skrifaði í Vísbendingu fyrir um tveimur árum síðan um þróun á fjölda erlendra ferðmananna. Þar kannaði ég hvort ferðamannastaðir færu í gegnum einhvers konar æviskeið, þ.e. að ferðamannastaðir yrðu vinsælir en myndu síðan "detta úr tísku". Hér mun ég uppfæra þá greiningu og bæta við gröfum og töflum.  
+
+
+## Detta ferðamannastaðir úr tísku?
+Í upphaflegri grein skoðaði ég hvernig fjöldi ferðamanna myndi þróast eftir að hafa vaxið hratt á stuttum tíma. Þar miðaði ég við 200% fjölgun á fimm árum. Ég mun fara sömu leið hér. Gögnin sem ég nota koma frá [Alþjóðabankanum](https://data.worldbank.org/indicator/ST.INT.ARVL).  
+
+Grafið að neðan sýnir þróun frá því ári sem lönd náðu viðmiðinu um 200% fjölgun ferðamanna á fimm árum. Alls hafa 47 lönd náð þessu viðmiði á tímabilinu 1995 - 2017, þar með Ísland. Algengast er að fjöldi ferðamanna haldi áfram að aukast þó aukningin sé að jafnaði hægari en árin fimm á undan. Grafið sýnir einnig að í einhverju tilfellum fækkaði ferðamönnum eftir að hafa náð viðmiðinu, þetta er sýnt með appelsínugulum punktum.  
+
+
+```{r}
+
+df_plot <- df_calc %>% 
+  filter(index_ar %in% 0:5) %>% 
+  group_by(index_ar) %>% 
+  mutate(rel_sign = rel_to_t0 < 0,
+         midgildi = mean(rel_to_t0))
+
+isl <- df_calc %>% 
+  filter(country == "Iceland",
+         index_ar %in% 0:15) %>% 
+  group_by(index_ar) %>% 
+  summarise(iceland = mean(rel_to_t0))
+
+df_plot <- df_plot %>% 
+  left_join(isl)
+
+
+texti <- "> 200% aukning \ná fimm árum"
+
+ggplot(df_plot,
+       aes(x = index_ar, y = rel_to_t0, col = rel_sign)) +
+  geom_jitter(width = 0.1) +
+  xlim(-2,5) + 
+  geom_rect(xmin = -2, xmax = 0, ymin = -1, ymax = 6, 
+            fill = "lightgrey", alpha = 0.3, col = NA) + 
+  geom_point(aes(y = midgildi), col = rgb(33, 186, 69, maxColorValue = 255), size = 4) + 
+  geom_line(aes(y = midgildi), col = rgb(33, 186, 69, maxColorValue = 255), linetype = "dashed") + 
+  geom_point(aes(y = iceland), col = rgb(214, 39, 40, maxColorValue = 255), size = 4) + 
+  geom_line(aes(y = iceland), col = rgb(214, 39, 40, maxColorValue = 255), linetype = "dashed") + 
+  
+  scale_color_tableau() +
+  theme_classic() +
+  # geom_hline(yintercept = 0, col = "lightgrey", linetype = "dashed") +
+  labs(x = "Ár frá því að viðmið náðist",
+       y = "Uppsafnaður vöxtur",
+       title = "Þróun á fjölda erlendra ferðamanna 47 landa sem náðu viðmiðinu",
+       subtitle = "Grænir punktar tákna miðgildisþróun og þeir rauðu Ísland") +
+  theme(legend.position = "none") +
+  scale_y_continuous(labels = scales::percent) +
+  annotate(geom = "text", x = -1, y = 3, label = (texti), size = 5, col = "darkblue") +
+  scale_x_continuous(breaks = seq(0, 4, by = 2), limits = c(-2, NA))
+
+
+```
+
+
+Í hluta þeirra landa sem náðu viðmiðinu fækkaði ferðamönnum í kjölfarið. Hér er ár **núll** í raun sá tími sem land náði viðmiðinu. Fyrsta árið eftir að hafa vaxið um 200% á fimm árum fækkaði ferðamönnum í tæplega fjórðungi landa. Í flestum tilfellum var sú fækkun þó tímabundin. Fimm árum eftir að hafa náð viðmiðinu voru aðeins 10% landa enn undir fjölda ferðamanna á ári "**núll**". Líkurnar eru því með Íslandi um að fjöldi ferðamanna muni ekki fækka um of á næstu árum.  
+
+
+```{r}
+df_tafla <- df_calc %>% 
+  filter(index_ar <= 5) %>% 
+  mutate(rel_sign = rel_to_t0 < 0) %>% 
+  group_by(index_ar) %>% 
+  summarise(hlutfall_undir = mean(rel_sign),
+            Fjoldi = n())
+
+colnames(df_tafla) <- c("Ár frá viðmiði", "Hlutfall þar sem ferðamönnum fækkaði", "Fjöldi landa")
+df_tafla$`Hlutfall þar sem ferðamönnum fækkaði` <- scales::percent(df_tafla$`Hlutfall þar sem ferðamönnum fækkaði`, 0.01)
+
+df_tafla %>% datatable(rownames = FALSE) %>% formatStyle(colnames(df_tafla), `text-align` = 'center')
+
+```
+
+Taflan að neðan sýnir hvaða lönd hafa séð fækkun erlendra ferðamanna eftir að hafa vaxið um 200% á fimm árum. Oft er þetta á tímum einhvers konar óstöðugs ástands í viðkomandi landi. Allt frá pólitískum óstöðugleika yfir í óeirðir. Pólitískur óstöðugleiki einn og sér er mögulega ekki nóg til að fæla frá ferðamenn. Annað sem gæti valdið því fækkun ferðamanna í neðangreindum löndum er ástand í því landi sem flestir ferðamenn koma frá. Slíkt er þó öllu erfiðara að fá gögn yfir. 
+
+```{r}
+
+tafla_year <- df_calc %>%
+  filter(index_ar %in% 1:5) %>% 
+  mutate(rel_sign = rel_to_t0 < 0) %>% 
+  filter(rel_sign == TRUE) %>% 
+  select(country, index_ar, year) %>% 
+  pivot_wider(names_from = index_ar,
+              values_from = year) %>% 
+  select(country, `1`, `2`, `3`, `4`, `5`)
+
+colnames(tafla_year) <- c("country", "a","b","c","d","e")
+
+tafla_year <- tafla_year %>% 
+  mutate_if(is.numeric, as.character) %>% 
+  unite("Ár", a:e, na.rm = TRUE, sep = "-")
+
+
+tafla_year %>% datatable(rownames = FALSE) %>% formatStyle(colnames(tafla_year), `text-align` = 'center')
+
+```
+
+
+Út frá þeim gögnum sem ég hef skoðað á ég mjög erfitt með að sjá að lönd fari í gegnum einhvers konar æviskeið. Vissulega geta komið upp aðstæður þannig að ferðamönnum fækki tímabundið. Ég á erfitt með að trúa því að ferðamönnum muni fækka vegna verðlags. Verðlag hefur ekki stoppað yfir sex miljónir ferðamanna að heimsækja Noreg eða tæplega tíu milljónir ferðamanna að heimsækja Sviss, bæði lönd sem eru álíka dýr, eða dýrari, en Ísland.  
