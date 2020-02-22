@@ -67,13 +67,14 @@ df <- df %>%
 
 ```{r data}
 
+fjolgun <- 1.5
 
 df_calc <- df %>% 
   group_by(country) %>% 
   # filter(year <= 2017) %>% 
   mutate(fjolgun_5ar = ferdamenn/lag(ferdamenn, 5) - 1,
-         fjolgun_200 = ifelse(any(fjolgun_5ar >= 2), ">= 200%", "< 200%"),
-         help_vector = ifelse(fjolgun_5ar >= 2,  year, 5000)) %>% 
+         fjolgun_200 = ifelse(any(fjolgun_5ar >= fjolgun), ">= 150%", "< 150%"),
+         help_vector = ifelse(fjolgun_5ar >= fjolgun,  year, 5000)) %>% 
   filter(year >= min(help_vector, na.rm = TRUE)) %>% 
   mutate(index_ar = year - min(year),
          delta_1ar = ferdamenn/lag(ferdamenn),
@@ -93,13 +94,14 @@ df_calc <- df_calc %>%
   mutate(rel_to_t0 = ferdamenn/ferdamenn[1] - 1) %>% 
   ungroup()
 
+fjoldi_landa <- n_distinct(df_calc$country)
 ```
 
 
 
 Þann 17. janúar birtist grein í Vísbendingu eftir Gylfa Zöega og síðar á Kjarnanum. Greinina má lesa [hér](https://kjarninn.is/skodun/2020-02-08-efnahagslif-i-halaunalandi/). Þar fjallar Gylfi meðal annars um fjölda ferðmanna á Íslandi og mögulega ástæðu fyrir fækkun þeirra. Gylfi skrifar: 
 
-*Ein möguleg undirliggjandi ástæða þess að ferða mönnum hefur fækkað er sú að ferðamannastaðir fari í gegnum mismunandi „æviskeið“: Í upphafi koma ferðamenn sem uppgötva landið, þeir segja síðan öðrum frá og fleiri ferðamenn fylgja í fótspor hinna fyrstu, heimamenn fjárfesta í nýjum gististöðum og veitingastöðum og aukið framboð kallar á enn fleiri ferðamenn, markaðssetning eykst og vinsældir vaxa.* 
+*Ein möguleg undirliggjandi ástæða þess að ferðamönnum hefur fækkað er sú að ferðamannastaðir fari í gegnum mismunandi „æviskeið“: Í upphafi koma ferðamenn sem uppgötva landið, þeir segja síðan öðrum frá og fleiri ferðamenn fylgja í fótspor hinna fyrstu, heimamenn fjárfesta í nýjum gististöðum og veitingastöðum og aukið framboð kallar á enn fleiri ferðamenn, markaðssetning eykst og vinsældir vaxa.* 
 
 *En svo kemur að því að fráhrindikraftar myndast, það verður þröngt á þingi á helstu ferðamannastöðum og upplifun ekki sú sama og gistirými skortir og það verður dýrt. Þá spyrst út að gisting sé dýr og fjöldi ferðamanna mikill og kannski heimamenn búnir að fá nóg af atganginum, orðspor landsins versnar og ferðamönnum tekur að fækka. Gististaðir verða ódýrari og fjárfestar geta orðið fyrir tjóni.*  
 
@@ -109,13 +111,13 @@ blogdown::shortcode('tweet', '1226241510146035712')
 ```
   
 
-Í þessum pósti mun ég uppfæra grein sem ég skrifaði í Vísbendingu fyrir um tveimur árum síðan um þróun á fjölda erlendra ferðmananna. Þar kannaði ég hvort ferðamannastaðir færu í gegnum einhvers konar æviskeið, þ.e. að ferðamannastaðir yrðu vinsælir en myndu síðan "detta úr tísku". Hér mun ég uppfæra þá greiningu og bæta við gröfum og töflum.  
+Í þessum pósti mun ég uppfæra grein sem ég skrifaði í Vísbendingu fyrir um tveimur árum síðan um þróun á fjölda erlendra ferðamanna Þar kannaði ég hvort ferðamannastaðir færu í gegnum einhvers konar æviskeið, þ.e. að ferðamannastaðir yrðu vinsælir en myndu síðan "detta úr tísku". Hér mun ég uppfæra þá greiningu og bæta við gröfum og töflum.  
 
 
 ## Detta ferðamannastaðir úr tísku?
-Í upphaflegri grein skoðaði ég hvernig fjöldi ferðamanna myndi þróast eftir að hafa vaxið hratt á stuttum tíma. Þar miðaði ég við 200% fjölgun á fimm árum. Ég mun fara sömu leið hér. Gögnin sem ég nota koma frá [Alþjóðabankanum](https://data.worldbank.org/indicator/ST.INT.ARVL).  
+Í upphaflegri grein skoðaði ég hvernig fjöldi ferðamanna myndi þróast eftir að hafa vaxið hratt á stuttum tíma. Þar miðaði ég við 200% fjölgun á fimm árum. Hér mun ég miða við 150% aukningu á fimm árum eða um 20% á ári að jafnaði. Gögnin sem ég nota koma frá [Alþjóðabankanum](https://data.worldbank.org/indicator/ST.INT.ARVL).  
 
-Grafið að neðan sýnir þróun frá því ári sem lönd náðu viðmiðinu um 200% fjölgun ferðamanna á fimm árum. Alls hafa 47 lönd náð þessu viðmiði á tímabilinu 1995 - 2017, þar með Ísland. Algengast er að fjöldi ferðamanna haldi áfram að aukast þó aukningin sé að jafnaði hægari en árin fimm á undan. Grafið sýnir einnig að í einhverju tilfellum fækkaði ferðamönnum eftir að hafa náð viðmiðinu, þetta er sýnt með appelsínugulum punktum.  
+Grafið að neðan sýnir þróun frá því ári sem lönd náðu viðmiðinu um 150% aukningu ferðamanna á fimm árum. Alls hafa `r fjoldi_landa` land náð þessu viðmiði á tímabilinu 1995 - 2017, þar með Ísland. Algengast er að fjöldi ferðamanna haldi áfram að aukast þó aukningin sé að jafnaði hægari en árin fimm á undan. Grafið sýnir einnig að í einhverju tilfellum fækkaði ferðamönnum eftir að hafa náð viðmiðinu, þetta er sýnt með appelsínugulum punktum.  
 
 
 ```{r}
@@ -136,7 +138,7 @@ df_plot <- df_plot %>%
   left_join(isl)
 
 
-texti <- "> 200% aukning \ná fimm árum"
+texti <- "> 150% aukning \ná fimm árum"
 
 ```
 
@@ -160,11 +162,11 @@ ggplot(df_plot,
                                 "#4E79A7", "#F28E2B"),
                      labels = c("Meðalþróun", "Ísland",
                                 "Lönd yfir fjölda á ári núll",
-                                "Lönd undir fjöla á ári núll")) +
+                                "Lönd undir fjölda á ári núll")) +
   
   labs(x = "Ár frá því að viðmið náðist",
-       y = "Uppsafnaður vöxtur",
-       title = "Þróun á fjölda erlendra ferðamanna 47 landa sem náðu viðmiðinu") + 
+       y = "Uppsafnaður vöxtur frá ári núll",
+       title = "Þróun á fjölda erlendra ferðamanna 61 landa sem náðu viðmiðinu") + 
   
   scale_y_continuous(labels = scales::percent) +
   scale_x_continuous(breaks = seq(0, 4, by = 2),
@@ -177,7 +179,7 @@ ggplot(df_plot,
 
 
 
-Í hluta þeirra landa sem náðu viðmiðinu fækkaði ferðamönnum í kjölfarið. Hér er ár **núll** í raun sá tími sem land náði viðmiðinu. Fyrsta árið eftir að hafa vaxið um 200% á fimm árum fækkaði ferðamönnum í tæplega fjórðungi landa. Í flestum tilfellum var sú fækkun þó tímabundin. Fimm árum eftir að hafa náð viðmiðinu voru aðeins 10% landa enn undir fjölda ferðamanna á ári "**núll**". Líkurnar eru því með Íslandi um að fjöldi ferðamanna muni ekki fækka um of á næstu árum.  
+Í hluta þeirra landa sem náðu viðmiðinu fækkaði ferðamönnum í kjölfarið. Hér er ár **núll** í raun sá tími sem land náði viðmiðinu. Fyrsta árið eftir að hafa vaxið um 150% á fimm árum fækkaði ferðamönnum í fimmtungi landa. 
 
 
 ```{r}
@@ -195,7 +197,7 @@ df_tafla %>% datatable(rownames = FALSE) %>% formatStyle(colnames(df_tafla), `te
 
 ```
 
-Taflan að neðan sýnir hvaða lönd hafa séð fækkun erlendra ferðamanna eftir að hafa vaxið um 200% á fimm árum. Oft er þetta á tímum einhvers konar óstöðugs ástands í viðkomandi landi. Allt frá pólitískum óstöðugleika yfir í óeirðir. Pólitískur óstöðugleiki einn og sér er mögulega ekki nóg til að fæla frá ferðamenn. Annað sem gæti valdið því fækkun ferðamanna í neðangreindum löndum er ástand í því landi sem flestir ferðamenn koma frá. Slíkt er þó öllu erfiðara að fá gögn yfir. 
+Taflan að neðan sýnir hvaða lönd hafa séð fækkun erlendra ferðamanna eftir að hafa vaxið um 150% á fimm árum. Oft er þetta á tímum einhvers konar óstöðugs ástands í viðkomandi landi (þetta er þó ekki algilt). Allt frá pólitískum óstöðugleika yfir í óeirðir. Pólitískur óstöðugleiki einn og sér er mögulega ekki nóg til að fæla frá ferðamenn. Annað sem gæti valdið því fækkun ferðamanna í neðangreindum löndum er ástand í því landi sem flestir ferðamenn koma frá. Slíkt er þó öllu erfiðara að fá gögn yfir. Einhver kann að velta fyrir sér hvað var í gangi í Danmörku á árunum 2008-2010. Þar fara mögulega saman kraftar efnahagshruns og tilraun til að bana teiknaranum Kurt Westergaard eftir teikningar af Múhameð spámanni.  
 
 ```{r}
 
@@ -220,4 +222,4 @@ tafla_year %>% datatable(rownames = FALSE) %>% formatStyle(colnames(tafla_year),
 ```
 
 
-Út frá þeim gögnum sem ég hef skoðað á ég mjög erfitt með að sjá að lönd fari í gegnum einhvers konar æviskeið. Vissulega geta komið upp aðstæður þannig að ferðamönnum fækki tímabundið. Ég á erfitt með að trúa því að ferðamönnum muni fækka vegna verðlags. Verðlag hefur ekki stoppað yfir sex miljónir ferðamanna að heimsækja Noreg eða tæplega tíu milljónir ferðamanna að heimsækja Sviss, bæði lönd sem eru álíka dýr, eða dýrari, en Ísland.  
+Út frá þeim gögnum sem ég hef skoðað á ég mjög erfitt með að sjá að lönd fari í gegnum einhvers konar æviskeið. Vissulega geta komið upp aðstæður þannig að ferðamönnum fækki tímabundið. Ég á erfitt með að trúa því að ferðamönnum muni fækka vegna verðlags eins og sér. Verðlag hefur ekki stoppað yfir sex miljónir ferðamanna að heimsækja Noreg eða tæplega tíu milljónir ferðamanna að heimsækja Sviss, bæði lönd sem eru álíka dýr, eða dýrari, en Ísland.  
