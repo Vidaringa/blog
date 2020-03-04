@@ -1,0 +1,73 @@
+---
+title: COVID-19
+author: ''
+date: '2020-03-02'
+slug: covid
+categories: []
+tags: []
+description: ''
+topics: []
+draft: true
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(forecast)
+library(tidyverse)
+library(lubridate)
+library(rprojroot)
+
+root <- is_rstudio_project
+
+```
+
+
+```{r data}
+
+df <- readxl::read_excel(root$find_file("content", "covid", "smit.xlsx"))
+df$date <- as.Date(df$date)
+df$what = "raun"
+
+```
+
+
+```{r forecast}
+horizon = 5
+ts_cov <- ts(df$smit)
+fit_ets <- ets(ts_cov,
+               allow.multiplicative.trend = TRUE,
+               restrict = FALSE)
+
+fc_ets <- forecast(fit_ets, h = horizon)
+
+fc_date <- seq.Date(from = today() + 1,
+                    length.out = horizon,
+                    by = "day")
+
+
+df_fc <- tibble(date = fc_date,
+                what = "Spá",
+                smit = fc_ets$mean)
+
+# min og max
+df_fc
+
+
+```
+
+
+
+```{r plot}
+
+
+g_covid <- ggplot(df,
+                  aes(x = date,
+                      y = value)) +
+  geom_point() +
+  geom_line()
+
+
+```
+
